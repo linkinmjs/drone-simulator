@@ -6,3 +6,6 @@ export_presets.cfg
 export/
 
 .mono/
+
+# Android build template
+/android/

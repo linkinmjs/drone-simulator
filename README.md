@@ -1,6 +1,9 @@
 # Godot Drone
 This is a drone simulation made in Godot. You can fly around as you want or try racing along some MultiGP tracks I recreated.
 
+## Godot 4.7 fork
+This copy is based on the `big-refactoring` branch of [Cykyrios/GodotDrone](https://github.com/Cykyrios/GodotDrone) (the upstream port to Godot 4.6) and has been adapted to run on **Godot 4.7** (Forward+ renderer, built-in Jolt physics). The original project is licensed under the GPL-3.0, see `LICENSE`. Upstream history is kept in git under the `upstream` remote.
+
 ## Quad customization
 You can tweak the camera angle as well as the weight of both the drone itself and the battery. Want to do some freestyle? 700g is about right for a quad equipped with an action camera. Fancy a race? 300g is probably closer to actual racers.
 

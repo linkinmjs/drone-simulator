@@ -15,6 +15,7 @@ func _post_import(scene: Node) -> Object:
 		sb.set_owner(scene)
 		sb.name = node_name
 		sb.transform = node.transform
+		node.owner = null
 		scene.remove_child(node)
 		sb.add_child(node)
 		node.set_owner(scene)

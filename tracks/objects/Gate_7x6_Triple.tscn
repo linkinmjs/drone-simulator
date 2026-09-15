@@ -68,44 +68,44 @@ size = Vector3(1.5, 0.3, 0.025)
 [sub_resource type="BoxShape3D" id="BoxShape3D_n3auu"]
 size = Vector3(1.5, 0.3, 0.025)
 
-[node name="Gate_7x6_Triple" type="StaticBody3D" unique_id=1870423320]
+[node name="Gate_7x6_Triple" type="StaticBody3D" unique_id=1120438606]
 
-[node name="Gate_7x6_Triple_Mesh" type="MeshInstance3D" parent="." unique_id=2097708504]
+[node name="Gate_7x6_Triple_Mesh" type="MeshInstance3D" parent="." unique_id=1310409117]
 gi_mode = 0
 mesh = SubResource("ArrayMesh_w6l1l")
 
-[node name="Gate_7x6_Triple-col1" type="CollisionShape3D" parent="." unique_id=1162431921]
+[node name="Gate_7x6_Triple-col1" type="CollisionShape3D" parent="." unique_id=230182324]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2750001, 0.9, 0)
 shape = SubResource("BoxShape3D_if6ba")
 
-[node name="Gate_7x6_Triple-col2" type="CollisionShape3D" parent="." unique_id=2124731922]
+[node name="Gate_7x6_Triple-col2" type="CollisionShape3D" parent="." unique_id=183584718]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2750001, 3.3000002, 0)
 shape = SubResource("BoxShape3D_wal54")
 
-[node name="Gate_7x6_Triple-col3" type="CollisionShape3D" parent="." unique_id=1405865864]
+[node name="Gate_7x6_Triple-col3" type="CollisionShape3D" parent="." unique_id=363284068]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2750001, 5.7000003, 0)
 shape = SubResource("BoxShape3D_p7d06")
 
-[node name="Gate_7x6_Triple-col4" type="CollisionShape3D" parent="." unique_id=501007609]
+[node name="Gate_7x6_Triple-col4" type="CollisionShape3D" parent="." unique_id=1663587726]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2750001, 0.9, 0)
 shape = SubResource("BoxShape3D_3yu36")
 
-[node name="Gate_7x6_Triple-col5" type="CollisionShape3D" parent="." unique_id=1577998933]
+[node name="Gate_7x6_Triple-col5" type="CollisionShape3D" parent="." unique_id=998716112]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2750001, 3.3000002, 0)
 shape = SubResource("BoxShape3D_ypsx8")
 
-[node name="Gate_7x6_Triple-col6" type="CollisionShape3D" parent="." unique_id=1625799325]
+[node name="Gate_7x6_Triple-col6" type="CollisionShape3D" parent="." unique_id=574430661]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2750001, 5.7000003, 0)
 shape = SubResource("BoxShape3D_cgttk")
 
-[node name="Gate_7x6_Triple-col7" type="CollisionShape3D" parent="." unique_id=583305490]
+[node name="Gate_7x6_Triple-col7" type="CollisionShape3D" parent="." unique_id=607987615]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
 shape = SubResource("BoxShape3D_i0sdi")
 
-[node name="Gate_7x6_Triple-col8" type="CollisionShape3D" parent="." unique_id=1339404787]
+[node name="Gate_7x6_Triple-col8" type="CollisionShape3D" parent="." unique_id=635418486]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 0)
 shape = SubResource("BoxShape3D_2vlcb")
 
-[node name="Gate_7x6_Triple-col9" type="CollisionShape3D" parent="." unique_id=1113214011]
+[node name="Gate_7x6_Triple-col9" type="CollisionShape3D" parent="." unique_id=1265677280]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.9, 0)
 shape = SubResource("BoxShape3D_n3auu")

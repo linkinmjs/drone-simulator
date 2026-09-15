@@ -74,39 +74,39 @@ radius = 0.025000002
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_xgcy1"]
 points = PackedVector3Array(-1, 5, -0.005, -1, 1.3, 0.005, -1, 1.3, -0.005, -1, 5, -0.005, -1, 5, 0.005, -1, 1.3, 0.005, 0, 4, -0.005, -1, 1.3, -0.005, 0, 1, -0.005, 0, 4, -0.005, -1, 5, -0.005, -1, 1.3, -0.005, -0.0277, 4.2446, -0.005, -1, 5, -0.005, 0, 4, -0.005, -0.22479999, 4.5771, -0.005, -1, 5, -0.005, -0.0277, 4.2446, -0.005, -0.62839997, 4.8842998, -0.005, -1, 5, -0.005, -0.22479999, 4.5771, -0.005, 0, 4, 0.005, 0, 1, -0.005, 0, 1, 0.005, 0, 4, 0.005, 0, 4, -0.005, 0, 1, -0.005, -1, 1.3, 0.005, 0, 4, 0.005, 0, 1, 0.005, -1, 5, 0.005, 0, 4, 0.005, -1, 1.3, 0.005, -1, 5, 0.005, -0.0277, 4.2446, 0.005, 0, 4, 0.005, -1, 5, 0.005, -0.22479999, 4.5771, 0.005, -0.0277, 4.2446, 0.005, -1, 5, 0.005, -0.62839997, 4.8842998, 0.005, -0.22479999, 4.5771, 0.005, -1, 1.3, -0.005, 0, 1, 0.005, 0, 1, -0.005, -1, 1.3, -0.005, -1, 1.3, 0.005, 0, 1, 0.005, -0.62839997, 4.8842998, 0.005, -0.22479999, 4.5771, -0.005, -0.22479999, 4.5771, 0.005, -0.62839997, 4.8842998, 0.005, -0.62839997, 4.8842998, -0.005, -0.22479999, 4.5771, -0.005, -1, 5, 0.005, -0.62839997, 4.8842998, -0.005, -0.62839997, 4.8842998, 0.005, -1, 5, 0.005, -1, 5, -0.005, -0.62839997, 4.8842998, -0.005, -0.0277, 4.2446, 0.005, 0, 4, -0.005, 0, 4, 0.005, -0.0277, 4.2446, 0.005, -0.0277, 4.2446, -0.005, 0, 4, -0.005, -0.22479999, 4.5771, 0.005, -0.0277, 4.2446, -0.005, -0.0277, 4.2446, 0.005, -0.22479999, 4.5771, 0.005, -0.22479999, 4.5771, -0.005, -0.0277, 4.2446, -0.005)
 
-[node name="Flag" type="StaticBody3D" unique_id=896748022]
+[node name="Flag" type="StaticBody3D" unique_id=1066961747]
 
-[node name="Flag_Mesh" type="MeshInstance3D" parent="." unique_id=1457643818]
+[node name="Flag_Mesh" type="MeshInstance3D" parent="." unique_id=1390085649]
 gi_mode = 0
 mesh = SubResource("ArrayMesh_oo8ja")
 
-[node name="Flag-col1" type="CollisionShape3D" parent="." unique_id=26457496]
+[node name="Flag-col1" type="CollisionShape3D" parent="." unique_id=787418751]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 shape = SubResource("CylinderShape3D_fa7ao")
 
-[node name="Flag-col2" type="CollisionShape3D" parent="." unique_id=1324107599]
+[node name="Flag-col2" type="CollisionShape3D" parent="." unique_id=666433217]
 transform = Transform3D(0.98768836, -0.15643449, 0, 0.15643449, 0.98768836, 0, 0, 0, 1, -0.018000001, 4.12, 0)
 shape = SubResource("CylinderShape3D_nq0ou")
 
-[node name="Flag-col3" type="CollisionShape3D" parent="." unique_id=1099199160]
+[node name="Flag-col3" type="CollisionShape3D" parent="." unique_id=67561816]
 transform = Transform3D(0.89493436, -0.44619787, 0, 0.44619787, 0.89493436, 0, 0, 0, 1, -0.09, 4.35, 0)
 shape = SubResource("CylinderShape3D_j5mpn")
 
-[node name="Flag-col4" type="CollisionShape3D" parent="." unique_id=1968622483]
+[node name="Flag-col4" type="CollisionShape3D" parent="." unique_id=1270285808]
 transform = Transform3D(0.76040596, -0.64944804, 0, 0.64944804, 0.76040596, 0, 0, 0, 1, -0.23, 4.555, 0)
 shape = SubResource("CylinderShape3D_gvwq5")
 
-[node name="Flag-col5" type="CollisionShape3D" parent="." unique_id=23091620]
+[node name="Flag-col5" type="CollisionShape3D" parent="." unique_id=1221128763]
 transform = Transform3D(0.6087614, -0.7933533, 0, 0.7933533, 0.6087614, 0, 0, 0, 1, -0.415, 4.73, 0)
 shape = SubResource("CylinderShape3D_xegui")
 
-[node name="Flag-col6" type="CollisionShape3D" parent="." unique_id=1183551156]
+[node name="Flag-col6" type="CollisionShape3D" parent="." unique_id=116009078]
 transform = Transform3D(0.4461979, -0.89493436, 0, 0.89493436, 0.4461979, 0, 0, 0, 1, -0.64, 4.87, 0)
 shape = SubResource("CylinderShape3D_u0nuf")
 
-[node name="Flag-col7" type="CollisionShape3D" parent="." unique_id=1778363497]
+[node name="Flag-col7" type="CollisionShape3D" parent="." unique_id=2076075092]
 transform = Transform3D(0.26723835, -0.96363044, 0, 0.96363044, 0.26723835, 0, 0, 0, 1, -0.905, 4.97, 0)
 shape = SubResource("CylinderShape3D_wcvrk")
 
-[node name="Flag-colmesh" type="CollisionShape3D" parent="." unique_id=2004920372]
+[node name="Flag-colmesh" type="CollisionShape3D" parent="." unique_id=351393991]
 shape = SubResource("ConvexPolygonShape3D_xgcy1")

@@ -44,12 +44,12 @@ shadow_mesh = SubResource("ArrayMesh_8gxhy")
 [sub_resource type="BoxShape3D" id="BoxShape3D_283tg"]
 size = Vector3(1.5, 0.75, 0.025)
 
-[node name="Hurdle_10x5" type="StaticBody3D" unique_id=1735936734]
+[node name="Hurdle_10x5" type="StaticBody3D" unique_id=1760807727]
 
-[node name="Hurdle_10x5_Mesh" type="MeshInstance3D" parent="." unique_id=2038879293]
+[node name="Hurdle_10x5_Mesh" type="MeshInstance3D" parent="." unique_id=155666106]
 gi_mode = 0
 mesh = SubResource("ArrayMesh_72agb")
 
-[node name="Hurdle_10x5-col" type="CollisionShape3D" parent="." unique_id=1162926799]
+[node name="Hurdle_10x5-col" type="CollisionShape3D" parent="." unique_id=2095215609]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
 shape = SubResource("BoxShape3D_283tg")

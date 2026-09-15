@@ -50,20 +50,20 @@ size = Vector3(0.225, 0.9, 0.025)
 [sub_resource type="BoxShape3D" id="BoxShape3D_240ol"]
 size = Vector3(1.5, 0.3, 0.025)
 
-[node name="Gate_7x6_Simple" type="StaticBody3D" unique_id=278391809]
+[node name="Gate_7x6_Simple" type="StaticBody3D" unique_id=1281022951]
 
-[node name="Gate_7x6_Simple_Mesh" type="MeshInstance3D" parent="." unique_id=1300919198]
+[node name="Gate_7x6_Simple_Mesh" type="MeshInstance3D" parent="." unique_id=1945314426]
 gi_mode = 0
 mesh = SubResource("ArrayMesh_kb0vr")
 
-[node name="Gate_7x6_Simple-col1" type="CollisionShape3D" parent="." unique_id=779464890]
+[node name="Gate_7x6_Simple-col1" type="CollisionShape3D" parent="." unique_id=1658684851]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2750001, 0.9, 0)
 shape = SubResource("BoxShape3D_duqmu")
 
-[node name="Gate_7x6_Simple-col2" type="CollisionShape3D" parent="." unique_id=89260833]
+[node name="Gate_7x6_Simple-col2" type="CollisionShape3D" parent="." unique_id=1883351448]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2750001, 0.9, 0)
 shape = SubResource("BoxShape3D_weaj5")
 
-[node name="Gate_7x6_Simple-col3" type="CollisionShape3D" parent="." unique_id=2035741362]
+[node name="Gate_7x6_Simple-col3" type="CollisionShape3D" parent="." unique_id=245828970]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
 shape = SubResource("BoxShape3D_240ol")
