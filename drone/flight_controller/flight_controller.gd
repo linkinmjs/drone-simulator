@@ -271,7 +271,7 @@ func update_velocity() -> void:
 func init_telemetry() -> void:
 	telemetry_file = FileAccess.open("user://telemetry.csv", FileAccess.WRITE)
 	if telemetry_file:
-		telemetry_file.store_csv_line(["t", "input.power", "input.yaw", "input.roll", "input.pitch",
+		var _discard := telemetry_file.store_csv_line(["t", "input.power", "input.yaw", "input.roll", "input.pitch",
 				"x", "y", "z", "vx", "vy", "vz", "vx_loc", "vy_loc", "vz_loc",
 				"yaw", "roll", "pitch", "yaw_speed", "roll_speed", "pitch_speed",
 				"delta_posx", "delta_posy", "delta_posz",
@@ -386,7 +386,7 @@ func write_telemetry() -> void:
 			pid_controllers[Controller.LAUNCH].output,
 			pid_controllers[Controller.LAUNCH].clamped_output,
 		])
-		telemetry_file.store_csv_line(data)
+		var _discard := telemetry_file.store_csv_line(data)
 		telemetry_file = null
 
 

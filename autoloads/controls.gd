@@ -65,7 +65,9 @@ func load_input_map(update_controller: bool = false) -> String:
 				var _discard := update_active_device(active_device)
 		if active_device >= 0:
 			var section := "controls_%s" % [active_controller_guid]
-			var actions := config.get_section_keys(section)
+			var actions: PackedStringArray = []
+			if config.has_section(section):
+				actions = config.get_section_keys(section)
 			var event: InputEvent
 			var current_action := ""
 			var action_idx := -1

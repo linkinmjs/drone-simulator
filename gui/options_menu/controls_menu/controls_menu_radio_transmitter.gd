@@ -142,8 +142,9 @@ func set_roll_stick(value: float) -> void:
 		set_left_stick_horizontal(value)
 
 
-func play_animation(calibration_step: int) -> void:
-	var tween := get_tree().create_tween()
+func play_animation(_calibration_step: int) -> void:
+	pass
+#	var tween := get_tree().create_tween()
 #	tween.set_loops(0)
 #	match calibration_step:
 #		0:
@@ -238,7 +239,7 @@ func loop_stick_animation() -> void:
 	pass
 
 
-func _on_calibration_step_changed(step: int) -> void:
+func _on_calibration_step_changed(_step: int) -> void:
 #	if step == 1:
 #		tween.tween_all_completed.disconnect(loop_stick_animation)
 #	play_animation(step)

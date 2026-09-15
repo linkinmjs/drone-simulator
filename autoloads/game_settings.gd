@@ -28,7 +28,11 @@ func load_hud_config() -> void:
 	elif err == ERR_PARSE_ERROR:
 		Global.log_error(err, "Parse error while loading HUD config.")
 		text = "Error parsing settings file, default settings will be loaded."
-	elif err != ERR_FILE_NOT_FOUND:
+	elif err == ERR_FILE_NOT_FOUND:
+		# First run: no settings file yet, write the defaults silently
+		save_hud_config()
+		return
+	else:
 		Global.log_error(err, "Error while loading HUD config.")
 		text = "Error loading settings file, default settings will be loaded."
 	Global.show_error_popup(get_tree().root.get_children()[-1], text)

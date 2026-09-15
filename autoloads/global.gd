@@ -55,6 +55,8 @@ func get_formatted_date_time() -> String:
 
 
 func show_error_popup(control: Node, error: String) -> void:
+	if error.is_empty():
+		return
 	await get_tree().process_frame
 	var controller_dialog := AcceptDialog.new()
 	controller_dialog.dialog_text = error
@@ -64,5 +66,5 @@ func show_error_popup(control: Node, error: String) -> void:
 
 func log_error(err_code: int, message: String = "") -> void:
 	var file := FileAccess.open(log_path, FileAccess.WRITE_READ)
-	file.store_line("%s ERROR %d: %s" % [get_formatted_date_time(), err_code, message])
+	var _discard := file.store_line("%s ERROR %d: %s" % [get_formatted_date_time(), err_code, message])
 	file = null

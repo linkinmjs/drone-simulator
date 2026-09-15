@@ -440,7 +440,7 @@ func _on_drone_transform_updated(xform_string: String, init: bool = false) -> vo
 		if init:
 			var file := FileAccess.open(replay_path, FileAccess.WRITE)
 			if file:
-				file.store_line(xform_string)
+				var _discard := file.store_line(xform_string)
 				file = null
 		else:
 			replay_recorder.append(xform_string)
@@ -453,7 +453,7 @@ func write_replay(lines: int) -> void:
 	if file:
 		file.seek_end()
 		for i in lines:
-			file.store_line(replay_recorder[i])
+			var _discard := file.store_line(replay_recorder[i])
 		file = null
 		replay_recorder.clear()
 
@@ -526,19 +526,20 @@ func write_new_record(pos: int, time: float) -> void:
 		file = null
 		file = FileAccess.open(Global.highscore_path, FileAccess.WRITE)
 		if file:
+			var _discard := false
 			var idx := array.find(track_name)
 			if idx == -1:
 				for element in array:
 					if element != "":
-						file.store_line(element)
-				file.store_line(track_name)
-				file.store_line("%f" % [time])
+						_discard = file.store_line(element)
+				_discard = file.store_line(track_name)
+				_discard = file.store_line("%f" % [time])
 			else:
 				for i in idx + 1 + pos:
 					if array[i] != "":
-						file.store_line(array[i])
-				file.store_line("%f" % [time])
+						_discard = file.store_line(array[i])
+				_discard = file.store_line("%f" % [time])
 				for i in range(idx + 2 + pos, array.size()):
 					if array[i] != "":
-						file.store_line(array[i])
+						_discard = file.store_line(array[i])
 			file = null
