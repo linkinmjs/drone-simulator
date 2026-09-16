@@ -4,19 +4,19 @@ extends TextureProgressBar
 
 var texture_path := "res://Assets/GUI/ControlAxes.png"
 
-var color_on := Color(1.0, 0.6, 0.0, 1.0)
-var color_off := color_on * 0.25
+var color_on := UIPalette.ACCENT
+var color_off := UIPalette.SURFACE_PRESSED
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(200, 12)
+	custom_minimum_size = Vector2(200, 14)
 	set_range(-1.0, 1.0, 0.01)
 	value = 0.0
 	nine_patch_stretch = true
-	stretch_margin_top = 3
-	stretch_margin_bottom = 3
-	stretch_margin_left = 3
-	stretch_margin_right = 3
-	texture_progress = load(texture_path)
+	stretch_margin_top = 5
+	stretch_margin_bottom = 5
+	stretch_margin_left = 5
+	stretch_margin_right = 5
+	texture_progress = ThemeBuilder.bar_texture()
 	tint_progress = color_on
 	texture_under = texture_progress
 	tint_under = color_off
@@ -43,9 +43,7 @@ func set_color_off(color: Color) -> void:
 
 
 func reset_color_off() -> void:
-	if color_on.r >= 0.5 or color_on.g >= 0.5 or color_on.b >= 0.5:
-		color_off = color_on * 0.25
-	else:
-		color_off = color_on * 2.0
+	# Light theme: the "off" state is a pale version of the "on" color
+	color_off = color_on.lerp(UIPalette.SURFACE, 0.82)
 	color_off.a = 1.0
 	tint_under = color_off

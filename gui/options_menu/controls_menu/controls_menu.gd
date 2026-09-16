@@ -1,11 +1,9 @@
-extends Control
+extends MenuScreen
 
 
 signal controller_detected
-signal back
 
 var packed_calibration_menu := preload("res://gui/options_menu/controls_menu/calibration_menu.tscn")
-var packed_binding_popup := preload("res://gui/confirmation_popup.tscn")
 var binding_popup: BindingPopup = null
 
 @onready var controller_list := %ControllerList as OptionButton
@@ -16,12 +14,14 @@ var binding_popup: BindingPopup = null
 @onready var button_calibrate := %ButtonCalibrate as Button
 @onready var button_reset := %ButtonReset as Button
 @onready var button_back := %ButtonBack as Button
+@onready var menu_panel := %MenuPanel as Control
+@onready var radio_transmitter := %RadioTransmitter
 
 @onready var actions_list := %ActionsVBox as VBoxContainer
 var show_binding_popup := false
-var binding_popup_text := ""
 var binding_popup_clear := false
 var binding_event: InputEvent = null
+var binding_target: GUIControllerBinding = null
 
 var connected_joypads: Array[int] = []
 var auto_detect_controller := false
@@ -32,35 +32,33 @@ var calibrating_axes := false
 
 
 func _ready() -> void:
+	initial_focus = controller_list
+	super()
 	var _discard := controller_detected.connect(_on_controller_autodetected)
 	_discard = Input.joy_connection_changed.connect(_on_joypad_connection_changed)
 
 	_discard = button_calibrate.pressed.connect(_on_calibrate_pressed)
-	_discard = button_back.pressed.connect(_on_back_pressed)
+	_discard = button_reset.pressed.connect(_on_reset_pressed)
+	bind_back_button(button_back)
 
 	_discard = controller_list.pressed.connect(_on_controller_list_pressed)
 	_discard = controller_list.get_popup().id_pressed.connect(_on_controller_selected)
 	_discard = controller_list.get_popup().popup_hide.connect(_on_controller_select_aborted)
-#	controller_list.get_popup().add_theme_font_override("font", load("res://GUI/MenuFont.tres"))
 	controller_list.clip_text = true
 
 	_discard = controller_checkbutton.toggled.connect(_on_checkbutton_toggled)
 
-	# TODO: only allow calibration for active controller OR update controller list
-
 	# Controller selector, axes and buttons
-	var axis := GUIControllerAxis.new()
-	axis.size_flags_horizontal = 0
 	for _i in 8:
-		axes_list.add_child(axis.duplicate())
-	axis.queue_free()
+		var axis := GUIControllerAxis.new()
+		axis.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		axes_list.add_child(axis)
 
-	var button := GUIControllerButton.new()
-	button.size_flags_horizontal = SIZE_SHRINK_CENTER
 	for _i in 16:
-		button_grid.add_child(button.duplicate())
-		button_grid.get_children()[-1].custom_minimum_size = Vector2(20, 20)
-	button.queue_free()
+		var button := GUIControllerButton.new()
+		button.size_flags_horizontal = SIZE_SHRINK_CENTER
+		button_grid.add_child(button)
+		button.custom_minimum_size = Vector2(36, 24)
 
 	var active_controller_found := false
 	var active_device := -1
@@ -83,11 +81,8 @@ func _ready() -> void:
 				active_device = -1
 			else:
 				active_device = connected_joypads[0]
+	update_controller_list()
 	controller_list.get_popup().id_pressed.emit(connected_joypads.find(active_device))
-
-	var controller_vbox := $HBoxContainer/ControllerPanel/ControllerVBox
-	controller_vbox.position.y = \
-			(size - controller_vbox.size).y / 2
 
 	# Actions bindings
 	for action in Controls.action_list:
@@ -98,69 +93,83 @@ func _ready() -> void:
 		_discard = binding.clicked.connect(_on_binding_clicked.bind(binding))
 		_discard = binding.binding_updated.connect(_on_binding_updated)
 
-	# TODO: add animated radio sticks display with customizable mode1, mode2, etc.
+
+func _before_back() -> void:
+	Controls.restore_keyboard_shortcuts()
 
 
+# Joypad events are read in _input: with a focused control the GUI would otherwise consume
+# the buttons that are also ui_* actions (A, B, D-pad) before this menu could see them.
 func _input(event: InputEvent) -> void:
-	if event.is_action("ui_cancel") and event.is_pressed() and not event.is_echo():
-		accept_event()
-		back.emit()
-
-
-func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventJoypadMotion or event is InputEventJoypadButton:
 		if auto_detect_controller:
 			if event is InputEventJoypadMotion and absf(event.axis_value) > 0.8 \
 					or event is InputEventJoypadButton:
+				get_viewport().set_input_as_handled()
 				controller_detected.emit(event.device)
+				return
 		elif Input.get_joy_name(event.device) == controller_list.text:
 			if event is InputEventJoypadMotion and event.axis < 8:
 				update_axis_value(event.axis, event.axis_value)
 			elif event is InputEventJoypadButton and event.button_index < 16:
 				update_button_value(event.button_index, event.is_pressed())
-			if show_binding_popup:
+			if show_binding_popup and binding_popup and binding_popup.is_listening():
 				var binding_text := ""
-				var binding_valid := false
 				if event is InputEventJoypadMotion and absf(event.axis_value) > 0.8:
-					var axis: int = event.axis
-					binding_text = "Axis %d (%s)" % [axis, axis]
-					binding_valid = true
-				elif event is InputEventJoypadButton and event.button_index < JOY_BUTTON_MAX:
-					var button: int = event.button_index
-					binding_text = "Button %d (%s)" % [button, button]
-					binding_valid = true
-				if binding_valid:
+					binding_text = tr("CTRL_AXIS_N") % [event.axis]
+				elif event is InputEventJoypadButton and event.is_pressed() \
+						and event.button_index < JOY_BUTTON_MAX:
+					binding_text = tr("CTRL_BUTTON_N") % [event.button_index]
+				if event is InputEventJoypadButton:
+					# Never let a button reach the GUI while listening
+					get_viewport().set_input_as_handled()
+				if not binding_text.is_empty():
 					binding_event = event
-					binding_popup.set_text(binding_popup_text + "\n%s" % [binding_text])
+					binding_popup_clear = false
+					binding_popup.set_captured(binding_text)
+				return
+	super(event)
 
 
 func _on_calibrate_pressed() -> void:
-	if packed_calibration_menu.can_instantiate():
-		var calibration_menu := packed_calibration_menu.instantiate()
-		add_child(calibration_menu)
-		var radio_transmitter := $SubViewportContainer/SubViewport/RadioTransmitter
-		var _discard := calibration_menu.connect("calibration_step_changed",
-				radio_transmitter._on_calibration_step_changed)
-		calibration_menu.calibration_step_changed.emit(calibration_menu.calibration_step)
-		$MenuPanel.modulate = Color(1, 1, 1, 0)
-		radio_transmitter.accept_input = false
-		await calibration_menu.back
-		radio_transmitter.accept_input = true
-		calibration_menu.queue_free()
-		$MenuPanel.modulate = Color(1, 1, 1, 1)
+	if not packed_calibration_menu.can_instantiate():
+		return
+	var calibration_menu := packed_calibration_menu.instantiate()
+	add_child(calibration_menu)
+	var _discard := calibration_menu.connect("calibration_step_changed",
+			radio_transmitter._on_calibration_step_changed)
+	calibration_menu.calibration_step_changed.emit(calibration_menu.calibration_step)
+	menu_panel.visible = false
+	radio_transmitter.accept_input = false
+	await calibration_menu.back
+	radio_transmitter.accept_input = true
+	calibration_menu.queue_free()
+	menu_panel.visible = true
+	await get_tree().process_frame
+	if not UI.is_using_mouse():
+		button_calibrate.grab_focus()
 
 
-func _on_back_pressed() -> void:
-	Controls.restore_keyboard_shortcuts()
-	back.emit()
+func _on_reset_pressed() -> void:
+	if Controls.active_controller_guid.is_empty():
+		return
+	var confirmed: bool = await UI.confirm("CTRL_RESET_CONFIRM", "CTRL_RESET", "UI_CANCEL", true)
+	if not confirmed:
+		return
+	for binding in actions_list.get_children():
+		(binding as GUIControllerBinding).remove_binding()
+	Controls.reset_controller_bindings()
+	update_input_map()
+	if not UI.is_using_mouse():
+		button_reset.grab_focus()
 
 
 func update_controller_list() -> void:
 	connected_joypads = Input.get_connected_joypads()
 	controller_list.get_popup().clear()
 	if connected_joypads.is_empty():
-		controller_list.get_popup().add_item("No controller found")
-		controller_list.text = "No controller found"
+		controller_list.get_popup().add_item("CTRL_NO_CONTROLLER")
+		controller_list.text = "CTRL_NO_CONTROLLER"
 		active_controller = -1
 		controller_checkbutton.disabled = true
 		controller_checkbutton.button_pressed = false
@@ -200,7 +209,7 @@ func _on_controller_selected(id: int) -> void:
 	if controller_list.get_popup().visible:
 		controller_list.get_popup().hide()
 	auto_detect_controller = false
-	if connected_joypads.is_empty():
+	if connected_joypads.is_empty() or id < 0 or id >= connected_joypads.size():
 		return
 	if connected_joypads[id] != active_controller:
 		active_controller = connected_joypads[id]
@@ -295,50 +304,63 @@ func update_binding(binding: GUIControllerBinding, event: InputEvent) -> void:
 		binding.update_binding(event)
 
 
+func _current_binding_text(binding: GUIControllerBinding) -> String:
+	var action_events := InputMap.action_get_events(binding.action)
+	for event in action_events:
+		if event is InputEventJoypadMotion:
+			return tr("CTRL_AXIS_N") % [event.axis]
+		elif event is InputEventJoypadButton:
+			return tr("CTRL_BUTTON_N") % [event.button_index]
+	if binding.device >= 0 and binding.axis >= 0:
+		return tr("CTRL_AXIS_N") % [binding.axis]
+	return tr("CTRL_UNBOUND")
+
+
 func _on_binding_clicked(binding: GUIControllerBinding) -> void:
 	if show_binding_popup:
 		return
+	binding_target = binding
+	binding_event = null
+	binding_popup_clear = false
 	binding_popup = BindingPopup.new()
+	binding_popup.action_label = binding.label.text
+	binding_popup.current_binding = _current_binding_text(binding)
 	add_child(binding_popup)
-	binding_popup_text = "Press a button or flip a switch\nfor action: %s" % [binding.label.text]
-	var current_binding_text := "..."
-	if not binding_popup_clear:
-		if binding.device >= 0 and binding.axis >= 0:
-			current_binding_text = "Axis %d" % [binding.axis]
-		var action_events := InputMap.action_get_events(binding.action)
-		if not action_events.is_empty():
-			if action_events[0] is InputEventJoypadMotion:
-				var axis: int = action_events[0].axis
-				current_binding_text = "Axis %d" % [axis]
-			elif action_events[0] is InputEventJoypadButton:
-				var button: int = action_events[0].button_index
-				current_binding_text = "Button %d"  % [button]
-	binding_popup.set_text(binding_popup_text + "\n" + current_binding_text)
 	show_binding_popup = true
 
-	var clear_popup := func clear_popup() -> void:
-		binding_popup.queue_free()
-		binding_popup = null
-		show_binding_popup = false
-	var _discard := binding_popup.confirm_pressed.connect(
-		func _on_confirmed_pressed() -> void:
-			if binding_event or binding_popup_clear and not binding_event:
-				update_binding(binding, binding_event)
-				binding_event = null
-				binding_popup_clear = false
-				clear_popup.call()
-	)
-	_discard = binding_popup.cancel_pressed.connect(
-		func _on_cancel_pressed() -> void:
-			binding_popup_clear = false
-			clear_popup.call()
-	)
+	var _discard := binding_popup.confirm_pressed.connect(_on_binding_confirmed)
+	_discard = binding_popup.cancel_pressed.connect(_close_binding_popup)
 	_discard = binding_popup.clear_pressed.connect(
 		func _on_clear_pressed() -> void:
 			binding_event = null
 			binding_popup_clear = true
-			binding_popup.set_text(binding_popup_text + "\n" + "...")
+			binding_popup.set_captured(tr("CTRL_UNBOUND"))
 	)
+	_discard = binding_popup.listen_pressed.connect(
+		func _on_listen_pressed() -> void:
+			binding_event = null
+			binding_popup_clear = false
+	)
+
+
+func _on_binding_confirmed() -> void:
+	if binding_event or binding_popup_clear:
+		update_binding(binding_target, binding_event)
+	_close_binding_popup()
+
+
+func _close_binding_popup() -> void:
+	var target := binding_target
+	binding_event = null
+	binding_popup_clear = false
+	binding_target = null
+	show_binding_popup = false
+	if binding_popup:
+		binding_popup.close()
+		binding_popup = null
+	await get_tree().process_frame
+	if is_instance_valid(target) and not UI.is_using_mouse():
+		target.grab_focus()
 
 
 func _on_binding_updated() -> void:

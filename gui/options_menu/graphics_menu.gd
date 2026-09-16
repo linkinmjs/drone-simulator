@@ -1,13 +1,16 @@
-extends Control
+extends MenuScreen
 
 
-signal back
-
+const RESOLUTIONS: Array[String] = ["100", "75", "50"]
+const FISHEYE_RESOLUTIONS: Array[String] = ["2160p", "1440p", "1080p", "720p", "480p", "240p"]
 
 @onready var window_mode := %WindowOptions as OptionButton
 @onready var resolution := %ResolutionOptions as OptionButton
+@onready var vsync := %VSyncOptions as OptionButton
+@onready var max_fps := %MaxFPSOptions as OptionButton
+@onready var fullscreen_button := %FullscreenButton as Button
+@onready var preset := %PresetOptions as OptionButton
 @onready var game_msaa := %GameMSAAOptions as OptionButton
-@onready var game_af := %GameAFOptions as OptionButton
 @onready var shadows := %ShadowsOptions as OptionButton
 @onready var fisheye_mode := %FPVFisheyeOptions as OptionButton
 @onready var fisheye_resolution := %FisheyeResolutionOptions as OptionButton
@@ -17,82 +20,68 @@ signal back
 
 
 func _ready() -> void:
-	window_mode.get_popup().add_item("Full Screen")
-	window_mode.get_popup().add_item("Window")
-	window_mode.get_popup().add_item("Borderless Window")
+	super()
+	_fill(window_mode, ["GFX_FULLSCREEN_MODE", "GFX_WINDOW", "GFX_BORDERLESS"])
+	_fill(resolution, ["100%", "75%", "50%"])
+	_fill(vsync, ["UI_OFF", "UI_ON", "GFX_VSYNC_ADAPTIVE"])
+	_fill(max_fps, ["30", "60", "120", "144", "240", "GFX_UNLIMITED"])
+	_fill(preset, ["GFX_QUALITY_LOW", "GFX_QUALITY_MEDIUM", "GFX_QUALITY_HIGH",
+			"GFX_QUALITY_ULTRA", "GFX_QUALITY_CUSTOM"])
+	_fill(game_msaa, ["UI_OFF", "2x", "4x", "8x", "16x"])
+	_fill(shadows, ["GFX_QUALITY_VERY_LOW", "GFX_QUALITY_LOW", "GFX_QUALITY_MEDIUM",
+			"GFX_QUALITY_HIGH", "GFX_QUALITY_ULTRA"])
+	_fill(fisheye_mode, ["UI_OFF", "GFX_FISHEYE_FULL", "GFX_FISHEYE_FAST"])
+	_fill(fisheye_resolution, FISHEYE_RESOLUTIONS)
+	_fill(fisheye_msaa, ["UI_OFF", "2x", "4x", "8x", "16x", "GFX_SAME_AS_GAME"])
+	# "Custom" is a state, not something the user picks directly
+	preset.set_item_disabled(Graphics.Quality.CUSTOM, true)
+
+	_refresh()
+
 	var _discard := window_mode.item_selected.connect(_on_window_mode_changed)
-	window_mode.select(Graphics.graphics_settings["window_mode"])
-
-	resolution.get_popup().add_item("100%")
-	resolution.get_popup().add_item("75%")
-	resolution.get_popup().add_item("50%")
 	_discard = resolution.item_selected.connect(_on_resolution_changed)
-	var res := Graphics.graphics_settings["resolution"] as int
-	var option := 0
-	match res:
-		100:
-			option = 0
-		75:
-			option = 1
-		50:
-			option = 2
-	resolution.select(option)
-
-	game_msaa.get_popup().add_item("Off")
-	game_msaa.get_popup().add_item("2x")
-	game_msaa.get_popup().add_item("4x")
-	game_msaa.get_popup().add_item("8x")
-	game_msaa.get_popup().add_item("16x")
+	_discard = vsync.item_selected.connect(_on_vsync_changed)
+	_discard = max_fps.item_selected.connect(_on_max_fps_changed)
+	_discard = preset.item_selected.connect(_on_preset_changed)
 	_discard = game_msaa.item_selected.connect(_on_msaa_changed)
-	game_msaa.select(Graphics.graphics_settings["msaa"])
-
-	game_af.get_popup().add_item("Off")
-	game_af.get_popup().add_item("2x")
-	game_af.get_popup().add_item("4x")
-	game_af.get_popup().add_item("8x")
-	game_af.get_popup().add_item("16x")
-	_discard = game_af.item_selected.connect(_on_af_changed)
-	game_af.select(Graphics.graphics_settings["af"])
-
-	shadows.get_popup().add_item("Very Low")
-	shadows.get_popup().add_item("Low")
-	shadows.get_popup().add_item("Medium")
-	shadows.get_popup().add_item("High")
-	shadows.get_popup().add_item("Ultra")
 	_discard = shadows.item_selected.connect(_on_shadows_changed)
-	shadows.select(Graphics.graphics_settings["shadows"])
-
-	fisheye_mode.get_popup().add_item("Off")
-	fisheye_mode.get_popup().add_item("Full")
-	fisheye_mode.get_popup().add_item("Fast")
 	_discard = fisheye_mode.item_selected.connect(_on_fisheye_mode_changed)
-	fisheye_mode.select(Graphics.graphics_settings["fisheye_mode"])
-
-	fisheye_resolution.get_popup().add_item("2160p")
-	fisheye_resolution.get_popup().add_item("1440p")
-	fisheye_resolution.get_popup().add_item("1080p")
-	fisheye_resolution.get_popup().add_item("720p")
-	fisheye_resolution.get_popup().add_item("480p")
-	fisheye_resolution.get_popup().add_item("240p")
 	_discard = fisheye_resolution.item_selected.connect(_on_fisheye_resolution_changed)
-	fisheye_resolution.select(Graphics.graphics_settings["fisheye_resolution"])
-
-	fisheye_msaa.get_popup().add_item("Off")
-	fisheye_msaa.get_popup().add_item("2x")
-	fisheye_msaa.get_popup().add_item("4x")
-	fisheye_msaa.get_popup().add_item("8x")
-	fisheye_msaa.get_popup().add_item("16x")
-	fisheye_msaa.get_popup().add_item("Same as Game MSAA")
 	_discard = fisheye_msaa.item_selected.connect(_on_fisheye_msaa_changed)
-	fisheye_msaa.select(Graphics.graphics_settings["fisheye_msaa"])
+	_discard = fullscreen_button.pressed.connect(Graphics.toggle_web_fullscreen)
+	bind_back_button(button_back)
 
-	_discard = button_back.pressed.connect(_on_back_pressed)
+	# In the browser the page owns the window: only a fullscreen toggle makes sense
+	var web := Graphics.is_web()
+	%WindowRow.visible = not web
+	%ResolutionRow.visible = not web
+	%VSyncRow.visible = not web
+	%MaxFPSRow.visible = not web
+	%FullscreenRow.visible = web
+	initial_focus = fullscreen_button if web else window_mode
 
 
-func _input(event: InputEvent) -> void:
-	if event.is_action("ui_cancel") and event.is_pressed() and not event.is_echo():
-		accept_event()
-		back.emit()
+func _fill(option: OptionButton, items: Array) -> void:
+	option.clear()
+	for item: String in items:
+		option.add_item(item)
+
+
+func _refresh() -> void:
+	var settings := Graphics.graphics_settings
+	window_mode.select(int(settings["window_mode"]))
+	resolution.select(maxi(RESOLUTIONS.find(str(settings["resolution"])), 0))
+	vsync.select(int(settings["vsync"]))
+	max_fps.select(maxi(Graphics.MAX_FPS_OPTIONS.find(int(settings["max_fps"])), 0))
+	game_msaa.select(int(settings["msaa"]))
+	shadows.select(int(settings["shadows"]))
+	fisheye_mode.select(int(settings["fisheye_mode"]))
+	fisheye_resolution.select(int(settings["fisheye_resolution"]))
+	fisheye_msaa.select(int(settings["fisheye_msaa"]))
+	var fisheye_disabled := int(settings["fisheye_mode"]) == Graphics.FisheyeMode.OFF
+	fisheye_resolution.disabled = fisheye_disabled
+	fisheye_msaa.disabled = fisheye_disabled
+	preset.select(Graphics.get_quality_preset())
 
 
 func _on_window_mode_changed(idx: int) -> void:
@@ -101,51 +90,59 @@ func _on_window_mode_changed(idx: int) -> void:
 	Graphics.save_graphics_settings()
 
 
-func _on_resolution_changed(_idx: int) -> void:
-	Graphics.graphics_settings["resolution"] = ((resolution.text as String).rstrip("%")) as int
+func _on_resolution_changed(idx: int) -> void:
+	Graphics.graphics_settings["resolution"] = RESOLUTIONS[idx]
 	Graphics.update_resolution()
 	Graphics.save_graphics_settings()
+
+
+func _on_vsync_changed(idx: int) -> void:
+	Graphics.graphics_settings["vsync"] = idx
+	Graphics.update_vsync()
+	Graphics.save_graphics_settings()
+
+
+func _on_max_fps_changed(idx: int) -> void:
+	Graphics.graphics_settings["max_fps"] = Graphics.MAX_FPS_OPTIONS[idx]
+	Graphics.update_max_fps()
+	Graphics.save_graphics_settings()
+
+
+func _on_preset_changed(idx: int) -> void:
+	if idx == Graphics.Quality.CUSTOM:
+		return
+	Graphics.apply_quality_preset(idx as Graphics.Quality)
+	_refresh()
 
 
 func _on_msaa_changed(idx: int) -> void:
 	Graphics.graphics_settings["msaa"] = idx
 	Graphics.update_msaa()
 	Graphics.save_graphics_settings()
-
-
-func _on_af_changed(idx: int) -> void:
-	Graphics.graphics_settings["af"] = idx
-	Graphics.update_af()
-	Graphics.save_graphics_settings()
+	_refresh()
 
 
 func _on_shadows_changed(idx: int) -> void:
 	Graphics.graphics_settings["shadows"] = idx
 	Graphics.update_shadows()
 	Graphics.save_graphics_settings()
+	_refresh()
 
 
 func _on_fisheye_mode_changed(idx: int) -> void:
 	Graphics.graphics_settings["fisheye_mode"] = idx
 	Graphics.update_fisheye_mode()
 	Graphics.save_graphics_settings()
-
-	var fisheye_disabled := false
-	if idx == Graphics.FisheyeMode.OFF:
-		fisheye_disabled = true
-	fisheye_resolution.disabled = fisheye_disabled
-	fisheye_msaa.disabled = fisheye_disabled
+	_refresh()
 
 
-func _on_fisheye_resolution_changed(_idx: int) -> void:
-	Graphics.update_fisheye_resolution(fisheye_resolution.text)
+func _on_fisheye_resolution_changed(idx: int) -> void:
+	Graphics.update_fisheye_resolution(FISHEYE_RESOLUTIONS[idx])
 	Graphics.save_graphics_settings()
+	_refresh()
 
 
 func _on_fisheye_msaa_changed(idx: int) -> void:
 	Graphics.graphics_settings["fisheye_msaa"] = idx
+	Graphics.update_fisheye_msaa()
 	Graphics.save_graphics_settings()
-
-
-func _on_back_pressed() -> void:
-	back.emit()

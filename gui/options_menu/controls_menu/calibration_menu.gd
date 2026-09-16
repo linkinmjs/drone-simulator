@@ -1,9 +1,8 @@
-extends Control
+extends MenuScreen
 
 
 signal calibration_step_changed
 signal calibration_done
-signal back
 
 @onready var title := %Title as Label
 @onready var label_action := %LabelAction as Label
@@ -18,27 +17,40 @@ var pitch := []
 var roll := []
 
 var calibration_is_done := false
-var packed_popup := load("res://gui/confirmation_popup.tscn")
 var display_popup := false
 
 
 func _ready() -> void:
+	backdrop = Backdrop.NONE
+	show_hints = false
+	initial_focus = button_cancel
+	super()
+	# The sticks are what is being calibrated: they must not drive the menu meanwhile
+	StickNavigation.suspended = true
 	var _discard := button_cancel.pressed.connect(_on_cancel_pressed)
+	button_cancel.set_meta(&"ui_silent", true)
 	_discard = calibration_done.connect(_on_calibration_done)
 
 	reset_calibration()
 
 
+func _exit_tree() -> void:
+	StickNavigation.suspended = false
+	super()
+
+
 func _process(_delta: float) -> void:
+	# Check the axes detected in the first step, not fixed indices 0..3: radios and
+	# gamepads often expose the sticks on other axes.
 	var next_step_ready := true
 	if calibration_step == 0 and axes.size() == 4:
-		for i in 4:
-			if absf(Input.get_joy_axis(device, i)) < 0.5:
+		for axis: int in axes:
+			if absf(Input.get_joy_axis(device, axis)) < 0.5:
 				next_step_ready = false
 				break
-	elif calibration_step == 1:
-		for i in 4:
-			if absf(Input.get_joy_axis(device, i)) > 0.2:
+	elif calibration_step == 1 and axes.size() == 4:
+		for axis: int in axes:
+			if absf(Input.get_joy_axis(device, axis)) > 0.2:
 				next_step_ready = false
 				break
 	else:
@@ -47,30 +59,20 @@ func _process(_delta: float) -> void:
 		go_to_next_step()
 
 
-func _input(event: InputEvent) -> void:
-	if event.is_action("ui_cancel") and event.is_pressed() and not event.is_echo():
-		accept_event()
-		back.emit()
-
-
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventJoypadMotion:
 		if calibration_step == 0:
 			if absf(event.axis_value) > 0.9:
 				if axes.size() == 0:
 					device = event.device
-					title.text = "Calibrating %s..." % [Input.get_joy_name(device)]
-				elif event.device != device and !display_popup:
-					display_popup = true
-					var popup: Control = packed_popup.instantiate()
-					add_child(popup)
-					popup.set_text("Please input axes from %s." % [Input.get_joy_name(device)])
-					popup.set_buttons("OK")
-					popup.show_modal(true)
-					await popup.validated
-					popup.queue_free()
-					display_popup = false
-				if axes.find(event.axis) < 0:
+					title.text = tr("CAL_TITLE_DEVICE") % [Input.get_joy_name(device)]
+				elif event.device != device:
+					if not display_popup:
+						display_popup = true
+						await UI.alert(tr("CAL_WRONG_DEVICE") % [Input.get_joy_name(device)])
+						display_popup = false
+					return
+				if axes.find(event.axis) < 0 and axes.size() < 4:
 					axes.append(event.axis)
 		elif calibration_step == 2:
 			# Throttle axis
@@ -136,35 +138,35 @@ func go_to_next_step() -> void:
 
 	match calibration_step:
 		0:
-			label_action.text = "Move sticks to corners"
+			label_action.text = "CAL_STEP_CORNERS"
 		1:
-			label_action.text = "Center sticks"
+			label_action.text = "CAL_STEP_CENTER"
 		2:
-			label_action.text = "Move throttle up"
+			label_action.text = "CAL_STEP_THROTTLE_UP"
 		3:
-			label_action.text = "Move throttle down"
+			label_action.text = "CAL_STEP_THROTTLE_DOWN"
 		4:
-			label_action.text = "Center throttle"
+			label_action.text = "CAL_STEP_THROTTLE_CENTER"
 		5:
-			label_action.text = "Move yaw left"
+			label_action.text = "CAL_STEP_YAW_LEFT"
 		6:
-			label_action.text = "Move yaw right"
+			label_action.text = "CAL_STEP_YAW_RIGHT"
 		7:
-			label_action.text = "Center yaw"
+			label_action.text = "CAL_STEP_YAW_CENTER"
 		8:
-			label_action.text = "Move pitch up"
+			label_action.text = "CAL_STEP_PITCH_UP"
 		9:
-			label_action.text = "Move pitch down"
+			label_action.text = "CAL_STEP_PITCH_DOWN"
 		10:
-			label_action.text = "Center pitch"
+			label_action.text = "CAL_STEP_PITCH_CENTER"
 		11:
-			label_action.text = "Move roll left"
+			label_action.text = "CAL_STEP_ROLL_LEFT"
 		12:
-			label_action.text = "Move roll right"
+			label_action.text = "CAL_STEP_ROLL_RIGHT"
 		13:
-			label_action.text = "Center roll"
+			label_action.text = "CAL_STEP_ROLL_CENTER"
 		_:
-			label_action.text = "Calibration successful"
+			label_action.text = "CAL_SUCCESS"
 			calibration_done.emit()
 
 
@@ -188,16 +190,10 @@ func _on_calibration_done() -> void:
 	InputMap.action_add_event("roll_right", roll[2])
 	var err := save_input_map()
 	if err != OK:
-		var popup: Control = packed_popup.instantiate()
-		add_child(popup)
-		popup.set_text("Write Error: Could not save calibration data to file.")
-		popup.set_buttons("OK")
-		popup.show_modal(true)
-		await popup.validated
-		popup.queue_free()
+		await UI.alert("CAL_SAVE_ERROR")
 
 	await get_tree().create_timer(2.0).timeout
-	back.emit()
+	request_back()
 
 
 func save_input_map() -> Error:
@@ -249,4 +245,4 @@ func reset_calibration() -> void:
 
 func _on_cancel_pressed() -> void:
 	reset_calibration()
-	back.emit()
+	request_back()

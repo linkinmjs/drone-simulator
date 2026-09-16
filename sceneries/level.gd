@@ -95,12 +95,20 @@ func _on_resume() -> void:
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 		pause_menu.queue_free()
 		await get_tree().process_frame
+		# The button or stick gesture used to resume must not reach the drone:
+		# wait until it is released before the flight continues.
+		while is_inside_tree() and _resume_input_held():
+			await get_tree().process_frame
 		get_tree().paused = false
 
 
+func _resume_input_held() -> bool:
+	return Input.is_action_pressed(&"ui_accept") or Input.is_action_pressed(&"ui_cancel") \
+			or Input.is_action_pressed(&"pause_menu") or StickNavigation.any_axis_deflected()
+
+
 func _on_return_to_menu() -> void:
-	var _discard := get_tree().change_scene_to_file("res://gui/main_menu.tscn")
-	queue_free()
+	SceneTransition.change_scene("res://gui/main_menu.tscn")
 
 
 func _on_game_mode_changed(mode: int) -> void:

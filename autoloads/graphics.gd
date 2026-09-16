@@ -15,6 +15,21 @@ enum FisheyeMode {OFF, FULL, FAST}
 enum FisheyeResolution {FISHEYE_2160P, FISHEYE_1440P, FISHEYE_1080P,
 		FISHEYE_720P, FISHEYE_480P, FISHEYE_240P}
 enum FisheyeMSAA {OFF, X2, X4, X8, X16, SAME_AS_GAME}
+enum VSync {OFF, ON, ADAPTIVE}
+enum Quality {LOW, MEDIUM, HIGH, ULTRA, CUSTOM}
+
+const MAX_FPS_OPTIONS: Array[int] = [30, 60, 120, 144, 240, 0]
+## Values applied by each quality preset (the order follows the Quality enum).
+const QUALITY_PRESETS := [
+	{"msaa": GameMSAA.OFF, "shadows": Shadows.LOW, "fisheye_mode": FisheyeMode.FAST,
+			"fisheye_resolution": FisheyeResolution.FISHEYE_480P},
+	{"msaa": GameMSAA.X2, "shadows": Shadows.MEDIUM, "fisheye_mode": FisheyeMode.FAST,
+			"fisheye_resolution": FisheyeResolution.FISHEYE_720P},
+	{"msaa": GameMSAA.X4, "shadows": Shadows.HIGH, "fisheye_mode": FisheyeMode.FULL,
+			"fisheye_resolution": FisheyeResolution.FISHEYE_720P},
+	{"msaa": GameMSAA.X8, "shadows": Shadows.ULTRA, "fisheye_mode": FisheyeMode.FULL,
+			"fisheye_resolution": FisheyeResolution.FISHEYE_1080P},
+]
 
 
 var graphics_settings_path := "%s/Graphics.cfg" % [Global.config_dir]
@@ -28,8 +43,24 @@ var graphics_settings := {
 	"fisheye_mode": FisheyeMode.FULL,
 	"fisheye_resolution": FisheyeResolution.FISHEYE_720P,
 	"fisheye_msaa": FisheyeMSAA.SAME_AS_GAME,
+	"vsync": VSync.ON,
+	"max_fps": 0,
 }
 var fisheye_resolution := 720
+
+
+func _ready() -> void:
+	if OS.has_feature("web"):
+		# The browser owns the canvas and the frame pacing; start with the light preset
+		# recommended in docs/optimizacion.md.
+		graphics_settings["window_mode"] = WindowMode.WINDOW
+		for key: String in QUALITY_PRESETS[Quality.MEDIUM]:
+			graphics_settings[key] = QUALITY_PRESETS[Quality.MEDIUM][key]
+		update_fisheye_resolution()
+
+
+func is_web() -> bool:
+	return OS.has_feature("web")
 
 
 func load_graphics_settings() -> String:
@@ -48,14 +79,14 @@ func load_graphics_settings() -> String:
 		update_fisheye_mode()
 		update_fisheye_resolution()
 		update_fisheye_msaa()
+		update_vsync()
+		update_max_fps()
 	elif err == ERR_PARSE_ERROR:
 		Global.log_error(err, "Parse error while loading graphics configuration file.")
-		text = "Failed to read graphics configuration file."
-		text = "%s\nThe default settings will be loaded." % [text]
+		text = "ERR_GRAPHICS_PARSE"
 	elif err != ERR_FILE_NOT_FOUND:
 		Global.log_error(err, "Could not open graphics config file.")
-		text = "Could not open graphics configuration file."
-		text = "%s\nThe defaut settings will be loaded." % [err]
+		text = "ERR_GRAPHICS_OPEN"
 	return text
 
 
@@ -71,6 +102,8 @@ func save_graphics_settings() -> void:
 
 
 func update_window_mode() -> void:
+	if is_web():
+		return
 	var mode := graphics_settings["window_mode"] as WindowMode
 	var window := get_tree().root as Window
 	if mode == WindowMode.FULLSCREEN:
@@ -85,6 +118,8 @@ func update_window_mode() -> void:
 
 
 func update_resolution() -> void:
+	if is_web():
+		return
 	var resolution_multiplier := float(graphics_settings["resolution"]) / 100.0
 	var screen_resolution := DisplayServer.screen_get_size()
 	var mode: int = graphics_settings["window_mode"]
@@ -103,9 +138,63 @@ func update_msaa() -> void:
 		update_fisheye_msaa()
 
 
+## Anisotropic filtering is a project setting read at startup in Godot 4: it cannot be changed
+## at runtime, so the option is no longer shown. The saved key is kept for compatibility.
 func update_af() -> void:
 	pass
-	#TODO: implement the Godot 4 way of AF, by looping through all materials?
+
+
+func update_vsync() -> void:
+	if is_web():
+		return
+	var mode := DisplayServer.VSYNC_ENABLED
+	match int(graphics_settings["vsync"]):
+		VSync.OFF:
+			mode = DisplayServer.VSYNC_DISABLED
+		VSync.ADAPTIVE:
+			mode = DisplayServer.VSYNC_ADAPTIVE
+	DisplayServer.window_set_vsync_mode(mode)
+
+
+func update_max_fps() -> void:
+	if is_web():
+		return
+	Engine.max_fps = maxi(int(graphics_settings["max_fps"]), 0)
+
+
+func apply_quality_preset(preset: Quality) -> void:
+	if preset < 0 or preset >= QUALITY_PRESETS.size():
+		return
+	var values: Dictionary = QUALITY_PRESETS[preset]
+	for key: String in values:
+		graphics_settings[key] = values[key]
+	update_msaa()
+	update_shadows()
+	update_fisheye_mode()
+	update_fisheye_resolution()
+	update_fisheye_msaa()
+	save_graphics_settings()
+
+
+## Returns the preset matching the current values, or Quality.CUSTOM.
+func get_quality_preset() -> Quality:
+	for i in QUALITY_PRESETS.size():
+		var values: Dictionary = QUALITY_PRESETS[i]
+		var matches := true
+		for key: String in values:
+			if int(graphics_settings[key]) != int(values[key]):
+				matches = false
+				break
+		if matches:
+			return i as Quality
+	return Quality.CUSTOM
+
+
+func toggle_web_fullscreen() -> void:
+	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 
 
 func update_shadows(viewport: Viewport = null) -> void:

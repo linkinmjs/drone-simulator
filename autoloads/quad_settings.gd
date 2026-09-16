@@ -9,6 +9,9 @@ var quad_settings_path := "%s/Quad.cfg" % [Global.config_dir]
 var angle := 30
 var dry_weight := 0.55
 var battery_weight := 0.18
+## Horizontal field of view of the FPV camera, in degrees.
+const DEFAULT_FOV := 150
+var fov := DEFAULT_FOV
 
 var control_profile := ControlProfile.new()
 
@@ -24,6 +27,8 @@ func load_quad_settings() -> void:
 			dry_weight = clampf(config.get_value("quad", "dry_weight"), 0.1, 1.0)
 		if config.has_section_key("quad", "battery_weight"):
 			battery_weight = clampf(config.get_value("quad", "battery_weight"), 0.1, 0.5)
+		if config.has_section_key("quad", "fov"):
+			fov = clampf(config.get_value("quad", "fov"), 90, 170) as int
 		if config.has_section_key("rates", "rate_curve"):
 			control_profile.rate_curve = config.get_value("rates", "rate_curve") as ControlProfile.RateCurve
 		if config.has_section_key("rates", "pitch_rate"):
@@ -47,13 +52,13 @@ func load_quad_settings() -> void:
 		return
 	elif err == ERR_PARSE_ERROR:
 		Global.log_error(err, "Parse error while loading quad settings.")
-		text = "Parse error while loading settings. Default settings will be loaded."
+		text = "ERR_SETTINGS_PARSE"
 	elif err == ERR_FILE_NOT_FOUND:
 		save_quad_settings()
 		return
 	else:
 		Global.log_error(err, "Error loading quad settings.")
-		text = "Error loading settings. Default settings will be loaded."
+		text = "ERR_SETTINGS_OPEN"
 	Global.show_error_popup(get_tree().root.get_children()[-1], text)
 
 
@@ -64,6 +69,7 @@ func save_quad_settings() -> void:
 		config.set_value("quad", "angle", angle)
 		config.set_value("quad", "dry_weight", dry_weight)
 		config.set_value("quad", "battery_weight", battery_weight)
+		config.set_value("quad", "fov", fov)
 		config.set_value("rates", "rate_curve", control_profile.rate_curve)
 		config.set_value("rates", "pitch_rate", control_profile.pitch_rate)
 		config.set_value("rates", "roll_rate", control_profile.roll_rate)
@@ -84,6 +90,7 @@ func reset_quad() -> void:
 	angle = 30
 	dry_weight = 0.55
 	battery_weight = 0.18
+	fov = DEFAULT_FOV
 
 
 func reset_rates() -> void:

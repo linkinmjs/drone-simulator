@@ -21,6 +21,7 @@ var mat: ShaderMaterial = load("res://drone/fpv_camera/fpv_camera.tres")
 func _ready() -> void:
 	var _discard := Graphics.fisheye_resolution_changed.connect(_on_fisheye_resolution_changed)
 	_discard = Graphics.fisheye_msaa_changed.connect(_on_fisheye_msaa_changed)
+	_discard = QuadSettings.settings_updated.connect(_apply_quad_fov)
 
 	# The level WorldEnvironment enables auto exposure. The fisheye sub-cameras already
 	# render without it, so applying it again on the composited view makes the image
@@ -32,6 +33,8 @@ func _ready() -> void:
 	if fisheye_mode == Graphics.FisheyeMode.OFF:
 		near = clip_near
 		far = clip_far
+		# Deferred: the drone loads the quad settings after its children are ready
+		_apply_quad_fov.call_deferred()
 		return
 	elif fisheye_mode == Graphics.FisheyeMode.FAST:
 		num_cameras = 2
@@ -48,6 +51,7 @@ func _ready() -> void:
 	render_quad.visible = false
 
 	mat.set_shader_parameter("hfov", fov_h)
+	_apply_quad_fov.call_deferred()
 
 	var root_viewport := get_tree().root as Viewport
 	for i in num_cameras:
@@ -112,3 +116,33 @@ func update_viewport_textures() -> void:
 		var viewport := viewports[i] as SubViewport
 		var viewport_texture := viewport.get_texture()
 		mat.set_shader_parameter("Texture%d" % [i], viewport_texture)
+
+
+## Field of view chosen in Quad Settings. With the fisheye it drives the shader; without it
+## the regular camera only changes if the player moved the value away from the default, so
+## the classic view stays exactly as it was.
+func _apply_quad_fov() -> void:
+	if Graphics.graphics_settings["fisheye_mode"] != Graphics.FisheyeMode.OFF:
+		fov_h = QuadSettings.fov
+	elif QuadSettings.fov != QuadSettings.DEFAULT_FOV:
+		keep_aspect = Camera3D.KEEP_WIDTH
+		fov = clampf(QuadSettings.fov, 60.0, 120.0)
+
+
+## Projects a world-space direction to viewport coordinates, following the same lens as the
+## image (rectilinear without fisheye, equidistant fisheye otherwise). Used by the HUD to draw
+## the real horizon. Returns Vector2(NAN, NAN) when the direction is outside the image.
+func project_direction(direction: Vector3) -> Vector2:
+	var viewport_size := get_viewport().get_visible_rect().size
+	if Graphics.graphics_settings["fisheye_mode"] == Graphics.FisheyeMode.OFF:
+		if is_position_behind(global_position + direction):
+			return Vector2(NAN, NAN)
+		return unproject_position(global_position + direction)
+	var local := global_transform.basis.inverse() * direction.normalized()
+	var theta := acos(clampf(-local.z, -1.0, 1.0))
+	var half_fov := deg_to_rad(fov_h) / 2.0
+	var planar := Vector2(local.x, -local.y)
+	if planar.length_squared() < 1e-8:
+		return viewport_size / 2.0
+	var radius := theta / half_fov * minf(viewport_size.x, viewport_size.y)
+	return viewport_size / 2.0 + planar.normalized() * radius
