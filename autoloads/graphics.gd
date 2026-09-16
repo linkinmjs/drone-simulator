@@ -198,3 +198,32 @@ func get_fisheye_resolution(resolution_setting: int) -> int:
 		FisheyeResolution.FISHEYE_240P:
 			resolution = 240
 	return resolution
+
+
+# The Compatibility renderer (used by the Web export) has no auto exposure and renders
+# the PhysicalSkyMaterial far too dark, which leaves the whole level looking like night.
+# These helpers bring it close to the Forward+ look without touching the desktop build.
+const COMPATIBILITY_EXPOSURE_MULTIPLIER := 1.4
+
+
+func is_compatibility_renderer() -> bool:
+	return RenderingServer.get_current_rendering_method() == "gl_compatibility"
+
+
+func new_camera_attributes() -> CameraAttributesPractical:
+	var attributes := CameraAttributesPractical.new()
+	if is_compatibility_renderer():
+		attributes.exposure_multiplier = COMPATIBILITY_EXPOSURE_MULTIPLIER
+	return attributes
+
+
+func apply_compatibility_workarounds(world_environment: WorldEnvironment) -> void:
+	if not is_compatibility_renderer():
+		return
+	var environment := world_environment.environment
+	if environment and environment.sky and environment.sky.sky_material is PhysicalSkyMaterial:
+		environment.sky.sky_material = ProceduralSkyMaterial.new()
+	var attributes := world_environment.camera_attributes
+	if attributes is CameraAttributesPractical:
+		attributes.auto_exposure_enabled = false
+		attributes.exposure_multiplier = COMPATIBILITY_EXPOSURE_MULTIPLIER

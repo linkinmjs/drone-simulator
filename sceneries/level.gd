@@ -15,6 +15,7 @@ var tracks: Array[Track] = []
 
 
 func _ready() -> void:
+	Graphics.apply_compatibility_workarounds($WorldEnvironment)
 	cameras = get_cameras(self)
 	for c in cameras:
 		if c.name == "FPVCamera":

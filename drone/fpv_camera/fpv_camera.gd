@@ -24,8 +24,9 @@ func _ready() -> void:
 
 	# The level WorldEnvironment enables auto exposure. The fisheye sub-cameras already
 	# render without it, so applying it again on the composited view makes the image
-	# pulse (very visible lying on the ground after a crash). Use neutral attributes.
-	attributes = CameraAttributesPractical.new()
+	# pulse (very visible lying on the ground after a crash). Use neutral attributes
+	# (Graphics adds the exposure fix needed by the Compatibility renderer).
+	attributes = Graphics.new_camera_attributes()
 
 	var fisheye_mode: int = Graphics.graphics_settings["fisheye_mode"]
 	if fisheye_mode == Graphics.FisheyeMode.OFF:
@@ -71,8 +72,7 @@ func _ready() -> void:
 		camera.cull_mask -= int(pow(2, camera_layer - 1))
 		cameras.append(camera)
 
-		var camera_attributes := CameraAttributesPractical.new()
-		camera.attributes = camera_attributes
+		camera.attributes = Graphics.new_camera_attributes()
 
 	update_viewport_textures.call_deferred()
 
