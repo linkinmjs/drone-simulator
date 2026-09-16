@@ -43,6 +43,7 @@ alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+size_flags_stretch_ratio = 0.75
 
 [node name="Quad" type="GridContainer" parent="PanelContainer/VBoxContainer/SettingsHBox/QuadScroll" unique_id=239269830]
 layout_mode = 2
@@ -51,6 +52,7 @@ size_flags_vertical = 3
 columns = 3
 
 [node name="CameraAngleLabel" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/QuadScroll/Quad" unique_id=1627562394]
+unique_name_in_owner = true
 layout_mode = 2
 text = "FPV Camera Angle"
 
@@ -65,12 +67,21 @@ max_value = 80.0
 value = 30.0
 rounded = true
 
-[node name="CameraAngleCurrent" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/QuadScroll/Quad" unique_id=1581829429]
+[node name="CameraAngleCurrent" type="SpinBox" parent="PanelContainer/VBoxContainer/SettingsHBox/QuadScroll/Quad" unique_id=1581829429]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 0)
 layout_mode = 2
-text = "30 deg"
+size_flags_vertical = 4
+min_value = -20.0
+max_value = 80.0
+value = 30.0
+rounded = true
+alignment = 2
+suffix = "deg"
+select_all_on_focus = true
 
 [node name="DryWeightLabel" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/QuadScroll/Quad" unique_id=1888521336]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Dry Weight"
 
@@ -85,12 +96,22 @@ step = 10.0
 value = 550.0
 rounded = true
 
-[node name="DryWeightCurrent" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/QuadScroll/Quad" unique_id=513109208]
+[node name="DryWeightCurrent" type="SpinBox" parent="PanelContainer/VBoxContainer/SettingsHBox/QuadScroll/Quad" unique_id=513109208]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 0)
 layout_mode = 2
-text = "550 g"
+size_flags_vertical = 4
+min_value = 100.0
+max_value = 1000.0
+step = 10.0
+value = 550.0
+rounded = true
+alignment = 2
+suffix = "g"
+select_all_on_focus = true
 
 [node name="BatteryWeightLabel" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/QuadScroll/Quad" unique_id=1809244141]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Battery Weight"
 
@@ -105,15 +126,25 @@ step = 10.0
 value = 180.0
 rounded = true
 
-[node name="BatteryWeightCurrent" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/QuadScroll/Quad" unique_id=345259526]
+[node name="BatteryWeightCurrent" type="SpinBox" parent="PanelContainer/VBoxContainer/SettingsHBox/QuadScroll/Quad" unique_id=345259526]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(170, 0)
 layout_mode = 2
-text = "180 g"
+size_flags_vertical = 4
+min_value = 50.0
+max_value = 500.0
+step = 10.0
+value = 180.0
+rounded = true
+alignment = 2
+suffix = "g"
+select_all_on_focus = true
 
 [node name="RatesScroll" type="ScrollContainer" parent="PanelContainer/VBoxContainer/SettingsHBox" unique_id=1005588385]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+size_flags_stretch_ratio = 1.25
 
 [node name="Rates" type="VBoxContainer" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll" unique_id=1659792386]
 layout_mode = 2
@@ -125,7 +156,8 @@ theme_override_constants/separation = 20
 layout_mode = 2
 theme_override_constants/separation = 30
 
-[node name="RatesAdjustmentLabel" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/HBoxContainer" unique_id=856383261]
+[node name="RatesCurveLabel" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/HBoxContainer" unique_id=856383261]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Rates curve:"
 
@@ -173,6 +205,7 @@ horizontal_alignment = 1
 layout_mode = 2
 
 [node name="PitchLabel" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=1143482508]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Pitch"
 
@@ -187,11 +220,16 @@ max_value = 1800.0
 value = 667.0
 rounded = true
 
-[node name="PitchRate" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=159713516]
+[node name="PitchRate" type="SpinBox" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=159713516]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-text = "0000"
-horizontal_alignment = 2
+size_flags_vertical = 4
+max_value = 1800.0
+value = 667.0
+rounded = true
+alignment = 2
+select_all_on_focus = true
 
 [node name="PitchRcSlider" type="HSlider" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=1199024300]
 unique_name_in_owner = true
@@ -204,11 +242,16 @@ max_value = 1800.0
 value = 667.0
 rounded = true
 
-[node name="PitchRc" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=1469995351]
+[node name="PitchRc" type="SpinBox" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=1469995351]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-text = "0000"
-horizontal_alignment = 2
+size_flags_vertical = 4
+max_value = 1800.0
+value = 667.0
+rounded = true
+alignment = 2
+select_all_on_focus = true
 
 [node name="PitchExpoSlider" type="HSlider" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=167608365]
 unique_name_in_owner = true
@@ -220,12 +263,19 @@ max_value = 1.0
 step = 0.01
 value = 0.1
 
-[node name="PitchExpo" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=536734912]
+[node name="PitchExpo" type="SpinBox" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=536734912]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-text = "0.00"
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.01
+value = 0.1
+alignment = 2
+select_all_on_focus = true
 
 [node name="RollLabel" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=811923997]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Roll"
 
@@ -239,11 +289,16 @@ max_value = 1800.0
 value = 667.0
 rounded = true
 
-[node name="RollRate" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=1647237529]
+[node name="RollRate" type="SpinBox" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=1647237529]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-text = "0000"
-horizontal_alignment = 2
+size_flags_vertical = 4
+max_value = 1800.0
+value = 667.0
+rounded = true
+alignment = 2
+select_all_on_focus = true
 
 [node name="RollRcSlider" type="HSlider" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=1174056165]
 unique_name_in_owner = true
@@ -255,11 +310,16 @@ max_value = 1800.0
 value = 667.0
 rounded = true
 
-[node name="RollRc" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=60989060]
+[node name="RollRc" type="SpinBox" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=60989060]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-text = "0000"
-horizontal_alignment = 2
+size_flags_vertical = 4
+max_value = 1800.0
+value = 667.0
+rounded = true
+alignment = 2
+select_all_on_focus = true
 
 [node name="RollExpoSlider" type="HSlider" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=1957228309]
 unique_name_in_owner = true
@@ -270,12 +330,19 @@ max_value = 1.0
 step = 0.01
 value = 0.1
 
-[node name="RollExpo" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=1617239010]
+[node name="RollExpo" type="SpinBox" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=1617239010]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-text = "0.00"
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.01
+value = 0.1
+alignment = 2
+select_all_on_focus = true
 
 [node name="YawLabel" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=1481751836]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Yaw"
 
@@ -289,11 +356,16 @@ max_value = 1800.0
 value = 667.0
 rounded = true
 
-[node name="YawRate" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=303705633]
+[node name="YawRate" type="SpinBox" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=303705633]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-text = "0000"
-horizontal_alignment = 2
+size_flags_vertical = 4
+max_value = 1800.0
+value = 667.0
+rounded = true
+alignment = 2
+select_all_on_focus = true
 
 [node name="YawRcSlider" type="HSlider" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=64956299]
 unique_name_in_owner = true
@@ -305,11 +377,16 @@ max_value = 1800.0
 value = 667.0
 rounded = true
 
-[node name="YawRc" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=1072063676]
+[node name="YawRc" type="SpinBox" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=1072063676]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-text = "0000"
-horizontal_alignment = 2
+size_flags_vertical = 4
+max_value = 1800.0
+value = 667.0
+rounded = true
+alignment = 2
+select_all_on_focus = true
 
 [node name="YawExpoSlider" type="HSlider" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=352780420]
 unique_name_in_owner = true
@@ -320,10 +397,16 @@ max_value = 1.0
 step = 0.01
 value = 0.1
 
-[node name="YawExpo" type="Label" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=388897996]
+[node name="YawExpo" type="SpinBox" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates/RateAdjust" unique_id=388897996]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-text = "0.00"
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.01
+value = 0.1
+alignment = 2
+select_all_on_focus = true
 
 [node name="RateGraph" type="Control" parent="PanelContainer/VBoxContainer/SettingsHBox/RatesScroll/Rates" unique_id=1902664987]
 unique_name_in_owner = true
