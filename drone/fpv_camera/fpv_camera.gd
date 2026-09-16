@@ -22,6 +22,11 @@ func _ready() -> void:
 	var _discard := Graphics.fisheye_resolution_changed.connect(_on_fisheye_resolution_changed)
 	_discard = Graphics.fisheye_msaa_changed.connect(_on_fisheye_msaa_changed)
 
+	# The level WorldEnvironment enables auto exposure. The fisheye sub-cameras already
+	# render without it, so applying it again on the composited view makes the image
+	# pulse (very visible lying on the ground after a crash). Use neutral attributes.
+	attributes = CameraAttributesPractical.new()
+
 	var fisheye_mode: int = Graphics.graphics_settings["fisheye_mode"]
 	if fisheye_mode == Graphics.FisheyeMode.OFF:
 		near = clip_near

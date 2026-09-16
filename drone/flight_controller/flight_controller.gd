@@ -194,6 +194,8 @@ func setup_flight_modes() -> void:
 	flight_mode_recover.pid_speed_side = pid_controllers[Controller.LATERAL_SPEED]
 	flight_mode_recover.pid_speed_vertical = pid_controllers[Controller.VERTICAL_SPEED]
 	flight_modes.append(flight_mode_recover)
+	# Recovery mode asks to disarm once the drone is back near the ground
+	var _discard := flight_mode_recover.disarm_requested.connect(_on_disarm_input)
 
 	for mode in flight_modes:
 		mode.control_profile = control_profile
@@ -218,8 +220,9 @@ func _on_arm_input() -> void:
 
 func _on_disarm_input() -> void:
 	state_armed = false
-	if flight_mode is FlightModeTurtle or flight_mode is FlightModeLaunch:
-		change_flight_mode(FlightMode.Type.ACRO)
+	if flight_mode is FlightModeTurtle or flight_mode is FlightModeLaunch or flight_mode is FlightModeRecover:
+		# Back to the mode the pilot had selected before the special mode kicked in
+		change_flight_mode(flight_mode_idx)
 	for controller in pid_controllers:
 		controller.disabled = true
 		controller.reset()
@@ -536,6 +539,8 @@ func update_command() -> FlightCommand:
 
 func reset() -> void:
 	state_armed = false
+	if flight_mode is FlightModeTurtle or flight_mode is FlightModeLaunch or flight_mode is FlightModeRecover:
+		change_flight_mode(flight_mode_idx)
 
 	# Update position twice to ensure pos_prev == pos
 	for _i in 2:
