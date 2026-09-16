@@ -15,14 +15,14 @@ func _post_import(scene: Node) -> Object:
 					shape.name = node_name.replace("-colbox", "-col")
 					scene.add_child(shape)
 					shape.set_owner(scene)
-					node.queue_free()
+					discard_node(node)
 					continue
 				elif node_name.ends_with("-colcylinder"):
 					var shape := collision_shape(node, "cylinder")
 					shape.name = node_name.replace("-colcylinder", "-col")
 					scene.add_child(shape)
 					shape.set_owner(scene)
-					node.queue_free()
+					discard_node(node)
 					continue
 				for child in node.get_children():
 					var child_name := child.name as String
@@ -33,7 +33,7 @@ func _post_import(scene: Node) -> Object:
 							coll.set_owner(scene)
 							coll.transform = child.transform
 							coll.name = child_name + "-col"
-						child.queue_free()
+						discard_node(child)
 					elif child is MeshInstance3D:
 						if child_name.ends_with("-colbox"):
 							var shape := collision_shape(child, "box")
@@ -45,7 +45,7 @@ func _post_import(scene: Node) -> Object:
 							shape.name = child_name.replace("-colcylinder", "-col")
 							scene.add_child(shape)
 							shape.set_owner(scene)
-						child.queue_free()
+						discard_node(child)
 
 	elif scene is Propeller:
 		if scene.get_child_count() != 4:
@@ -72,7 +72,7 @@ func _post_import(scene: Node) -> Object:
 					area.add_child(shape)
 					shape.set_owner(scene)
 					shape.name = (collision_mesh.name as String).replace("-colcylinder", "-col")
-					collision_mesh.queue_free()
+					discard_node(collision_mesh)
 				else:
 					# PropBlurDisk
 					var mat := node.mesh.surface_get_material(0) as StandardMaterial3D
@@ -113,9 +113,16 @@ func _post_import(scene: Node) -> Object:
 				area.add_child(shape)
 				shape.set_owner(scene)
 				shape.name = node_name.replace("-colcylinder", "-col")
-				node.queue_free()
+				discard_node(node)
 
 	return scene
+
+
+# The imported scene is packed as soon as _post_import returns, before queue_free()
+# runs, so helper meshes freed that way stayed in the drone and were rendered.
+func discard_node(node: Node) -> void:
+	node.get_parent().remove_child(node)
+	node.free()
 
 
 func collision_shape(node: MeshInstance3D, shape: String) -> CollisionShape3D:
