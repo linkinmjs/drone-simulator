@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode unshaded;
+render_mode unshaded, cull_disabled;
 
 uniform float hfov;
 
@@ -37,13 +37,19 @@ vec3 fisheye_ray(vec2 p) {
 	return fisheye_inverse(p * scale);
 }
 
+vec3 srgb_to_linear(vec3 color) {
+	return color * (color * (color * 0.305306011 + 0.682171111) + 0.012522878);
+}
+
 vec3 get_transformation(vec2 uv) {
 	return(fisheye_ray(uv));
 }
 
 
 void vertex() {
-	POSITION = vec4(VERTEX, 1.0);
+	// Same fix the full shader got in the Godot 4.6 port: with reverse-Z a depth of 0 is the
+	// far plane and the quad was clipped, leaving only the sky (or black) on screen.
+	POSITION = vec4(VERTEX.xy, 1.0, 1.0);
 }
 
 void fragment() {
@@ -75,12 +81,13 @@ void fragment() {
 		float v = pos.y / pos.z * dist;
 		
 		if (abs(u) < size / 2.0 && abs(v) < size / 2.0) {
-			uv = vec2(0.5 * (vec2(pos.x / abs(pos.z), pos.y / abs(pos.z))) + 0.5);
-			ALBEDO = texture(Texture0, uv).rgb;
+			// The front camera renders 100 degrees (like the full mode) to avoid seams
+			float fov_fix = tan(radians(90.0 / 2.0)) / tan(radians(100.0 / 2.0));
+			uv = vec2(fov_fix * 0.5 * (vec2(pos.x / abs(pos.z), pos.y / abs(pos.z))) + 0.5);
+			ALBEDO = srgb_to_linear(texture(Texture0, uv).rgb);
 		} else {
-			uv = vec2(0.5 * (vec2(pos.x / abs(pos.z), pos.y / abs(pos.z))) + 0.5);
 			uv = -vec2(u, v) + 0.5;
-			ALBEDO = texture(Texture1, uv).rgb;
+			ALBEDO = srgb_to_linear(texture(Texture1, uv).rgb);
 		}
 	}
 	if (debug) {

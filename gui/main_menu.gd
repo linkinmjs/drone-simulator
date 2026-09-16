@@ -41,7 +41,7 @@ func _ready() -> void:
 
 
 func _on_fly_pressed() -> void:
-	SceneTransition.change_scene("res://sceneries/level1.tscn")
+	SceneTransition.change_scene("res://sceneries/level1.tscn", true)
 
 
 func _on_quad_settings_pressed() -> void:

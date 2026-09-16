@@ -9,7 +9,7 @@ Implementación del plan de [plan-ui.md](plan-ui.md), rama `ui-lavado-de-cara`. 
 | `MenuScreen` | `gui/menu_screen.gd` | Clase base de las 10 pantallas. Señal `back`, `ui_cancel`, fundido de entrada y salida, fondo (degradado claro o velo sobre el nivel), pie con ayudas de control, foco inicial y `open_submenu()`. |
 | `UI` (autoload) | `autoloads/ui.gd` | Dispositivo en uso (mouse, teclado, gamepad, sticks), convivencia foco/mouse, sonidos y micro-animaciones enganchados con `node_added`, pila de contextos de foco, `confirm()` y `alert()`. |
 | `StickNavigation` (autoload) | `autoloads/stick_navigation.gd` | Convierte pitch, roll y yaw calibrados en acciones `ui_*`. Umbral 0.6, histéresis 0.4, repetición 350 ms + 120 ms. El acelerador nunca navega. |
-| `SceneTransition` (autoload) | `autoloads/scene_transition.gd` | Fundido al color de fondo al cambiar entre menú y nivel. |
+| `SceneTransition` (autoload) | `autoloads/scene_transition.gd` | Fundido al color de fondo al cambiar entre menú y nivel. Al entrar al nivel muestra una pantalla de carga con consejos. Detrás de ella, `level.gd` gira la cámara (`warm_up_view`) para compilar los shaders. La pantalla se quita cuando hay 8 frames seguidos por debajo de 70 ms, con un máximo de 6 s. En la web (Compatibility) esa compilación causaba los tirones del arranque. |
 | `ConfirmOverlay` | `gui/components/confirm_overlay.gd` | Diálogo modal dibujado dentro de la interfaz. Reemplaza los `ConfirmationDialog`/`AcceptDialog` nativos y `confirmation_popup.tscn`. |
 | `ControlHints` | `gui/components/control_hints.gd` | Pie de cada pantalla con las teclas del dispositivo en uso y el mando conectado. |
 | `MenuHero` | `gui/components/menu_hero.gd` | Dron 3D girando en el menú principal; reutiliza `controls_menu_drone.tscn`. `enabled_on_web` permite apagarlo en web. |
@@ -114,7 +114,8 @@ godot --path . --rendering-method gl_compatibility --windowed --resolution 1280x
 
 - `ui_smoke_test`: traducciones, navegación con acciones `ui_*` por todas las pantallas, retorno del foco, diálogo modal y gestos de stick (navegar, repetir, aceptar, volver, acelerador ignorado). Termina con código 0 si todo pasa.
 - `hud_projection_check`: carga el nivel con los tres modos de ojo de pez y dos ángulos de cámara, verifica la proyección del horizonte y guarda capturas del HUD, el menú de pausa y los overlays de carrera.
-- Ninguna de las dos guarda configuración del usuario.
+- `loading_check` (agregar `--rendering-method gl_compatibility`): hace la transición real al nivel, mide cuánto dura la pantalla de carga y los frames más largos de los 3 s siguientes. `--plain` compara con el fundido sin pantalla de carga. En escritorio no hay tirones en ningún caso, porque el driver compila los shaders mucho más rápido que WebGL; la mejora se ve en la web.
+- Ninguna de estas pruebas guarda configuración del usuario.
 
 ### Pendiente de probar con hardware
 

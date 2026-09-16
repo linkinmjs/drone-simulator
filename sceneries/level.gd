@@ -1,6 +1,11 @@
 extends Node3D
 
 
+## Emitted when `warm_up_view()` has looked all around (used by the loading screen)
+signal view_warmed_up
+
+const WARM_UP_STEPS := 8
+
 var packed_pause_menu := preload("res://gui/pause_menu.tscn")
 var pause_menu: PauseMenu = null
 
@@ -44,6 +49,28 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_tree().paused = true
 			add_pause_menu()
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+
+## Called by SceneTransition while the loading screen is up: turns the active camera around
+## once so the shaders of everything near the start are compiled before the flight is shown.
+## The Compatibility renderer (web) compiles them lazily, which caused the first-seconds stutter.
+func warm_up_view() -> void:
+	if camera == null:
+		view_warmed_up.emit.call_deferred()
+		return
+	var original := camera.transform
+	for i in WARM_UP_STEPS:
+		camera.rotate_y(TAU / WARM_UP_STEPS)
+		await get_tree().process_frame
+		await get_tree().process_frame
+	# One look up and one down for what is above and below the start
+	for pitch: float in [deg_to_rad(-70.0), deg_to_rad(70.0)]:
+		camera.transform = original
+		camera.rotate_object_local(Vector3.RIGHT, pitch)
+		await get_tree().process_frame
+		await get_tree().process_frame
+	camera.transform = original
+	view_warmed_up.emit()
 
 
 func get_cameras(node: Node) -> Array[Camera3D]:

@@ -335,8 +335,15 @@ UI_HINT_ADJUST,Ajustar,Adjust
 UI_HINT_BACK,Volver,Back
 UI_HINT_NAVIGATE,Navegar,Navigate
 UI_KEY_DPAD,Cruceta,D-pad
+UI_LOADING,Preparando la pista…,Preparing the track…
 UI_NO_CONTROLLER,Sin mando conectado,No controller connected
 UI_NO_CONTROLLER_WEB,Presioná un botón del mando para activarlo,Press a button on your controller to activate it
 UI_OFF,Desactivado,Off
 UI_OK,Aceptar,OK
 UI_ON,Activado,On
+UI_TIP_ARM,"Para armar, bajá el acelerador del todo y accioná el switch de armado.","To arm, bring the throttle all the way down and flip the arm switch."
+UI_TIP_CAMERA,¿Cuesta ver el horizonte? Bajá el ángulo de cámara en Ajustes del dron.,Hard to see the horizon? Lower the camera angle in Quad settings.
+UI_TIP_HUD,La línea punteada del HUD marca el horizonte real que ve la cámara.,The dotted line of the HUD marks the real horizon seen by the camera.
+UI_TIP_PAUSE,START o Escape pausan el vuelo. F2 oculta el menú de pausa.,START or Escape pause the flight. F2 hides the pause menu.
+UI_TIP_RACE,Pulsá R para correr: el dron aparece en la plataforma de largada más cercana.,Press R to race: the drone spawns on the closest launch pad.
+UI_TIP_STICKS,"Con una radio podés manejar los menús: pitch para moverte, roll para aceptar o volver.","With a radio you can drive the menus: pitch to move, roll to select or go back."
