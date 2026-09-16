@@ -1,11 +1,11 @@
 shader_type spatial;
 render_mode cull_front, unshaded;
 
-uniform sampler2D Texture0;
-uniform sampler2D Texture1;
-uniform sampler2D Texture2;
-uniform sampler2D Texture3;
-uniform sampler2D Texture4;
+uniform sampler2D Texture0 : hint_default_black, filter_linear, repeat_disable;
+uniform sampler2D Texture1 : hint_default_black, filter_linear, repeat_disable;
+uniform sampler2D Texture2 : hint_default_black, filter_linear, repeat_disable;
+uniform sampler2D Texture3 : hint_default_black, filter_linear, repeat_disable;
+uniform sampler2D Texture4 : hint_default_black, filter_linear, repeat_disable;
 
 uniform float hfov = 150.0;
 

@@ -3,8 +3,8 @@ render_mode unshaded, cull_disabled;
 
 uniform float hfov;
 
-uniform sampler2D Texture0 : hint_default_black;
-uniform sampler2D Texture1 : hint_default_black;
+uniform sampler2D Texture0 : hint_default_black, filter_linear, repeat_disable;
+uniform sampler2D Texture1 : hint_default_black, filter_linear, repeat_disable;
 
 
 vec3 latlon_to_ray(vec2 latlon) {
@@ -69,10 +69,11 @@ void fragment() {
 	if (view_ratio > 1.0) {
 		pos = get_transformation(vec2(uv.x - 0.5 * view_ratio, uv.y - 0.5) * 1.0);
 	} else {
-		pos = get_transformation(vec2(uv.x - 0.5 * view_ratio, uv.y - 0.5) * 1.0);
+		pos = get_transformation(vec2(uv.x - 0.5, uv.y - 0.5 / view_ratio) * 1.0);
 	}
 	if (pos.z >= 0.0) {
-		ALBEDO = pos;
+		// Behind the camera (only reachable with very wide FOVs): black, like the full mode
+		ALBEDO = vec3(0.0, 0.0, 0.0);
 	} else {
 		float dist = 0.5 / tan(radians(160.0) / 2.0);
 		float size = 2.0 * dist * tan(PI / 4.0);
@@ -86,7 +87,9 @@ void fragment() {
 			uv = vec2(fov_fix * 0.5 * (vec2(pos.x / abs(pos.z), pos.y / abs(pos.z))) + 0.5);
 			ALBEDO = srgb_to_linear(texture(Texture0, uv).rgb);
 		} else {
-			uv = -vec2(u, v) + 0.5;
+			// The screen corners go beyond the 160 degrees of this camera: stretch its edge
+			// instead of wrapping around, which showed a repeated (mirror-like) image
+			uv = clamp(-vec2(u, v) + 0.5, vec2(0.0), vec2(1.0));
 			ALBEDO = srgb_to_linear(texture(Texture1, uv).rgb);
 		}
 	}

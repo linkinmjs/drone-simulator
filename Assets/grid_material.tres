@@ -1,7 +1,13 @@
-[gd_resource type="ShaderMaterial" format=3 uid="uid://7auec3ko8opy"]
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://7auec3ko8opy"]
 
-[ext_resource type="Shader" uid="uid://b1gnbvtmovyv4" path="res://Assets/grid_shader.tres" id="1_rlclk"]
+[ext_resource type="Texture2D" uid="uid://dem5fonoln70q" path="res://Assets/grid_texture.png" id="1_grid"]
 
 [resource]
-render_priority = 0
-shader = ExtResource("1_rlclk")
+albedo_color = Color(0.4, 0.4, 0.4, 1)
+albedo_texture = ExtResource("1_grid")
+metallic_specular = 0.2
+roughness = 1.0
+uv1_scale = Vector3(0.25, 0.25, 0.25)
+uv1_triplanar = true
+uv1_world_triplanar = true
+texture_filter = 5

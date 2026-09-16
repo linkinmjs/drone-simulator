@@ -112,13 +112,17 @@ Al armar, `_integrate_forces` pasa de 1 a 10 subpasos y agrega 0.70 ms por tick.
 
 - No hay hilos: física, audio y envío de comandos de render comparten el hilo principal.
 - GDScript en wasm corre dos o tres veces más lento, así que la física armada puede llevarse 5 ms de los 16 ms del frame antes de cualquier mejora.
-- El renderizador es Compatibility. El cielo físico se dibujaba casi negro y ya se corrige en `Graphics.apply_compatibility_workarounds` (commit `a1f986b`).
-- Para probar localmente sin exportar, usar `--rendering-method gl_compatibility`.
+- El renderizador es Compatibility. El cielo físico se dibujaba casi negro y ya se corrige en `Graphics.apply_compatibility_workarounds` (commit `a1f986b`). Ahí también se reemplaza por un `ProceduralSkyMaterial` con colores grises (los de fábrica dejaban una banda marrón bajo el horizonte y teñían de azul la luz sobre el suelo) y se baja el sol a la mitad, porque la exposición extra que necesita el cielo quemaba el suelo iluminado.
+- Luz ambiente en Compatibility: las cámaras del ojo de pez (SubViewports) ignoran `AMBIENT_SOURCE_COLOR` y dibujan negro todo lo que queda en sombra, y `ambient_light_energy` no cambia nada con ambiente de cielo. No usarlos para calibrar.
+- El suelo usaba un VisualShader con *instance uniforms* y un *global uniform* de textura. En Compatibility de escritorio funcionaba, pero en WebGL se dibujaba negro y espejado. Ahora `Assets/grid_material.tres` es un `StandardMaterial3D` triplanar en coordenadas de mundo (una textura cada 4 m) que se ve igual en los dos renderizadores.
+- Ojo de pez: las texturas de las SubViewports se muestrean con `filter_linear, repeat_disable`. En Fast, las esquinas de la pantalla quedan fuera de los 160° de la cámara lateral: la UV se recorta al borde en vez de repetir la imagen (el efecto espejo).
+- Por defecto en web el ojo de pez es **Full a 480p** (mismo lente que en escritorio, sin costura entre cámaras). En Compatibility, a 1920×1080 en la máquina de prueba: Full 480p 4.0 ms por frame, Full 720p 4.2 ms, Fast 720p 3.0 ms, Off 3.4 ms. Manda la cantidad de draw calls, no la resolución. `Graphics.WEB_DEFAULTS_REVISION` aplica estos valores una vez sobre la configuración que el navegador ya tenía guardada.
+- Para probar localmente sin exportar, usar `--rendering-method gl_compatibility`. `tools/render_parity_check.tscn` guarda capturas y luminancia de cada modo de ojo de pez para comparar los dos renderizadores (`--mode`, `--fisheye-res`, `--bench`).
 
 ## Seguimiento
 
 - [ ] Checkpoints con monitoreo selectivo y capa propia
-- [ ] Fisheye Fast por defecto en web
+- [x] Ojo de pez por defecto en web (se eligió Full a 480p por paridad visual)
 - [ ] Bucle de vuelo sin consultas ni arrays repetidos
 - [ ] Cadena de replay solo al grabar
 - [ ] Dos reproductores de sonido por motor
