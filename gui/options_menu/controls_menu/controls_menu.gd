@@ -170,7 +170,7 @@ func update_controller_list() -> void:
 		controller_checkbutton.disabled = false
 
 
-func _on_joypad_connection_changed() -> void:
+func _on_joypad_connection_changed(_device: int, _connected: bool) -> void:
 	update_controller_list()
 	var active_controller_found := false
 	for joypad in connected_joypads:
