@@ -236,7 +236,6 @@ mode_launch={
 [internationalization]
 
 locale/translations=PackedStringArray("res://localization/translations.es.translation", "res://localization/translations.en.translation")
-locale/fallback="en"
 
 [physics]
 
