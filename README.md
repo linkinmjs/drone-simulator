@@ -24,3 +24,51 @@ I started this project on Godot 3 a few years back. Now that Godot 4 is out and 
 
 ## Development
 I started this project as a hobby, and am not currently looking for pull requests - but do feel free to open issues and leave feedback. Also, the codebase is probably horrible and I am in the process of refactoring most of it after porting the project to Godot 4.
+
+## Sobre este repositorio
+
+Este repositorio sirve entrega del trabajo práctico 1 del trayecto de image campus 2025 de Desarrollo de Videojuegos con Godot.
+
+## Publicación automática en itch.io
+
+Cada push a la rama `master` dispara la acción de GitHub definida en `.github/workflows/deploy-to-itch.yml`: importa los recursos con Godot 4.7, exporta el preset **Web** de `export_presets.cfg` y sube el resultado a itch.io con butler.
+
+### Paso 1
+
+Crear el proyecto en itch
+
+   <img height="300" alt="image" src="https://github.com/user-attachments/assets/289a1dd2-72b3-40af-b76a-81bef6d9212f" />
+
+### Paso 2
+
+Ponerle un título al juego, y configurar el **Kind of project** como HTML
+
+   <img height="600" alt="image" src="https://github.com/user-attachments/assets/12ba7e65-e05a-4106-a8f0-69ce8415a851" />
+
+### Paso 3
+
+Clickear Save & view page
+
+   <img width="631" height="190" alt="image" src="https://github.com/user-attachments/assets/bea9ca55-ddf6-4043-87b3-78b079718dac" />
+
+### Paso 4
+
+Configurar los siguientes secretos en el repositorio (Settings > Secrets and Variables > Actions):
+
+   - BUTLER_API_KEY -> se obtiene aquí: https://itch.io/user/settings/api-keys
+   - ITCHIO_GAME -> nombre del juego en itch
+   - ITCHIO_USERNAME -> usuario de itch
+
+### Paso 5
+
+Hacer un commit y un push al repositorio; eso dispara la acción que exporta el juego y lo sube a itch:
+
+<img width="1910" height="369" alt="image" src="https://github.com/user-attachments/assets/06312139-8854-4d35-8670-552dda17ff6c" />
+
+### Paso 6
+
+Tras subirlo por primera vez, volver a itch y marcar la opción **This file will be played in the browser**, luego guardar de nuevo.
+
+<img width="627" height="410" alt="image" src="https://github.com/user-attachments/assets/0c5c671d-248e-457c-963e-9144a240f687" />
+
+A partir de ahí, cada push a `master` actualiza el juego en itch automáticamente.
