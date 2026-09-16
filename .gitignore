@@ -2,10 +2,13 @@
 .godot/
 
 export.cfg
-export_presets.cfg
 export/
 
 .mono/
 
 # Android build template
 /android/
+
+# Local Web exports (the CI builds its own)
+/builds/*
+!/builds/.gitkeep
