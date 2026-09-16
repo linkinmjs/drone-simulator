@@ -86,6 +86,8 @@ func _run() -> void:
 	await action(&"ui_down")
 	check(focus_name() == "ButtonFly", "first navigation press shows the focus on Fly (got %s)" % focus_name())
 	await action(&"ui_down")
+	check(focus_name() == "ButtonTutorial", "ui_down moves to Flight instructor (got %s)" % focus_name())
+	await action(&"ui_down")
 	check(focus_name() == "ButtonQuad", "ui_down moves to Quad settings (got %s)" % focus_name())
 	await shot("01_main_menu.png")
 	await action(&"ui_down")
@@ -162,12 +164,13 @@ func _run() -> void:
 	StickNavigation.scheme = StickNavigation.Scheme.BETAFLIGHT
 	(menu.find_child("ButtonFly", true, false) as Button).grab_focus()
 	await frames(5)
-	Input.action_press(&"pitch_down", 1.0)
+	# Pulling the stick back (pitch up, nose up) moves the focus down
+	Input.action_press(&"pitch_up", 1.0)
 	await frames(4)
-	check(focus_name() == "ButtonQuad", "pitch down moves the focus down (got %s)" % focus_name())
+	check(focus_name() == "ButtonTutorial", "stick back moves the focus down (got %s)" % focus_name())
 	await get_tree().create_timer(0.5).timeout
-	check(focus_name() != "ButtonQuad", "holding pitch repeats (got %s)" % focus_name())
-	Input.action_release(&"pitch_down")
+	check(focus_name() != "ButtonTutorial", "holding pitch repeats (got %s)" % focus_name())
+	Input.action_release(&"pitch_up")
 	await frames(4)
 	var after_release := focus_name()
 	await frames(20)

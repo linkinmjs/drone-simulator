@@ -1,0 +1,224 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://sceneries/tutorial_level.gd" id="1_level"]
+[ext_resource type="Material" uid="uid://7auec3ko8opy" path="res://Assets/grid_material.tres" id="2_grid"]
+[ext_resource type="PackedScene" uid="uid://cbsls72667u5s" path="res://sceneries/cameras/follow_camera.tscn" id="3_follow"]
+[ext_resource type="PackedScene" uid="uid://cpwlqiq68no60" path="res://sceneries/cameras/flyaround_camera.tscn" id="4_flyaround"]
+[ext_resource type="PackedScene" uid="uid://drpyo8j7v14s4" path="res://drone/drones/drone1.tscn" id="5_drone"]
+[ext_resource type="Script" uid="uid://cd3simqvqx4ja" path="res://drone/fpv_camera/fpv_camera.gd" id="6_fpv"]
+[ext_resource type="Script" uid="uid://d2mf6xx3fh2sc" path="res://drone/radio_controller.gd" id="7_radio"]
+[ext_resource type="PackedScene" uid="uid://bh6efpyxn1hg0" path="res://tracks/objects/Flag.tscn" id="8_flag"]
+[ext_resource type="Script" path="res://tutorial/tutorial_zone.gd" id="9_zone"]
+[ext_resource type="PackedScene" uid="uid://dwtakig1c6ax" path="res://tracks/gates/Gate_Double_1.tscn" id="10_gate"]
+[ext_resource type="PackedScene" path="res://tracks/tracks/Track_Tutorial.tscn" id="11_track"]
+[ext_resource type="Script" path="res://tutorial/tutorial_sequencer.gd" id="12_sequencer"]
+[ext_resource type="Script" path="res://tutorial/steps/step_controller_check.gd" id="13_l1"]
+[ext_resource type="Script" path="res://tutorial/steps/step_hover.gd" id="14_l2"]
+[ext_resource type="Script" path="res://tutorial/steps/step_yaw.gd" id="15_l3"]
+[ext_resource type="Script" path="res://tutorial/steps/step_reach_zones.gd" id="16_zones"]
+[ext_resource type="Script" path="res://tutorial/steps/step_gates.gd" id="17_gates"]
+[ext_resource type="Script" path="res://tutorial/steps/step_race.gd" id="18_race"]
+[ext_resource type="Script" path="res://tutorial/tutorial_hud.gd" id="19_hud"]
+
+[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_sky"]
+
+[sub_resource type="Sky" id="Sky_main"]
+sky_material = SubResource("PhysicalSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 2
+sky = SubResource("Sky_main")
+ambient_light_source = 3
+reflected_light_source = 2
+tonemap_mode = 2
+sdfgi_use_occlusion = true
+glow_enabled = true
+fog_density = 0.0
+fog_aerial_perspective = 0.5
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributes_main"]
+auto_exposure_enabled = true
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(160, 1, 160)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+material = ExtResource("2_grid")
+size = Vector3(160, 1, 160)
+
+[node name="TutorialLevel" type="Node3D"]
+process_mode = 1
+script = ExtResource("1_level")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+camera_attributes = SubResource("CameraAttributes_main")
+
+[node name="Respawn" type="Node3D" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.860577, 0.207325, -0.465214, 0.509321, -0.350308, 0.786051, 0, -0.913401, -0.407062, 0, 20, 0)
+shadow_enabled = true
+shadow_bias = 0.0
+directional_shadow_blend_splits = true
+
+[node name="CameraFixed" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, 0, 8, 20)
+near = 0.1
+far = 1000.0
+
+[node name="FollowCamera" parent="." instance=ExtResource("3_follow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 2)
+near = 0.1
+far = 1000.0
+target = NodePath("../Drone")
+target_distance = 1.0
+target_offset = Vector3(0, 0.2, 0)
+camera_offset = Vector3(0, 0.5, 2)
+speed = 10.0
+
+[node name="FlyaroundCamera" parent="." instance=ExtResource("4_flyaround")]
+process_mode = 3
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 5)
+
+[node name="Drone" parent="." instance=ExtResource("5_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+
+[node name="FPVCamera" type="Camera3D" parent="Drone"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, -0.5, 0, 0.5, 0.866025, 0, 0.00459784, -0.0626912)
+script = ExtResource("6_fpv")
+clip_near = 0.006
+
+[node name="Objects" type="Node3D" parent="."]
+
+[node name="Ground" type="StaticBody3D" parent="Objects"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Objects/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_ground")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Objects/Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+instance_shader_parameters/TileX = 40.0
+instance_shader_parameters/TileY = 40.0
+instance_shader_parameters/main_color = Color(0.5, 0.5, 0.5, 1)
+mesh = SubResource("BoxMesh_ground")
+
+[node name="FlagNE" parent="Objects" instance=ExtResource("8_flag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, -11)
+
+[node name="FlagSE" parent="Objects" instance=ExtResource("8_flag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 11)
+
+[node name="FlagSW" parent="Objects" instance=ExtResource("8_flag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0, 11)
+
+[node name="FlagNW" parent="Objects" instance=ExtResource("8_flag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0, -11)
+
+[node name="RadioController" type="Node" parent="."]
+script = ExtResource("7_radio")
+target_path = NodePath("../Drone")
+
+[node name="Props" type="Node3D" parent="."]
+
+[node name="HoverZone" type="Node3D" parent="Props"]
+script = ExtResource("9_zone")
+radius = 2.0
+bottom = 1.0
+top = 3.0
+
+[node name="ZoneCenter" type="Node3D" parent="Props"]
+script = ExtResource("9_zone")
+
+[node name="ZoneFront" type="Node3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
+script = ExtResource("9_zone")
+
+[node name="ZoneRight" type="Node3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 0)
+script = ExtResource("9_zone")
+
+[node name="ZoneLeft" type="Node3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 0)
+script = ExtResource("9_zone")
+
+[node name="GateStart" type="Marker3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 8)
+
+[node name="Gates" type="Node3D" parent="."]
+
+[node name="Gate1" parent="Gates" instance=ExtResource("10_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -4)
+
+[node name="Gate2" parent="Gates" instance=ExtResource("10_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27, 0, -16)
+
+[node name="Gate3" parent="Gates" instance=ExtResource("10_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -28)
+
+[node name="Track_Tutorial" parent="." instance=ExtResource("11_track")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, 0)
+
+[node name="TutorialSequencer" type="Node" parent="."]
+script = ExtResource("12_sequencer")
+
+[node name="L1_Controller" type="Node" parent="TutorialSequencer"]
+script = ExtResource("13_l1")
+title_key = "TUT_L1_TITLE"
+objective_key = "TUT_L1_OBJECTIVE"
+
+[node name="L2_Hover" type="Node" parent="TutorialSequencer"]
+script = ExtResource("14_l2")
+zone_path = NodePath("../../Props/HoverZone")
+title_key = "TUT_L2_TITLE"
+objective_key = "TUT_L2_OBJECTIVE"
+
+[node name="L3_Yaw" type="Node" parent="TutorialSequencer"]
+script = ExtResource("15_l3")
+title_key = "TUT_L3_TITLE"
+objective_key = "TUT_L3_OBJECTIVE"
+
+[node name="L4_Pitch" type="Node" parent="TutorialSequencer"]
+script = ExtResource("16_zones")
+zone_paths = Array[NodePath]([NodePath("../../Props/ZoneFront"), NodePath("../../Props/ZoneCenter")])
+task_keys = Array[String](["TUT_L4_T_FORWARD", "TUT_L4_T_BACK"])
+right_stick_hints = Array[Vector2]([Vector2(0, -1), Vector2(0, 1)])
+title_key = "TUT_L4_TITLE"
+objective_key = "TUT_L4_OBJECTIVE"
+
+[node name="L5_Roll" type="Node" parent="TutorialSequencer"]
+script = ExtResource("16_zones")
+zone_paths = Array[NodePath]([NodePath("../../Props/ZoneRight"), NodePath("../../Props/ZoneCenter"), NodePath("../../Props/ZoneLeft"), NodePath("../../Props/ZoneCenter")])
+task_keys = Array[String](["TUT_L5_T_RIGHT", "TUT_L5_T_CENTER_LEFT", "TUT_L5_T_LEFT", "TUT_L5_T_CENTER_RIGHT"])
+right_stick_hints = Array[Vector2]([Vector2(1, 0), Vector2(-1, 0), Vector2(-1, 0), Vector2(1, 0)])
+title_key = "TUT_L5_TITLE"
+objective_key = "TUT_L5_OBJECTIVE"
+
+[node name="L6_GatesHorizon" type="Node" parent="TutorialSequencer"]
+script = ExtResource("17_gates")
+gate_paths = Array[NodePath]([NodePath("../../Gates/Gate1"), NodePath("../../Gates/Gate2"), NodePath("../../Gates/Gate3")])
+title_key = "TUT_L6_TITLE"
+objective_key = "TUT_L6_OBJECTIVE"
+respawn_marker = NodePath("../../Props/GateStart")
+
+[node name="L7_GatesAcro" type="Node" parent="TutorialSequencer"]
+script = ExtResource("17_gates")
+gate_paths = Array[NodePath]([NodePath("../../Gates/Gate1"), NodePath("../../Gates/Gate2"), NodePath("../../Gates/Gate3")])
+title_key = "TUT_L7_TITLE"
+objective_key = "TUT_L7_OBJECTIVE"
+flight_mode = 0
+respawn_marker = NodePath("../../Props/GateStart")
+
+[node name="L8_Race" type="Node" parent="TutorialSequencer"]
+script = ExtResource("18_race")
+track_path = NodePath("../../Track_Tutorial")
+title_key = "TUT_L8_TITLE"
+objective_key = "TUT_L8_OBJECTIVE"
+flight_mode = 0
+block_mode_cycling = false
+respawn_on_start = false
+success_delay = 1.5
+
+[node name="TutorialHUD" type="CanvasLayer" parent="."]
+script = ExtResource("19_hud")

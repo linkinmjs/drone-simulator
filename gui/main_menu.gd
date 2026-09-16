@@ -6,6 +6,7 @@ var packed_options_menu := preload("res://gui/options_menu/options_menu.tscn")
 var packed_help_page := preload("res://gui/help_page.tscn")
 
 @onready var button_fly := %ButtonFly as Button
+@onready var button_tutorial := %ButtonTutorial as Button
 @onready var button_quad := %ButtonQuad as Button
 @onready var button_help := %ButtonHelp as Button
 @onready var button_options := %ButtonOptions as Button
@@ -18,6 +19,7 @@ func _ready() -> void:
 	initial_focus = button_fly
 	super()
 	var _discard := button_fly.pressed.connect(_on_fly_pressed)
+	_discard = button_tutorial.pressed.connect(_on_tutorial_pressed)
 	_discard = button_quad.pressed.connect(_on_quad_settings_pressed)
 	_discard = button_help.pressed.connect(_on_help_pressed)
 	_discard = button_options.pressed.connect(_on_options_pressed)
@@ -42,6 +44,10 @@ func _ready() -> void:
 
 func _on_fly_pressed() -> void:
 	SceneTransition.change_scene("res://sceneries/level1.tscn", true)
+
+
+func _on_tutorial_pressed() -> void:
+	SceneTransition.change_scene("res://sceneries/tutorial_level.tscn", true)
 
 
 func _on_quad_settings_pressed() -> void:

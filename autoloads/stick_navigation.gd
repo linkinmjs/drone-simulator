@@ -44,7 +44,8 @@ func _process(delta: float) -> void:
 		_was_active = true
 		_prime_axes()
 		return
-	_update("pitch", Input.get_axis(&"pitch_down", &"pitch_up"), delta)
+	# Pushing the stick up is "pitch down" (nose down, fly forward): it moves the focus up
+	_update("pitch", Input.get_axis(&"pitch_up", &"pitch_down"), delta)
 	_update("roll", Input.get_axis(&"roll_left", &"roll_right"), delta)
 	_update("yaw", Input.get_axis(&"yaw_left", &"yaw_right"), delta)
 
@@ -112,7 +113,7 @@ func _focus_is_value_control() -> bool:
 
 
 func any_axis_deflected() -> bool:
-	return absf(Input.get_axis(&"pitch_down", &"pitch_up")) > RELEASE \
+	return absf(Input.get_axis(&"pitch_up", &"pitch_down")) > RELEASE \
 			or absf(Input.get_axis(&"roll_left", &"roll_right")) > RELEASE \
 			or absf(Input.get_axis(&"yaw_left", &"yaw_right")) > RELEASE
 
@@ -122,7 +123,7 @@ func _prime_axes() -> void:
 		var value := 0.0
 		match axis:
 			"pitch":
-				value = Input.get_axis(&"pitch_down", &"pitch_up")
+				value = Input.get_axis(&"pitch_up", &"pitch_down")
 			"roll":
 				value = Input.get_axis(&"roll_left", &"roll_right")
 			"yaw":

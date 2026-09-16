@@ -3,6 +3,7 @@ extends Node
 
 signal hud_config_updated
 signal game_settings_updated
+signal tutorial_progress_updated
 
 enum HudPreset {MINIMAL, STANDARD, FULL, CUSTOM}
 
@@ -29,6 +30,9 @@ var hud_config := {"fps": 10, "crosshair": true, "horizon": true, "ladder": fals
 		"horizon_mode": "camera"}
 
 var game_config := {"language": "", "nav_scheme": 0}
+
+## Flight instructor progress. `completed` is a bit mask: bit 0 = lesson 1.
+var tutorial_progress := {"completed": 0, "last_lesson": 1}
 
 
 func _ready() -> void:
@@ -150,3 +154,74 @@ func get_hud_preset() -> HudPreset:
 		if matches:
 			return i as HudPreset
 	return HudPreset.CUSTOM
+
+
+func load_tutorial_progress() -> void:
+	var config := ConfigFile.new()
+	var err := config.load(game_settings_path)
+	if err == OK:
+		for key: String in tutorial_progress.keys():
+			var value: Variant = config.get_value("tutorial", key, tutorial_progress[key])
+			if value is int or value is float:
+				tutorial_progress[key] = maxi(int(value), 0)
+	elif err != ERR_FILE_NOT_FOUND:
+		Global.log_error(err, "Error while loading the tutorial progress.")
+
+
+func save_tutorial_progress() -> void:
+	var _dir_err := DirAccess.make_dir_recursive_absolute(Global.config_dir)
+	var config := ConfigFile.new()
+	var err := config.load(game_settings_path)
+	if err == OK or err == ERR_FILE_NOT_FOUND or err == ERR_PARSE_ERROR:
+		for key: String in tutorial_progress.keys():
+			config.set_value("tutorial", key, tutorial_progress[key])
+		err = config.save(game_settings_path)
+		if err != OK:
+			Global.log_error(err, "Error while saving the tutorial progress.")
+	else:
+		Global.log_error(err, "Error while saving the tutorial progress.")
+	tutorial_progress_updated.emit()
+
+
+## Lessons are numbered from 1.
+func is_lesson_completed(lesson: int) -> bool:
+	return ((int(tutorial_progress["completed"]) >> (lesson - 1)) & 1) == 1
+
+
+func mark_lesson_completed(lesson: int) -> void:
+	tutorial_progress["completed"] = int(tutorial_progress["completed"]) | (1 << (lesson - 1))
+	tutorial_progress["last_lesson"] = lesson
+	save_tutorial_progress()
+
+
+func set_tutorial_last_lesson(lesson: int) -> void:
+	if int(tutorial_progress["last_lesson"]) == lesson:
+		return
+	tutorial_progress["last_lesson"] = lesson
+	save_tutorial_progress()
+
+
+func has_tutorial_progress() -> bool:
+	return int(tutorial_progress["completed"]) != 0
+
+
+func get_completed_lesson_count(total: int) -> int:
+	var count := 0
+	for lesson in range(1, total + 1):
+		if is_lesson_completed(lesson):
+			count += 1
+	return count
+
+
+## First lesson not completed yet, or `total + 1` when every lesson is done.
+func get_first_incomplete_lesson(total: int) -> int:
+	for lesson in range(1, total + 1):
+		if not is_lesson_completed(lesson):
+			return lesson
+	return total + 1
+
+
+func reset_tutorial_progress() -> void:
+	tutorial_progress["completed"] = 0
+	tutorial_progress["last_lesson"] = 1
+	save_tutorial_progress()
