@@ -19,6 +19,8 @@ enum VSync {OFF, ON, ADAPTIVE}
 enum Quality {LOW, MEDIUM, HIGH, ULTRA, CUSTOM}
 
 const MAX_FPS_OPTIONS: Array[int] = [30, 60, 120, 144, 240, 0]
+## Bump to apply new web defaults once over the settings already saved in the browser.
+const WEB_DEFAULTS_REVISION := 1
 ## Values applied by each quality preset (the order follows the Quality enum).
 const QUALITY_PRESETS := [
 	{"msaa": GameMSAA.OFF, "shadows": Shadows.LOW, "fisheye_mode": FisheyeMode.FAST,
@@ -45,6 +47,7 @@ var graphics_settings := {
 	"fisheye_msaa": FisheyeMSAA.SAME_AS_GAME,
 	"vsync": VSync.ON,
 	"max_fps": 0,
+	"web_defaults_revision": 0,
 }
 var fisheye_resolution := 720
 
@@ -56,7 +59,16 @@ func _ready() -> void:
 		graphics_settings["window_mode"] = WindowMode.WINDOW
 		for key: String in QUALITY_PRESETS[Quality.MEDIUM]:
 			graphics_settings[key] = QUALITY_PRESETS[Quality.MEDIUM][key]
-		update_fisheye_resolution()
+		apply_web_fisheye_defaults()
+
+
+## On the web the full fisheye (same lens as the desktop, no seam between cameras) runs at a
+## lower resolution per camera to keep the frame rate.
+func apply_web_fisheye_defaults() -> void:
+	graphics_settings["fisheye_mode"] = FisheyeMode.FULL
+	graphics_settings["fisheye_resolution"] = FisheyeResolution.FISHEYE_480P
+	graphics_settings["web_defaults_revision"] = WEB_DEFAULTS_REVISION
+	update_fisheye_resolution()
 
 
 func is_web() -> bool:
@@ -71,6 +83,11 @@ func load_graphics_settings() -> String:
 		for key: String in graphics_settings.keys():
 			if config.has_section_key("graphics", key):
 				graphics_settings[key] = config.get_value("graphics", key)
+		# Read from the file: on the web _ready() already set the current revision in memory
+		var saved_revision := int(config.get_value("graphics", "web_defaults_revision", 0))
+		var outdated_web_settings := is_web() and saved_revision < WEB_DEFAULTS_REVISION
+		if outdated_web_settings:
+			apply_web_fisheye_defaults()
 		update_window_mode()
 		update_resolution()
 		update_msaa()
@@ -81,6 +98,8 @@ func load_graphics_settings() -> String:
 		update_fisheye_msaa()
 		update_vsync()
 		update_max_fps()
+		if outdated_web_settings:
+			save_graphics_settings()
 	elif err == ERR_PARSE_ERROR:
 		Global.log_error(err, "Parse error while loading graphics configuration file.")
 		text = "ERR_GRAPHICS_PARSE"
@@ -293,6 +312,11 @@ func get_fisheye_resolution(resolution_setting: int) -> int:
 # the PhysicalSkyMaterial far too dark, which leaves the whole level looking like night.
 # These helpers bring it close to the Forward+ look without touching the desktop build.
 const COMPATIBILITY_EXPOSURE_MULTIPLIER := 1.4
+const COMPATIBILITY_SKY_TOP := Color(0.46, 0.5, 0.56)
+const COMPATIBILITY_SKY_HORIZON := Color(0.6, 0.64, 0.68)
+const COMPATIBILITY_SKY_GROUND := Color(0.36, 0.37, 0.39)
+const COMPATIBILITY_SUN_ANGLE_MAX := 8.0
+const COMPATIBILITY_SUN_MULTIPLIER := 0.5
 
 
 func is_compatibility_renderer() -> bool:
@@ -311,8 +335,24 @@ func apply_compatibility_workarounds(world_environment: WorldEnvironment) -> voi
 		return
 	var environment := world_environment.environment
 	if environment and environment.sky and environment.sky.sky_material is PhysicalSkyMaterial:
-		environment.sky.sky_material = ProceduralSkyMaterial.new()
+		environment.sky.sky_material = new_compatibility_sky()
 	var attributes := world_environment.camera_attributes
 	if attributes is CameraAttributesPractical:
 		attributes.auto_exposure_enabled = false
 		attributes.exposure_multiplier = COMPATIBILITY_EXPOSURE_MULTIPLIER
+	# The exposure boost the sky needs burns out the sunlit ground: dim only the sun
+	for light: Node in world_environment.get_parent().find_children("*", "DirectionalLight3D", false):
+		(light as DirectionalLight3D).light_intensity_lux *= COMPATIBILITY_SUN_MULTIPLIER
+
+
+## Stand-in for the PhysicalSkyMaterial. The default colors are too saturated (a brown band under
+## the horizon on the web, and a blue tint in the light the sky casts on the ground); these
+## follow the grey haze of the desktop sky.
+func new_compatibility_sky() -> ProceduralSkyMaterial:
+	var sky := ProceduralSkyMaterial.new()
+	sky.sky_top_color = COMPATIBILITY_SKY_TOP
+	sky.sky_horizon_color = COMPATIBILITY_SKY_HORIZON
+	sky.ground_horizon_color = COMPATIBILITY_SKY_HORIZON
+	sky.ground_bottom_color = COMPATIBILITY_SKY_GROUND
+	sky.sun_angle_max = COMPATIBILITY_SUN_ANGLE_MAX
+	return sky

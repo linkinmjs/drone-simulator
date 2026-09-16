@@ -266,10 +266,3 @@ anti_aliasing/quality/msaa_3d=1
 scaling_3d/mode=1
 textures/decals/filter=5
 textures/light_projectors/filter=5
-
-[shader_globals]
-
-grid_texture={
-"type": "sampler2D",
-"value": "res://Assets/grid_texture.png"
-}

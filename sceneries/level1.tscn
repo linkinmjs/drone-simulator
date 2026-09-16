@@ -2,7 +2,6 @@
 
 [ext_resource type="PackedScene" uid="uid://bomil4jinmvd7" path="res://tracks/tracks/Track_TorusTunnel.tscn" id="1"]
 [ext_resource type="Script" uid="uid://bth7ey1ebf861" path="res://sceneries/level.gd" id="3"]
-[ext_resource type="Shader" uid="uid://b1gnbvtmovyv4" path="res://Assets/grid_shader.tres" id="4"]
 [ext_resource type="Script" uid="uid://d2mf6xx3fh2sc" path="res://drone/radio_controller.gd" id="5"]
 [ext_resource type="PackedScene" uid="uid://drpyo8j7v14s4" path="res://drone/drones/drone1.tscn" id="6"]
 [ext_resource type="Material" uid="uid://7auec3ko8opy" path="res://Assets/grid_material.tres" id="6_3cqco"]
@@ -47,12 +46,8 @@ size = Vector3(200, 1, 200)
 [sub_resource type="BoxShape3D" id="4"]
 size = Vector3(4, 1, 4)
 
-[sub_resource type="ShaderMaterial" id="5"]
-render_priority = 0
-shader = ExtResource("4")
-
 [sub_resource type="BoxMesh" id="6"]
-material = SubResource("5")
+material = ExtResource("6_3cqco")
 size = Vector3(4, 1, 4)
 
 [sub_resource type="CapsuleMesh" id="7"]
@@ -212,9 +207,6 @@ shape = SubResource("1")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Objects/Ground" unique_id=227721289]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
-instance_shader_parameters/TileX = 50.0
-instance_shader_parameters/TileY = 50.0
-instance_shader_parameters/main_color = Color(0.5, 0.5, 0.5, 1)
 mesh = SubResource("3")
 
 [node name="Pillar3" type="StaticBody3D" parent="Objects" unique_id=1377267741]
@@ -226,9 +218,6 @@ shape = SubResource("4")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Objects/Pillar3" unique_id=53044952]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-instance_shader_parameters/TileX = 1.0
-instance_shader_parameters/TileY = 1.0
-instance_shader_parameters/main_color = Color(0.5, 0.5, 0.5, 1)
 mesh = SubResource("6")
 
 [node name="MockPilot" type="StaticBody3D" parent="Objects" unique_id=180930487]
