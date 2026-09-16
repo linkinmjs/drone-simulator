@@ -54,14 +54,14 @@ func get_formatted_date_time() -> String:
 	return time
 
 
-func show_error_popup(control: Node, error: String) -> void:
+## Shows an error inside the interface. `error` may be a translation key.
+## `_control` is kept for compatibility with the previous API.
+func show_error_popup(_control: Node, error: String) -> void:
 	if error.is_empty():
 		return
 	await get_tree().process_frame
-	var controller_dialog := AcceptDialog.new()
-	controller_dialog.dialog_text = error
-	control.add_child(controller_dialog)
-	controller_dialog.popup_centered.call_deferred()
+	UI.play("error")
+	await UI.alert(error)
 
 
 func log_error(err_code: int, message: String = "") -> void:

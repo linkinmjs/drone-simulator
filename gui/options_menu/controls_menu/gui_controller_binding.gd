@@ -17,7 +17,6 @@ var axis := -1
 var axis_value := 0.0
 
 var highlight := false
-var t := 0.0
 var pressed := false
 
 
@@ -31,34 +30,49 @@ func _ready() -> void:
 	controller_button.custom_minimum_size = Vector2(controller_button.custom_minimum_size.x, 16)
 	controller_button.set_range(0, 1, 1)
 	controller_button.value = 0
-	controller_button.set_color_on(Color(0.8, 0.0, 0.0, 1.0), true)
+	controller_button.set_color_on(UIPalette.SUCCESS, true)
 
 	label.mouse_filter = Control.MOUSE_FILTER_PASS
 	controller_button.mouse_filter = Control.MOUSE_FILTER_PASS
+	add_theme_constant_override(&"separation", 6)
 
+	# Navigable with keyboard, gamepad and sticks: the row behaves like a button
+	focus_mode = Control.FOCUS_ALL
+	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	var _discard := mouse_entered.connect(_on_mouse_entered)
 	_discard = mouse_exited.connect(_on_mouse_exited)
+	_discard = focus_entered.connect(queue_redraw)
+	_discard = focus_exited.connect(queue_redraw)
 
 
-func _process(delta: float) -> void:
-	if highlight:
-		t += delta
-		var col1 := cos(2 * PI * (t + 0.5)) * 0.2 + 0.2
-		var col2 := cos(2 * PI * (t + 0.5)) * 0.5 + 0.5
-		modulate = Color(1.0, 1.0 - col1, 1.0 - col2, 1.0)
+func _draw() -> void:
+	var style := &"normal"
+	if has_focus():
+		style = &"focus"
+	elif highlight:
+		style = &"hover"
+	var box := get_theme_stylebox(style, &"RowPanel")
+	if box:
+		draw_style_box(box, Rect2(Vector2(-10, -6), size + Vector2(20, 12)))
 
 
 func _on_mouse_entered() -> void:
 	highlight = true
-	t = 0.0
+	queue_redraw()
+	UI.play("hover")
 
 
 func _on_mouse_exited() -> void:
 	highlight = false
-	modulate = Color(1.0, 1.0, 1.0, 1.0)
+	queue_redraw()
 
 
 func _gui_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"ui_accept", false, true):
+		accept_event()
+		UI.play("click")
+		clicked.emit()
+		return
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:

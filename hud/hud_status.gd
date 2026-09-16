@@ -12,16 +12,16 @@ var status := Status.DISARMED:
 			var status_text := ""
 			match status:
 				Status.DISARMED:
-					status_text = "DISARMED"
+					status_text = "HUD_STATUS_DISARMED"
 				Status.ARMED:
-					status_text = "ARMED"
+					status_text = "HUD_STATUS_ARMED"
 					message_timer.start(1.0)
 				Status.LAUNCH:
-					status_text = "LAUNCH CONTROL"
+					status_text = "HUD_STATUS_LAUNCH"
 				Status.TURTLE:
-					status_text = "TURTLE MODE"
+					status_text = "HUD_STATUS_TURTLE"
 				Status.RECOVERY:
-					status_text = "CRASH RECOVERY"
+					status_text = "HUD_STATUS_RECOVERY"
 			if status != Status.ARMED and not message_timer.is_stopped():
 				message_timer.stop()
 			set_message(status_text)
@@ -33,11 +33,12 @@ func _ready() -> void:
 	message_timer.one_shot = true
 	var _discard := message_timer.timeout.connect(_on_message_timer_timeout)
 
-	set_message("DISARMED")
+	set_message("HUD_STATUS_DISARMED")
 
 
 func set_message(msg: String = "") -> void:
-	text = "\n\n\n\n\n\n\n%s" % [msg]
+	# Positioned below the crosshair by the HUD layout (no leading blank lines needed)
+	text = tr(msg)
 
 
 func clear_message() -> void:
@@ -68,10 +69,10 @@ func _on_arm_failed(reason: int) -> void:
 	var reason_msg := ""
 	match reason:
 		FlightController.ArmFail.THROTTLE_HIGH:
-			reason_msg = "THROTTLE HIGH"
+			reason_msg = "HUD_STATUS_THROTTLE_HIGH"
 		FlightController.ArmFail.CRASH_RECOVERY_MODE:
-			reason_msg = "CRASH RECOVERY MODE"
-	set_message("*** %s ***" % [reason_msg])
+			reason_msg = "HUD_STATUS_RECOVERY_MODE"
+	set_message("*** %s ***" % [tr(reason_msg)])
 	message_timer.start(1)
 
 

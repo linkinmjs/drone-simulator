@@ -125,32 +125,46 @@ func load_input_map(update_controller: bool = false) -> String:
 							action_list[action_idx].axis_max = config.get_value(section, action)
 			restore_keyboard_shortcuts()
 		else:
-			var active_name: String = config.get_value("controls", "active_controller_name")
-			var error_text := """%s not found!
-					Please check it is properly plugged in,
-					or head to the Controls settings to update your controller.""" % [active_name]
-			return error_text
+			var active_name: String = config.get_value("controls", "active_controller_name", "")
+			return tr("ERR_CONTROLLER_NOT_FOUND") % [active_name]
 	elif err != ERR_FILE_NOT_FOUND:
 		Global.log_error(err, "Could not open controls configuration file.")
-		return "Could not open config file.\nPlease check Controls settings."
+		return "ERR_CONTROLS_OPEN"
 	return ""
 
 
 func create_action_list() -> void:
-	var actions := [["arm", "Arm (hold)"],
-			["toggle_arm", "Arm (toggle)"],
-			["respawn", "Reset drone"],
-			["cycle_flight_modes", "Cycle modes"],
-			["mode_horizon", "Mode: Horizon"],
-			["mode_angle", "Mode: Angle"],
-			["mode_speed", "Mode: Speed"],
-			["mode_position", "Mode: Position"],
-			["mode_turtle", "Mode: Turtle"],
-			["mode_launch", "Mode: Launch Control"],
-			["altitude_hold", "Altitude hold"]]
+	var actions := [["arm", "CTRL_ACTION_ARM_HOLD"],
+			["toggle_arm", "CTRL_ACTION_ARM_TOGGLE"],
+			["respawn", "CTRL_ACTION_RESPAWN"],
+			["cycle_flight_modes", "CTRL_ACTION_CYCLE_MODES"],
+			["mode_horizon", "CTRL_ACTION_MODE_HORIZON"],
+			["mode_angle", "CTRL_ACTION_MODE_ANGLE"],
+			["mode_speed", "CTRL_ACTION_MODE_SPEED"],
+			["mode_position", "CTRL_ACTION_MODE_POSITION"],
+			["mode_turtle", "CTRL_ACTION_MODE_TURTLE"],
+			["mode_launch", "CTRL_ACTION_MODE_LAUNCH"],
+			["altitude_hold", "CTRL_ACTION_ALTITUDE_HOLD"]]
 	for action: Array in actions:
 		action_list.append(ControllerAction.new())
 		action_list[-1].init(action[0], action[1])
+
+
+## Forgets the bindings and calibration of the active controller and restores the
+## default input map from the project settings.
+func reset_controller_bindings() -> void:
+	var config := ConfigFile.new()
+	var err := config.load(input_map_path)
+	var section := "controls_%s" % [active_controller_guid]
+	if err == OK and config.has_section(section):
+		config.erase_section(section)
+		err = config.save(input_map_path)
+		if err != OK:
+			Global.log_error(err, "Error while resetting controller bindings.")
+	InputMap.load_from_project_settings()
+	for action in action_list:
+		action.unbind()
+	restore_keyboard_shortcuts()
 
 
 func get_joypad_guid_list() -> Array[String]:

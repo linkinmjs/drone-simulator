@@ -1,56 +1,76 @@
 [gd_scene format=3 uid="uid://hwv8he00j43l"]
 
-[ext_resource type="Theme" uid="uid://cg8ia5t16ecpj" path="res://gui/menu_theme.tres" id="1_6tmuh"]
 [ext_resource type="Script" uid="uid://co1mc7mfx4ba8" path="res://gui/options_menu/options_menu.gd" id="2"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_abjtp"]
-font_size = 48
-
-[node name="OptionsMenu" type="MarginContainer" unique_id=507810246]
+[node name="OptionsMenu" type="MarginContainer"]
 process_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_6tmuh")
 script = ExtResource("2")
 
-[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1337245216]
+[node name="PanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(560, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
+theme_type_variation = &"Card"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=1829826965]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "OPT_TITLE"
+
+[node name="Subtitle" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"CaptionLabel"
+text = "OPT_SUBTITLE"
+
+[node name="Spacer" type="Control" parent="PanelContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
 
-[node name="Title" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1738444873]
-layout_mode = 2
-text = "Options"
-label_settings = SubResource("LabelSettings_abjtp")
-horizontal_alignment = 1
-
-[node name="ButtonGame" type="Button" parent="PanelContainer/VBoxContainer" unique_id=458465151]
+[node name="ButtonGame" type="Button" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Game Settings"
+theme_type_variation = &"MenuItemButton"
+text = "OPT_GAME"
+alignment = 0
 
-[node name="ButtonGraphics" type="Button" parent="PanelContainer/VBoxContainer" unique_id=2093101819]
+[node name="ButtonGraphics" type="Button" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Graphics Settings"
+theme_type_variation = &"MenuItemButton"
+text = "OPT_GRAPHICS"
+alignment = 0
 
-[node name="ButtonAudio" type="Button" parent="PanelContainer/VBoxContainer" unique_id=796036502]
+[node name="ButtonAudio" type="Button" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Audio Settings"
+theme_type_variation = &"MenuItemButton"
+text = "OPT_AUDIO"
+alignment = 0
 
-[node name="ButtonControls" type="Button" parent="PanelContainer/VBoxContainer" unique_id=2051558367]
+[node name="ButtonControls" type="Button" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Controls"
+theme_type_variation = &"MenuItemButton"
+text = "OPT_CONTROLS"
+alignment = 0
 
-[node name="ButtonBack" type="Button" parent="PanelContainer/VBoxContainer" unique_id=1067956607]
+[node name="Spacer2" type="Control" parent="PanelContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+
+[node name="ButtonBack" type="Button" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Back to Menu"
+size_flags_horizontal = 0
+theme_type_variation = &"GhostButton"
+text = "UI_BACK"

@@ -50,6 +50,7 @@ func _ready() -> void:
 
 	for _i in 8:
 		sounds.append(AudioStreamPlayer.new())
+		sounds[-1].bus = &"Motors"
 		add_child(sounds[-1])
 	sound1 = sounds[0]
 	sound2 = sounds[1]

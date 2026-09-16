@@ -1,6 +1,8 @@
 # Plan: lavado de cara "AAA" de la UI + navegación con joystick/radio
 
-Fecha: 2026-09-16. Estado: **plan terminado, todavía sin aprobar ni implementar** (no se tocó ningún archivo de código). Para retomar: leer este documento, confirmar o ajustar las decisiones de la sección 1 y empezar por la Fase 1.
+Fecha: 2026-09-16. Estado: **implementado en la rama `ui-lavado-de-cara`, pendiente de prueba con hardware y sin mergear**. La arquitectura resultante, los comandos de prueba y los desvíos respecto de este plan están en [ui.md](ui.md).
+
+Actualización del mismo día: se agregó el **HUD de orientación** (sección 4.K y Fase 6) a partir de una captura de otro simulador que aportó el usuario.
 
 ---
 
@@ -13,6 +15,17 @@ Decisiones tomadas con el usuario:
 - **Idioma**: español + inglés con `TranslationServer` (CSV), español por defecto, selector en Opciones.
 - **Alcance**: rediseño de todas las pantallas existentes + animaciones/transiciones/sonidos + navegación por joystick + opciones nuevas + reparar lo roto. **Sin pantallas nuevas** (ni selector de pista ni resumen post-carrera).
 - **Estilo**: minimal claro (Apple / Microsoft Flight Simulator).
+- **HUD de vuelo**: se rediseña como OSD de orientación tomando como referencia la captura aportada (brújula en cinta, horizonte punteado con hueco central, cintas laterales, lecturas ALT/SPD arriba a la derecha, mira, visor de sticks, insignia de modo, indicador REC). Esto reemplaza la idea inicial de no tocar el HUD. El menú sigue claro; el HUD es blanco sobre el video, como en la referencia.
+
+### Captura de referencia (descripción)
+Vista FPV con fisheye sobre un campo. Elementos, en blanco con sombra suave y trazo fino:
+- Arriba a la izquierda, insignia redondeada con el modo de vuelo ("3D").
+- Arriba al centro, brújula en cinta con marcas y letras S · W · N · E.
+- Centro, mira circular con cuatro marcas y una línea de horizonte punteada que rota con el alabeo, con un hueco alrededor de la mira.
+- A izquierda y derecha del centro, dos columnas verticales de marcas que enmarcan la zona central.
+- Arriba a la derecha, "ALT m 9" y "SPD km/h 79": etiqueta chica con unidad y valor grande.
+- Abajo al centro, dos cajas oscuras semitransparentes con cruz punteada y un círculo por stick.
+- Abajo a la izquierda, punto rojo y "Rec.".
 
 ---
 
@@ -32,6 +45,19 @@ Todas las de menú usan `MarginContainer > PanelContainer > VBoxContainer`, sin 
 - `gui/help_page.tscn/.gd`: RichTextLabel construido con `append_text`.
 - HUD (`hud/hud.tscn`, se instancia dentro del dron en `drone/drone.gd`): mezcla containers y offsets absolutos (HUDRPM a 1328/930, cableado a 1080p).
 - Carrera (todo creado en código en `tracks/track.gd` y `tracks/time_table.gd`): countdown, "Finished!", timer y tabla de tiempos con botón "Dismiss".
+
+### HUD de vuelo (detalle)
+- `hud/hud.gd` (`class_name HUD`), hijo del `Drone` (`drone/drone.gd:11`). `enum Component {CROSSHAIR, STATUS, HEADING, SPEED, ALTITUDE, LADDER, HORIZON, STICKS, RPM}`; `show_component()` oculta con `modulate` alfa.
+- Datos: `drone.gd:75-76` llama a `update_hud_data()` en `_process`; `HUD.update_data()` acumula y promedia, y `update_display()` refresca a `hud_config.fps` (**10 FPS por defecto**). Todo, incluido el horizonte, se mueve a 10 Hz.
+- Defaults de `GameSettings.hud_config`: sólo `crosshair` y `horizon` encendidos. Brújula, velocidad, altura, sticks, escalera y RPM vienen apagados. `drone.gd:279-288` aplica la config.
+- `HUDHeadingScale`: número "000" + barra de velocidad de giro. No hay brújula con puntos cardinales.
+- `HUDLadder` (`hud_ladder.gd`): línea sólida `NinePatchRect` dentro de una caja de 500×500 con `clip_contents` (`hud.tscn:50-56`); desplaza 20 px por grado de **pitch del dron**. No compensa la inclinación de la cámara FPV (30° por defecto) ni el fisheye, así que no coincide con el horizonte que se ve.
+- `HUDSpeedScale` / `HUDAltitudeScale`: números pegados a la caja y barra bidireccional. La altitud usa formato "-0000.0". `update_radio_altitude()` no tiene llamadas: muestra siempre "R---".
+- `HUDStickInput`: texturas de 128 px, API `update_stick_input(Vector2)` (el plan del tutorial en `docs/tutorial_plan.md` la reutiliza).
+- `FlightMode` (Label arriba a la derecha): `update_flight_mode()` deja el texto vacío en ACRO (`hud.gd:111-119`).
+- `HUDStatus`: indentado con 7 `\n`; `_on_armed` compara un `FlightMode` con enteros (siempre "ARMED").
+- Grabación: `tracks/track.gd:68` `record_replay` indica si se graba la vuelta; no hay indicador en pantalla.
+- Fisheye (`drone/fpv_camera/fpv_camera.gdshader:40-60`): proyección equidistante. Un rayo a θ del eje de la cámara cae a `θ / (hfov/2) · min(ancho, alto)` píxeles del centro. Esto permite proyectar el horizonte real sobre el HUD.
 
 ### Theme, assets, animación
 - 5 themes mínimos (`gui/menu_theme.tres` = fuente + tamaño 32; `help_page_theme`, `countdown_theme`, `timer_theme`, `hud/hud_theme`). **Cero StyleBox** en el proyecto; títulos con `LabelSettings` locales repetidos.
@@ -276,7 +302,7 @@ Colores hardcodeados a migrar a `UIPalette`: `gui/rate_graph.gd:8-13,64-66`, `gu
 - `gui/pause_menu.gd`: F2 sigue ocultando el menú; al ocultarlo `StickNavigation.suspended = true` para que mover sticks no navegue.
 - `autoloads/scene_transition.gd`: `CanvasLayer` layer 100 + `ColorRect` BG; `change_scene(path)` = fade out 0.25 s → `change_scene_to_file` → fade in. Reemplaza `gui/main_menu.gd:39` y `sceneries/level.gd:102`.
 - `tracks/time_table.gd`: `theme_type_variation = "Card"`, constantes con `add_theme_constant_override`, quitar `modulate/self_modulate` (33-34), botón "Cerrar" con `grab_focus()` en `_ready`, `_input` con `ui_cancel` → `delete()`, autocierre a 10 s. No es `MenuScreen` (el dron sigue en vuelo).
-- `hud/hud.tscn:85-88` HUDRPM: anclar abajo-derecha (`anchors_preset = 3`, offsets relativos) en lugar de 1328/930; `hud/hud_status.gd:40`: quitar los 7 `\n` y centrar con anchors/offset. Nada más del HUD cambia.
+- `hud/hud.tscn:85-88` HUDRPM: anclar abajo-derecha (`anchors_preset = 3`, offsets relativos) en lugar de 1328/930; `hud/hud_status.gd:40`: quitar los 7 `\n` y centrar con anchors/offset. El rediseño completo del HUD está en la sección K.
 
 ### I. Opciones nuevas (misma persistencia `ConfigFile`, guardado inmediato como hoy)
 
@@ -298,6 +324,63 @@ Colores hardcodeados a migrar a `UIPalette`: `gui/rate_graph.gd:8-13,64-66`, `gu
 - `.tscn`: todos los `text = "..."` visibles pasan a claves (los Controls traducen solos con `auto_translate`).
 - `.gd`: `tr("CLAVE")`; los textos construidos en código se reconstruyen en `_notification(NOTIFICATION_TRANSLATION_CHANGED)`: `help_page.gd:17-49`, ítems de `OptionButton` en `graphics_menu.gd:20-87` (usar índices/metadata, nunca `.text` como dato), tooltips `HELP_*` de `quad_settings_menu.gd:9-69` (ya en español: se llevan al CSV y se agrega el inglés), `controls.gd:129-135` (mensajes de error), etiquetas de `create_action_list()` (`controls.gd:140-150`), `track.gd:279-313,371` (countdown, "GO!", "False Start!", "Finished!", "Prev. lap/Curr. lap/Total"), `time_table.gd` ("Lap", "Time", "Total", "Dismiss"), `hud_status.gd` (ARMED/DISARMED/THROTTLE HIGH/CRASH RECOVERY), popups de binding/calibración.
 - Convención de claves por grupo: `MENU_*` (principal/pausa), `OPT_*` (hub), `GFX_*`, `AUD_*`, `GAME_*`, `HUD_*`, `CTRL_*`, `CAL_*`, `QUAD_*`, `HELP_*`, `RACE_*`, `UI_*` (Aceptar/Cancelar/Volver/hints), `ERR_*`.
+
+### K. HUD de orientación (OSD) inspirado en la captura de referencia
+
+**Principios**
+- Blanco puro con sombra suave (outline 2 px negro α 0.35) en lugar del contorno negro de 4 px de `hud/hud_theme.tres`. Trazos de 2 px. Nada tapa el centro de la imagen.
+- Todo dibujado con `_draw()` (líneas, arcos, `draw_string` con la fuente del theme): sin texturas nuevas, nítido con el stretch `canvas_items` y barato en web.
+- Se conserva la tubería de datos y la API pública: `HUD.update_data()`, `show_component()`, `status`, `HUDStickInput.update_stick_input()`. `drone.gd` no se modifica: los componentes nuevos leen `GameSettings.hud_config_updated` desde el propio `hud.gd`, y el transform de la cámara desde `get_parent()` (el Drone).
+- **Fluidez**: horizonte, brújula, cintas y marcador de puerta se actualizan **cada frame** con el transform actual de la `FPVCamera`, sin promediar. Sólo los números siguen el ritmo de "HUD FPS", que pasa a llamarse "Frecuencia de números" en la UI.
+
+**Mapa captura → HUD actual → propuesta**
+
+| Marca de la captura | Qué aporta al piloto | Hoy | Propuesta |
+|---|---|---|---|
+| Brújula en cinta arriba al centro | Rumbo absoluto de un vistazo | `HUDHeadingScale`: "000" + barra de giro, apagado | Nuevo `hud/hud_compass_tape.gd`: cinta de 420 px que cubre ±90°, marca cada 15° (larga cada 45°), letras N, NE, E, SE, S, SO, O, NO traducidas, caret central y rumbo numérico opcional debajo. Reemplaza el visual del componente HEADING. |
+| Horizonte punteado con hueco central | Actitud (alabeo y cabeceo) sin tapar la mira | `HUDLadder`: línea sólida recortada a 500 px; no compensa cámara | Nuevo dibujo en `hud_ladder.gd`: segmentos de 10 px con 14 px de separación, hueco de 120 px alrededor del centro, largo 700 px, sin `clip_contents`. Dos modos, ver abajo. |
+| Columnas verticales de marcas a los lados | Enmarcan la zona central; el desplazamiento de las marcas transmite velocidad y ascenso | Números y barra pegados a la caja | Nuevo `hud/hud_side_tape.gd`: dos cintas a ±310 px del centro y 540 px de alto. Marcas cada 5 unidades que se desplazan con la velocidad (izquierda) y la altura (derecha), con desvanecido en los extremos y sin números. |
+| ALT (m) y SPD (km/h) arriba a la derecha | Valores exactos lejos del centro | Números junto a la caja, "-0000.0", "R---" fijo | Nuevo `hud/hud_readouts.tscn`: etiqueta chica con unidad apilada y valor grande con fuente mono. ALT con 1 decimal bajo 10 m y entero arriba. SPD entero. VS opcional con flecha ▲▼. Se elimina "R---" porque nunca se actualiza. |
+| Mira circular con 4 marcas | Referencia de hacia dónde apunta la cámara | `Crosshair.png` de 48 px | Redibujar con `_draw()`: círculo de 10 px y cuatro marcas de 6 px. Queda nítido a cualquier resolución. |
+| Visor de sticks abajo al centro | Ver qué hace el piloto; útil para aprender y en replays | Texturas de 128 px, apagado | Mismo nodo y API. Fondo negro α 0.25 con radio 4, cruz punteada, círculo de 10 px con borde. Anclado abajo al centro con 12 px de margen. |
+| Insignia de modo arriba a la izquierda | Modo de vuelo siempre visible | Label arriba a la derecha, vacío en ACRO | Nuevo `hud/hud_mode_badge.gd`: píldora con borde de 3 px y radio 12. Muestra siempre ACRO, HORIZON, SPEED, POSITION, TURTLE, LAUNCH o RECOVER (claves `HUD_MODE_*`). Parpadea en RECOVER. |
+| "● Rec." abajo a la izquierda | Aviso de que la vuelta se está grabando | Nada | Nuevo `hud/hud_rec_indicator.gd`: punto rojo que parpadea a 1 Hz + "REC". Visible cuando `Global.active_track` existe y `record_replay` es verdadero (lectura, sin tocar `track.gd`). |
+
+**Horizonte: dos modos** (nueva opción `horizon_mode` en la configuración del HUD)
+- **Real, alineado a la cámara** (default): la línea cae exactamente sobre el horizonte que se ve, incluida la inclinación de la cámara y la curvatura del fisheye. Se toman 13 direcciones horizontales (elevación 0) repartidas en ±60° alrededor del rumbo de la cámara, se proyectan a pantalla y se dibujan como polilínea punteada, salteando los puntos a menos de 60 px del centro. Los peldaños de la escalera, si están activos, se proyectan igual a ±10°, ±20° y ±30° de elevación.
+- **Actitud del dron** (clásico): el comportamiento actual, 20 px por grado de pitch del dron, con el nuevo estilo punteado.
+
+Proyección: se agrega un método de sólo lectura `FPVCamera.project_direction(dir: Vector3) -> Vector2` en `drone/fpv_camera/fpv_camera.gd`.
+- Fisheye OFF: `unproject_position(global_position + dir)`.
+- Fisheye FULL/FAST: pasar `dir` a coordenadas locales de la cámara; `θ = acos(-local.z)`; distancia al centro en px `θ / (deg_to_rad(fov_h) / 2) · min(ancho, alto)` del viewport; dirección `Vector2(local.x, -local.y).normalized()`. Devuelve NaN si `θ` supera el campo visible.
+- Riesgo: el vertex shader invierte X e Y (`vec4(-1, -1, 1, 1)`); confirmar el signo con una captura de prueba antes de dar el modo por bueno.
+
+**Marcador de la próxima puerta** (opcional, no está en la captura; lo propone también `ANALISIS_SIMULADOR_DRONES.md` §3.5)
+- Sólo en modo carrera. Rombo de 16 px sobre la puerta cuando está en cuadro, con la distancia en metros debajo. Si está fuera de cuadro, flecha en el borde de una elipse al 80 % de la pantalla apuntando hacia ella.
+- Posición: `Global.active_track.current_checkpoint.global_position` (`track.gd:43,200-208`), proyectada con `project_direction`. Apagado por defecto.
+
+**Distribución** (referencia 1920×1080, todo con anclas)
+
+| Zona | Elemento |
+|---|---|
+| Arriba izquierda (margen 48) | Insignia de modo |
+| Arriba centro (y 150) | Brújula |
+| Arriba derecha (margen 48) | ALT / SPD / VS |
+| Centro | Mira, horizonte, cintas laterales, marcador de puerta |
+| Centro, 90 px bajo la mira | `HUDStatus` (ARMED, THROTTLE HIGH, …) |
+| Abajo centro | Visor de sticks |
+| Abajo izquierda | REC |
+| Abajo derecha | RPM (existente) |
+
+Coordinación con el plan del tutorial (`docs/tutorial_plan.md` §3.3): su panel de objetivo va arriba a la izquierda y sus pistas de sticks abajo a la izquierda. Bajar el panel del tutorial 110 px para no tapar la insignia de modo; REC sólo aparece en carrera, así que no choca con las lecciones 1–7.
+
+**Configuración** (`GameSettings.cfg [hud_config]`, pantalla existente `hud_config.tscn` con preview en vivo)
+- Claves nuevas: `flight_mode` (true), `rec` (true), `side_tapes` (true), `gate_marker` (false), `horizon_mode` ("camera" o "attitude"). `load_hud_config()` hoy sólo acepta `bool` y `fps` (`game_settings.gd:23-26`): agregar el caso string para `horizon_mode`.
+- Defaults nuevos para instalaciones nuevas: mira, horizonte, brújula, velocidad, altura, cintas, modo y REC encendidos; sticks, escalera, RPM y marcador de puerta apagados. Quien ya tiene `GameSettings.cfg` conserva sus valores y recibe los defaults sólo en las claves nuevas.
+- Presets rápidos arriba de la lista: **Mínimo** (mira + horizonte + modo), **Estándar** (defaults), **Completo** (todo). Tocar un toggle muestra "Personalizado", igual que el preset de gráficos.
+- `hud_config.gd` agrega los toggles y el `OptionButton` de modo de horizonte; la preview (`hud_config.tscn:106-111`) muestra los componentes nuevos sin cambios extra.
+
+**Traducción**: `HUD_ALT`, `HUD_SPD`, `HUD_VS`, `HUD_REC`, `HUD_MODE_*`, `HUD_COMPASS_N` … `HUD_COMPASS_NW`, `HUD_STATUS_*`, `HUD_UNIT_M`, `HUD_UNIT_KMH`.
 
 ---
 
@@ -329,8 +412,15 @@ Colores hardcodeados a migrar a `UIPalette`: `gui/rate_graph.gd:8-13,64-66`, `gu
 - **Modificar**: `project.godot` (`[internationalization]`), todos los `.tscn` con texto, los `.gd` listados en J.
 - Riesgos: claves olvidadas visibles como `MENU_X` (chequeo automático); textos largos desbordando botones (`text_overrun_behavior` + ancho mínimo 380 en la lista principal).
 
-### Fase 6: carrera + documentación
-- `tracks/track.gd` (sólo `tr()`), `tracks/time_table.gd` (estilo Card, autocierre), `docs/ui.md` (arquitectura, contrato `MenuScreen`, paleta, cómo regenerar theme y sonidos, flujo de traducción, checklist).
+### Fase 6: HUD de orientación (sección K)
+- Independiente de las fases de menús salvo por la pantalla de configuración del HUD. Se puede adelantar si se prioriza la experiencia de vuelo.
+- **Crear**: `hud/hud_compass_tape.gd/.tscn`, `hud/hud_side_tape.gd/.tscn`, `hud/hud_readouts.gd/.tscn`, `hud/hud_mode_badge.gd/.tscn`, `hud/hud_rec_indicator.gd/.tscn`, `hud/hud_gate_marker.gd/.tscn` (opcional), `tools/hud_projection_check.tscn/.gd`.
+- **Modificar**: `hud/hud.tscn` (nueva distribución con anclas), `hud/hud.gd` (componentes nuevos al final del enum, actualización por frame de lo orientativo, suscripción a `hud_config_updated` para las claves nuevas), `hud/hud_ladder.gd` (punteado, sin recorte, dos modos), `hud/hud_stick_input.gd/.tscn` (dibujo propio, misma API), `hud/hud_speed_scale.gd` y `hud/hud_altitude_scale.gd` (quedan como fuente de datos de las lecturas o se retiran de la escena), `hud/hud_status.gd`, `hud/hud_theme.tres`, `drone/fpv_camera/fpv_camera.gd` (`project_direction`), `autoloads/game_settings.gd`, `gui/options_menu/hud_config.tscn/.gd`.
+- Orden sugerido: estilo común y distribución → insignia de modo y lecturas → brújula → horizonte en modo actitud → `project_direction` + chequeo de proyección → horizonte real → cintas → sticks → REC → configuración y presets → marcador de puerta.
+- Riesgos: signo invertido en la proyección fisheye (chequeo con captura); horizonte real inestable cuando la cámara mira casi vertical (ocultarlo si |elevación del eje| > 80°); costo de `queue_redraw()` por frame en web (medir con el proxy Compatibility; bajar a 30 Hz si hace falta); textos que cambian de ancho con el valor (fuente mono y ancho mínimo fijo).
+
+### Fase 7: carrera + documentación
+- `tracks/track.gd` (sólo `tr()`), `tracks/time_table.gd` (estilo Card, autocierre), `docs/ui.md` (arquitectura, contrato `MenuScreen`, paleta, cómo regenerar theme y sonidos, flujo de traducción, componentes del HUD, checklist).
 
 ---
 
@@ -345,6 +435,7 @@ Binario: `C:/Users/Mauri/Godot/Godot_4.7/Godot_v4.7-stable_win64_console.exe`. S
 4. `tools/ui_smoke_test.tscn` (escena, no `-s`, para tener autoloads): instancia cada `MenuScreen`, fuerza `UI.input_kind = GAMEPAD`, comprueba `gui_get_focus_owner() != null`, inyecta `ui_down` press/release con `Input.parse_input_event` y verifica que el foco cambió; `ui_accept` sobre Opciones del menú principal abre `OptionsMenu`; `ui_cancel` lo cierra; `UI.confirm` arranca con foco en Cancelar y `ui_cancel` devuelve `false`; `Input.action_press("pitch_up", 1.0)` durante 0.4 s produce un cambio de foco y ninguno tras `action_release`. Termina con `get_tree().quit(código)`. Si la GUI no procesa foco en headless, correr con `--windowed --resolution 960x540`.
 5. `tools/check_translations.gd`: claves usadas en `.tscn`/`.gd` vs. primera columna del CSV, en ambas direcciones.
 6. Proxy web: `--path . --rendering-method gl_compatibility --windowed --resolution 1280x720 res://gui/main_menu.tscn` (hero con `transparent_bg`, sin errores de shader). Web real: artefacto `HTML5` del workflow en cada push/PR.
+7. `tools/hud_projection_check.tscn` (ventana, no headless, porque necesita render): instancia `level1`, apoya el dron quieto en el suelo, espera 60 frames y guarda una captura por cada modo de fisheye (OFF, FULL, FAST) con el horizonte real activo. En cada captura mide, en 5 columnas, la fila donde el cielo pasa a suelo (salto de luminancia) y la compara con la fila de la polilínea del HUD. Tolerancia: 6 px. Repetir con la cámara a 0° y a 45°.
 
 **Manual con hardware** (mouse, teclado, gamepad Xbox 360 del usuario, radio, web)
 - Menú principal: foco inicial en Volar sólo con teclado/gamepad; sin anillo con mouse; D-pad recorre los 5 botones; B en Salir no hace nada; Salir → overlay con foco en Cancelar; hero gira; chips cambian al alternar dispositivo; en web sin mando aparece el aviso y al pulsar un botón el nombre del mando.
@@ -355,16 +446,17 @@ Binario: `C:/Users/Mauri/Godot/Godot_4.7/Godot_v4.7-stable_win64_console.exe`. S
 - Quad: sliders con ←/→ y roll; FOV cambia la imagen al volver a volar en FULL/FAST; B guarda (`Quad.cfg`).
 - Pausa en vuelo: START abre con fundido y scrim; F2 oculta y los sticks no navegan; Reanudar con A no cambia el modo de vuelo ni arma; con radio, roll derecha en Reanudar no inclina el dron; Volver al menú → overlay → transición.
 - Carrera: R, countdown traducido, fin de vuelta → tabla con foco en Cerrar; A cierra sin cambiar modo de vuelo; autocierre a 10 s; mouse capturado al cerrar.
+- HUD en vuelo: la brújula marca N al mirar hacia -Z del mundo y gira en el sentido correcto al guiñar; el horizonte real queda sobre el horizonte visible en vuelo estacionario, en picada y con alabeo de 60°, en los tres modos de fisheye; el modo actitud se comporta como hoy; horizonte, brújula y cintas se mueven fluidos con "Frecuencia de números" en 5; la insignia muestra ACRO y cambia al ciclar modos; REC aparece sólo mientras se graba la vuelta; el visor de sticks refleja los sticks; los presets Mínimo, Estándar y Completo cambian la preview y se guardan; un `GameSettings.cfg` viejo conserva sus toggles.
 - Escalado: 1280×800, 2560×1080, 3840×2160 y ventana 75 %/50 %: HUD RPM abajo-derecha, estado centrado, menús sin recorte.
 
 ---
 
 ## 7. Lo que NO se toca (garantía de gameplay intacto)
 
-- `drone/**` salvo `fpv_camera.gd` (sólo suscripción a `settings_updated` + `_apply_fov`) y `motor.gd:52` (sólo `bus`). Intactos: `drone.gd`, `flight_controller/**`, `radio_controller.gd`, `propeller*`, `control_profile.gd`, `controller_action.gd`.
+- `drone/**` salvo `fpv_camera.gd` (sólo suscripción a `settings_updated` + `_apply_fov` + el método de lectura `project_direction`) y `motor.gd:52` (sólo `bus`). Intactos: `drone.gd`, `flight_controller/**`, `radio_controller.gd`, `propeller*`, `control_profile.gd`, `controller_action.gd`.
 - `sceneries/level.gd`: sólo `_on_resume` y `_on_return_to_menu`. `level1.tscn` y `cameras/**` intactos.
 - `tracks/track.gd`: sólo `tr()` en textos. `checkpoint.gd`, `launch_area.gd`, `lap_timer.gd`, `ghost.gd`, `gates/**` intactos.
-- `hud/**`: sólo anclajes de HUDRPM/HUDStatus, `hud_status.gd:40`, `tr()` y `font_color` en el theme. Escalas, ladder y dibujo custom intactos.
+- `hud/**` se rediseña (sección K), pero se conservan la API pública (`HUD.update_data()`, `show_component()`, `status`, `HUDStickInput.update_stick_input()`), los valores existentes del enum `Component` y las claves existentes de `[hud_config]`. `drone.gd:202-211` y `drone.gd:279-288` no cambian.
 - Acciones de vuelo en `project.godot` (`throttle_*`, `pitch_*`, `roll_*`, `yaw_*`, `cycle_flight_modes`, `change_camera`, `camera_*`, `pause_menu`, `race_mode`, `respawn`, `toggle_arm`, `arm`, `mode_*`, `altitude_hold`); `[physics]`, `[rendering]`, `[shader_globals]`; `export_presets.cfg`; `.github/workflows/deploy-to-itch.yml`.
 - Formato de `user://config/*.cfg`: sólo se agregan claves (`af` se ignora). `Controls.load_input_map()` y `restore_keyboard_shortcuts()` sin cambios.
 - `controls_menu_drone.tscn/.gd`, `controls_menu_radio_transmitter.tscn/.gd`, `radio_transmitter.tscn`: se reutilizan tal cual.
@@ -376,4 +468,4 @@ Binario: `C:/Users/Mauri/Godot/Godot_4.7/Godot_v4.7-stable_win64_console.exe`. S
 - El Bash tool en esta máquina corta comandos de más de ~8 KB y colapsa barras dobles: escribir archivos con Write/Edit, no con heredocs.
 - Regenerar theme y sonidos con los scripts `-s` y commitear los artefactos; el CI sólo hace `--import`.
 - Commits por fase, en español, con la línea `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
-- Copia del plan también en `C:\Users\Mauri\.claude\plans\quiero-que-armemos-un-adaptive-kernighan.md`.
+- La fuente de verdad es este archivo. La copia en `C:\Users\Mauri\.claude\plans\quiero-que-armemos-un-adaptive-kernighan.md` no incluye la sección K ni la Fase 6.

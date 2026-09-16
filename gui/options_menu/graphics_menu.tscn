@@ -1,120 +1,251 @@
 [gd_scene format=3 uid="uid://eonct0r3co2a"]
 
-[ext_resource type="Theme" uid="uid://cg8ia5t16ecpj" path="res://gui/menu_theme.tres" id="1_bshb1"]
 [ext_resource type="Script" uid="uid://d0rgw16o37rrd" path="res://gui/options_menu/graphics_menu.gd" id="2"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_nvkxk"]
-font_size = 48
-
-[node name="GraphicsMenu" type="MarginContainer" unique_id=1233891430]
+[node name="GraphicsMenu" type="MarginContainer"]
 process_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_bshb1")
 script = ExtResource("2")
 
-[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1477798836]
+[node name="PanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(980, 0)
 layout_mode = 2
-size_flags_horizontal = 5
-size_flags_vertical = 5
+size_flags_horizontal = 4
+size_flags_vertical = 3
+theme_type_variation = &"Card"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=1493793057]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
 layout_mode = 2
-alignment = 1
+theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1642734330]
+[node name="Title" type="Label" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
-text = "Graphics"
-label_settings = SubResource("LabelSettings_nvkxk")
-horizontal_alignment = 1
+theme_type_variation = &"TitleLabel"
+text = "GFX_TITLE"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/VBoxContainer" unique_id=1718469408]
+[node name="Subtitle" type="Label" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 5
-size_flags_vertical = 7
-size_flags_stretch_ratio = 100.0
+theme_type_variation = &"CaptionLabel"
+text = "GFX_SUBTITLE"
 
-[node name="WindowGrid" type="GridContainer" parent="PanelContainer/VBoxContainer/ScrollContainer" unique_id=369092372]
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 7
-size_flags_vertical = 7
-columns = 2
+size_flags_vertical = 3
+follow_focus = true
+horizontal_scroll_mode = 0
 
-[node name="WindowLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=275958237]
+[node name="Rows" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer"]
 layout_mode = 2
-text = "Window Mode"
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
 
-[node name="WindowOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=157221161]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 0)
+[node name="SectionDisplay" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "GFX_SECTION_DISPLAY"
+vertical_alignment = 2
 
-[node name="ResolutionLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=1133690051]
-layout_mode = 2
-text = "Resolution"
-
-[node name="ResolutionOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=577248885]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="GameMSAALabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=1048381924]
-layout_mode = 2
-text = "MSAA"
-
-[node name="GameMSAAOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=676464472]
+[node name="WindowRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 24
 
-[node name="GameAFLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=1696024011]
+[node name="WindowLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/WindowRow"]
 layout_mode = 2
-text = "Anisotropic Filter"
+size_flags_horizontal = 3
+text = "GFX_WINDOW_MODE"
 
-[node name="GameAFOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=647178359]
+[node name="WindowOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/WindowRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+clip_text = true
+
+[node name="ResolutionRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 24
 
-[node name="ShadowsLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=122983647]
+[node name="ResolutionLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/ResolutionRow"]
 layout_mode = 2
-text = "Shadows Quality"
+size_flags_horizontal = 3
+text = "GFX_RESOLUTION"
 
-[node name="ShadowsOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=1179412124]
+[node name="ResolutionOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/ResolutionRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+clip_text = true
+
+[node name="VSyncRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 24
 
-[node name="FPVFisheyeLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=1897498303]
+[node name="VSyncLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/VSyncRow"]
 layout_mode = 2
-text = "Fisheye Camera"
+size_flags_horizontal = 3
+text = "GFX_VSYNC"
 
-[node name="FPVFisheyeOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=1624868058]
+[node name="VSyncOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/VSyncRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+clip_text = true
+
+[node name="MaxFPSRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 24
 
-[node name="FisheyeResolutionLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=247604326]
+[node name="MaxFPSLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/MaxFPSRow"]
 layout_mode = 2
-text = "Fisheye Resolution"
+size_flags_horizontal = 3
+text = "GFX_MAX_FPS"
 
-[node name="FisheyeResolutionOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=1696542188]
+[node name="MaxFPSOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/MaxFPSRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+clip_text = true
+
+[node name="FullscreenRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 24
 
-[node name="FisheyeMSAALabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=423600537]
+[node name="FullscreenLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/FullscreenRow"]
 layout_mode = 2
-text = "Fisheye MSAA"
+size_flags_horizontal = 3
+text = "GFX_FULLSCREEN"
 
-[node name="FisheyeMSAAOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/WindowGrid" unique_id=1224874539]
+[node name="FullscreenButton" type="Button" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/FullscreenRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+text = "GFX_TOGGLE_FULLSCREEN"
+
+[node name="SectionQuality" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "GFX_SECTION_QUALITY"
+vertical_alignment = 2
+
+[node name="PresetRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 24
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=993734674]
+[node name="PresetLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/PresetRow"]
 layout_mode = 2
-size_flags_horizontal = 8
-size_flags_vertical = 10
+size_flags_horizontal = 3
+text = "GFX_PRESET"
+
+[node name="PresetOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/PresetRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+clip_text = true
+
+[node name="GameMSAARow" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="GameMSAALabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/GameMSAARow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "GFX_MSAA"
+
+[node name="GameMSAAOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/GameMSAARow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+clip_text = true
+
+[node name="ShadowsRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="ShadowsLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/ShadowsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "GFX_SHADOWS"
+
+[node name="ShadowsOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/ShadowsRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+clip_text = true
+
+[node name="SectionFPV" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "GFX_SECTION_FPV"
+vertical_alignment = 2
+
+[node name="FPVFisheyeRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="FPVFisheyeLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/FPVFisheyeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "GFX_FISHEYE"
+
+[node name="FPVFisheyeOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/FPVFisheyeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+clip_text = true
+
+[node name="FisheyeResolutionRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="FisheyeResolutionLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/FisheyeResolutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "GFX_FISHEYE_RESOLUTION"
+
+[node name="FisheyeResolutionOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/FisheyeResolutionRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+clip_text = true
+
+[node name="FisheyeMSAARow" type="HBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="FisheyeMSAALabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/FisheyeMSAARow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "GFX_FISHEYE_MSAA"
+
+[node name="FisheyeMSAAOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/ScrollContainer/Rows/FisheyeMSAARow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+clip_text = true
+
+[node name="Footer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
 alignment = 2
 
-[node name="ButtonBack" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer" unique_id=352222019]
+[node name="ButtonBack" type="Button" parent="PanelContainer/VBoxContainer/Footer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Back"
+theme_type_variation = &"GhostButton"
+text = "UI_BACK"

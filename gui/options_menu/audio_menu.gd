@@ -1,37 +1,44 @@
-extends Control
-
-
-signal back
+extends MenuScreen
 
 
 @onready var master_volume := %MasterSlider as HSlider
 @onready var master_volume_label := %MasterValue as Label
+@onready var motors_volume := %MotorsSlider as HSlider
+@onready var motors_volume_label := %MotorsValue as Label
+@onready var ui_volume := %UISlider as HSlider
+@onready var ui_volume_label := %UIValue as Label
+@onready var mute_check := %MuteCheck as CheckButton
 @onready var button_back := %ButtonBack as Button
 
 
 func _ready() -> void:
-	var _discard := master_volume.value_changed.connect(_on_master_volume_changed)
-	master_volume.value = volume_to_slider(Audio.audio_settings["master_volume"])
-	master_volume_label.text = update_slider_label(master_volume.value)
-
-	_discard = button_back.pressed.connect(_on_back_pressed)
-
-
-func _input(event: InputEvent) -> void:
-	if event.is_action("ui_cancel") and event.is_pressed() and not event.is_echo():
-		accept_event()
-		back.emit()
+	initial_focus = master_volume
+	super()
+	_bind(master_volume, master_volume_label, "master_volume")
+	_bind(motors_volume, motors_volume_label, "motors_volume")
+	_bind(ui_volume, ui_volume_label, "ui_volume")
+	mute_check.button_pressed = bool(Audio.audio_settings["muted"])
+	var _discard := mute_check.toggled.connect(_on_mute_toggled)
+	bind_back_button(button_back)
 
 
-func _on_master_volume_changed(value: float) -> void:
-	master_volume_label.text = update_slider_label(master_volume.value)
-	Audio.audio_settings["master_volume"] = slider_to_volume(value)
-	Audio.update_master_volume()
+func _bind(slider: HSlider, label: Label, key: String) -> void:
+	slider.value = volume_to_slider(float(Audio.audio_settings[key]))
+	label.text = update_slider_label(slider.value)
+	var _discard := slider.value_changed.connect(_on_volume_changed.bind(label, key))
+
+
+func _on_volume_changed(value: float, label: Label, key: String) -> void:
+	label.text = update_slider_label(value)
+	Audio.audio_settings[key] = slider_to_volume(value)
+	Audio.update_volumes()
 	Audio.save_audio_settings()
 
 
-func _on_back_pressed() -> void:
-	back.emit()
+func _on_mute_toggled(pressed: bool) -> void:
+	Audio.audio_settings["muted"] = pressed
+	Audio.update_volumes()
+	Audio.save_audio_settings()
 
 
 func volume_to_slider(volume: float) -> float:
@@ -43,5 +50,4 @@ func slider_to_volume(value: float) -> float:
 
 
 func update_slider_label(value: float) -> String:
-	var text := "%d%%" % [round(value)]
-	return text
+	return "%d%%" % [round(value)]

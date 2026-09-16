@@ -1,7 +1,5 @@
-extends Control
+extends MenuScreen
 
-
-signal back
 
 var packed_game_settings_menu := preload("res://gui/options_menu/game_settings_menu.tscn")
 var packed_graphics_menu := preload("res://gui/options_menu/graphics_menu.tscn")
@@ -17,58 +15,27 @@ var packed_controls_menu := preload("res://gui/options_menu/controls_menu/contro
 
 
 func _ready() -> void:
+	initial_focus = button_game
+	super()
 	var _discard := button_game.pressed.connect(_on_game_settings_pressed)
 	_discard = button_graphics.pressed.connect(_on_graphics_pressed)
 	_discard = button_audio.pressed.connect(_on_audio_pressed)
 	_discard = button_controls.pressed.connect(_on_controls_pressed)
-	_discard = button_back.pressed.connect(_on_back_pressed)
+	bind_back_button(button_back)
 
 
-func _input(event: InputEvent) -> void:
-	if event.is_action("ui_cancel") and event.is_pressed() and not event.is_echo():
-		accept_event()
-		back.emit()
-
-
+# Sub screens are added next to this one (as before) and this hub hides meanwhile.
 func _on_game_settings_pressed() -> void:
-	if packed_game_settings_menu.can_instantiate():
-		var game_settings_menu := packed_game_settings_menu.instantiate()
-		get_parent().add_child(game_settings_menu)
-		visible = false
-		await game_settings_menu.back
-		game_settings_menu.queue_free()
-		visible = true
+	open_submenu(packed_game_settings_menu, self, get_parent())
 
 
 func _on_graphics_pressed() -> void:
-	if packed_graphics_menu.can_instantiate():
-		var graphics_menu := packed_graphics_menu.instantiate()
-		get_parent().add_child(graphics_menu)
-		visible = false
-		await graphics_menu.back
-		graphics_menu.queue_free()
-		visible = true
+	open_submenu(packed_graphics_menu, self, get_parent())
 
 
 func _on_audio_pressed() -> void:
-	if packed_audio_menu.can_instantiate():
-		var audio_menu := packed_audio_menu.instantiate()
-		get_parent().add_child(audio_menu)
-		visible = false
-		await audio_menu.back
-		audio_menu.queue_free()
-		visible = true
+	open_submenu(packed_audio_menu, self, get_parent())
 
 
 func _on_controls_pressed() -> void:
-	if packed_controls_menu.can_instantiate():
-		var controls_menu := packed_controls_menu.instantiate()
-		get_parent().add_child(controls_menu)
-		visible = false
-		await controls_menu.back
-		controls_menu.queue_free()
-		visible = true
-
-
-func _on_back_pressed() -> void:
-	back.emit()
+	open_submenu(packed_controls_menu, self, get_parent())

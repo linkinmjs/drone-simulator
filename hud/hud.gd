@@ -1,22 +1,32 @@
 extends Control
 class_name HUD
+## In-flight OSD. Orientation aids (horizon, compass, side tapes, next gate) follow the camera
+## every frame; numeric values refresh at the "numbers rate" of the HUD settings so they stay
+## readable. The data pipeline (`update_data`) and `show_component` are unchanged.
 
 
-enum Component {CROSSHAIR, STATUS, HEADING, SPEED, ALTITUDE, LADDER, HORIZON, STICKS, RPM}
+enum Component {CROSSHAIR, STATUS, HEADING, SPEED, ALTITUDE, LADDER, HORIZON, STICKS, RPM,
+		FLIGHT_MODE, REC, SIDE_TAPES, GATE_MARKER}
 
 # HUD components
-@onready var crosshair := %Crosshair as TextureRect
-@onready var ladder := %HUDLadder as HUDLadder
-@onready var speed_scale := %HUDSpeedScale as HUDSpeedScale
-@onready var altitude_scale := %HUDAltitudeScale as HUDAltitudeScale
-@onready var heading_scale := %HUDHeadingScale as HUDHeadingScale
+@onready var crosshair := %Crosshair as HUDCrosshair
+@onready var horizon := %HUDHorizon as HUDHorizon
+@onready var side_tapes := %HUDSideTapes as HUDSideTapes
+@onready var compass := %HUDCompass as HUDCompassTape
+@onready var readouts := %HUDReadouts as HUDReadouts
+@onready var mode_badge := %HUDModeBadge as HUDModeBadge
+@onready var rec_indicator := %HUDRec as HUDRecIndicator
+@onready var gate_marker := %HUDGateMarker as HUDGateMarker
+@onready var sticks := %HUDSticks as Control
 @onready var stick_left := %HUDStickLeft as HUDStickInput
 @onready var stick_right := %HUDStickRight as HUDStickInput
 @onready var rpm_table := %HUDRPM as HUDRPM
 @onready var status := %HUDStatus as HUDStatus
-@onready var flight_mode := %FlightMode as Label
 
-# Flight data
+## True when the HUD is shown as a preview in the settings (no drone around it)
+var preview_mode := false
+
+# Flight data, averaged over the numbers refresh period
 var hud_timer := 0.1
 var hud_delta := 0.0
 var hud_position := Vector3.ZERO
@@ -28,13 +38,61 @@ var hud_rpm := [0.0, 0.0, 0.0, 0.0]
 var is_first := false
 var first_angles := Vector3.ZERO
 
+# Latest raw values, used every frame by the orientation aids
+var latest_position := Vector3.ZERO
+var latest_angles := Vector3.ZERO
+var latest_velocity := Vector3.ZERO
+var latest_left_stick := Vector2.ZERO
+var latest_right_stick := Vector2.ZERO
+var _previous_altitude := 0.0
+var _camera: FPVCamera = null
+var _show_rec := true
+var _show_gate := false
+var _preview_time := 0.0
+
 
 func _ready() -> void:
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	reset_data()
 	update_data(hud_delta, hud_position, hud_angles, hud_velocity, hud_left_stick, hud_right_stick, hud_rpm)
+	var parent := get_parent()
+	if parent:
+		_camera = parent.get_node_or_null(^"FPVCamera") as FPVCamera
+	horizon.camera = _camera
+	gate_marker.camera = _camera
+	var _discard := GameSettings.hud_config_updated.connect(apply_hud_config)
+	apply_hud_config()
 
 
-func _process(_delta: float) -> void:
+func apply_hud_config() -> void:
+	var config := GameSettings.hud_config
+	hud_timer = 1.0 / float(config["fps"])
+	horizon.mode = str(config["horizon_mode"])
+	for key: String in ["crosshair", "horizon", "ladder", "speed", "altitude", "heading", "sticks",
+			"rpm", "flight_mode", "rec", "side_tapes", "gate_marker"]:
+		show_component(_component_for_key(key), bool(config[key]))
+
+
+func _component_for_key(key: String) -> Component:
+	match key:
+		"crosshair": return Component.CROSSHAIR
+		"horizon": return Component.HORIZON
+		"ladder": return Component.LADDER
+		"speed": return Component.SPEED
+		"altitude": return Component.ALTITUDE
+		"heading": return Component.HEADING
+		"sticks": return Component.STICKS
+		"rpm": return Component.RPM
+		"flight_mode": return Component.FLIGHT_MODE
+		"rec": return Component.REC
+		"side_tapes": return Component.SIDE_TAPES
+		_: return Component.GATE_MARKER
+
+
+func _process(delta: float) -> void:
+	if preview_mode:
+		_update_preview(delta)
+	_update_orientation()
 	if hud_delta >= hud_timer:
 		hud_position /= hud_delta
 		hud_angles /= hud_delta
@@ -48,52 +106,91 @@ func _process(_delta: float) -> void:
 
 
 func show_component(component: int, show_comp: bool = true) -> void:
-	var self_only := false
-	var mod := Color(1, 1, 1, 1)
-	if not show_comp:
-		mod = Color(1, 1, 1, 0)
-	var hud_component: Array[Control] = []
 	match component:
 		Component.CROSSHAIR:
-			hud_component.append(crosshair)
+			crosshair.visible = show_comp
 		Component.STATUS:
-			hud_component.append(status)
+			status.visible = show_comp
 		Component.HEADING:
-			hud_component.append(heading_scale)
+			compass.visible = show_comp
 		Component.SPEED:
-			hud_component.append(speed_scale)
+			readouts.show_speed = show_comp
+			readouts.queue_redraw()
 		Component.ALTITUDE:
-			hud_component.append(altitude_scale)
+			readouts.show_altitude = show_comp
+			readouts.queue_redraw()
 		Component.LADDER:
-			for marker in ladder.pitch_markers:
-				hud_component.append(marker)
+			horizon.show_ladder = show_comp
+			horizon.queue_redraw()
 		Component.HORIZON:
-			hud_component.append(ladder.horizon)
-			self_only = true
+			horizon.show_horizon = show_comp
+			horizon.queue_redraw()
 		Component.STICKS:
-			hud_component.append(stick_left)
-			hud_component.append(stick_right)
+			sticks.visible = show_comp
 		Component.RPM:
-			hud_component.append(rpm_table)
-	for comp in hud_component:
-		if self_only:
-			comp.self_modulate = mod
-		else:
-			comp.modulate = mod
+			rpm_table.visible = show_comp
+		Component.FLIGHT_MODE:
+			mode_badge.visible = show_comp
+		Component.REC:
+			_show_rec = show_comp
+		Component.SIDE_TAPES:
+			side_tapes.visible = show_comp
+		Component.GATE_MARKER:
+			_show_gate = show_comp
+	readouts.visible = readouts.show_speed or readouts.show_altitude
+
+
+## Orientation aids: every frame, from the latest values and the camera transform.
+func _update_orientation() -> void:
+	if not is_visible_in_tree():
+		return
+	var heading := -rad_to_deg(latest_angles.y)
+	if is_instance_valid(_camera):
+		var forward := -_camera.global_transform.basis.z
+		var flat := Vector2(forward.x, -forward.z)
+		if flat.length() > 0.08:
+			heading = rad_to_deg(atan2(flat.x, flat.y))
+	compass.heading = fposmod(heading, 360.0)
+	compass.queue_redraw()
+
+	horizon.pitch = latest_angles.x
+	horizon.roll = latest_angles.z
+	horizon.queue_redraw()
+
+	side_tapes.speed = latest_velocity.length()
+	side_tapes.altitude = latest_position.y
+	side_tapes.queue_redraw()
+
+	stick_left.update_stick_input(latest_left_stick)
+	stick_right.update_stick_input(latest_right_stick)
+
+	var track: Track = Global.active_track if not preview_mode else null
+	rec_indicator.recording = _show_rec and (preview_mode or (track != null and track.record_replay))
+	gate_marker.show_marker = _show_gate and not preview_mode
+	if gate_marker.show_marker and track != null and track.current_checkpoint != null:
+		gate_marker.target = track.current_checkpoint.global_position
+	else:
+		gate_marker.target = Vector3.INF
+	gate_marker.queue_redraw()
 
 
 func update_display() -> void:
-	ladder.update_ladder(hud_angles.x, hud_angles.z)
-	speed_scale.update_speed(hud_velocity.length(), hud_delta)
-	altitude_scale.update_altitude(hud_position.y, hud_delta)
-	heading_scale.update_heading(hud_angles.y, hud_delta)
-	stick_left.update_stick_input(hud_left_stick)
-	stick_right.update_stick_input(hud_right_stick)
+	readouts.speed_kmh = hud_velocity.length() * 3.6
+	readouts.altitude = hud_position.y
+	if hud_delta > 0.0:
+		readouts.vertical_speed = (hud_position.y - _previous_altitude) / maxf(hud_timer, 1e-3)
+	_previous_altitude = hud_position.y
+	readouts.queue_redraw()
 	rpm_table.update_rpm(hud_rpm[0], hud_rpm[1], hud_rpm[2], hud_rpm[3])
 
 
 func update_data(dt: float, pos: Vector3, angles: Vector3, velocity: Vector3,
 		left_stick: Vector2, right_stick: Vector2, rpm: Array) -> void:
+	latest_position = pos
+	latest_angles = angles
+	latest_velocity = velocity
+	latest_left_stick = left_stick
+	latest_right_stick = right_stick
 	hud_delta += dt
 	hud_position += dt * pos
 	if is_first:
@@ -109,14 +206,22 @@ func update_data(dt: float, pos: Vector3, angles: Vector3, velocity: Vector3,
 
 
 func update_flight_mode(mode: FlightMode) -> void:
-	var text := ""
+	var key := "HUD_MODE_ACRO"
+	var blink := false
 	if mode is FlightModeHorizon:
-		text = "HORIZON"
+		key = "HUD_MODE_HORIZON"
 	elif mode is FlightModeSpeed:
-		text = "SPEED"
+		key = "HUD_MODE_SPEED"
 	elif mode is FlightModeTrack:
-		text = "POSITION"
-	flight_mode.text = text
+		key = "HUD_MODE_POSITION"
+	elif mode is FlightModeTurtle:
+		key = "HUD_MODE_TURTLE"
+	elif mode is FlightModeLaunch:
+		key = "HUD_MODE_LAUNCH"
+	elif mode is FlightModeRecover:
+		key = "HUD_MODE_RECOVER"
+		blink = true
+	mode_badge.set_mode(key, blink)
 
 
 func reset_data() -> void:
@@ -144,3 +249,17 @@ func get_adjusted_angles(angles: Vector3) -> Vector3:
 				correction = -1
 			result[i] = angles[i] + 2 * PI * correction
 	return result
+
+
+## Settings preview: gentle fake flight so every component can be seen.
+func _update_preview(delta: float) -> void:
+	_preview_time += delta
+	var t := _preview_time
+	var pos := Vector3(0, 12.0 + sin(t * 0.4) * 3.0, 0)
+	var angles := Vector3(deg_to_rad(4.0 * sin(t * 0.5)), deg_to_rad(-25.0 - t * 8.0),
+			deg_to_rad(10.0 * sin(t * 0.3)))
+	var velocity := Vector3(0, cos(t * 0.4) * 1.2, -11.5 - sin(t * 0.7) * 2.0)
+	var left := Vector2(sin(t * 0.6) * 0.3, -0.1)
+	var right := Vector2(sin(t * 0.3) * 0.4, cos(t * 0.5) * 0.3)
+	var rpm := [21000.0, 20500.0, 21400.0, 20800.0]
+	update_data(delta, pos, angles, velocity, left, right, rpm)

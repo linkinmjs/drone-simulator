@@ -1,57 +1,69 @@
 [gd_scene format=3 uid="uid://bsk1mpj5na1ou"]
 
-[ext_resource type="Theme" uid="uid://cg8ia5t16ecpj" path="res://gui/menu_theme.tres" id="1_kmgdu"]
 [ext_resource type="Script" uid="uid://dfuw6ecldhd6c" path="res://gui/pause_menu.gd" id="2"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_ngoj6"]
-font_size = 48
-
-[node name="PauseMenu" type="MarginContainer" unique_id=1990752927]
+[node name="PauseMenu" type="MarginContainer"]
 process_mode = 2
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_kmgdu")
 script = ExtResource("2")
 
-[node name="PanelContainer" type="PanelContainer" parent="." unique_id=387779113]
+[node name="MenuColumn" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(460, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Title" type="Label" parent="MenuColumn"]
+layout_mode = 2
+theme_type_variation = &"DisplayLabel"
+text = "MENU_PAUSED"
+
+[node name="Subtitle" type="Label" parent="MenuColumn"]
+layout_mode = 2
+theme_type_variation = &"SubtitleLabel"
+text = "MENU_PAUSED_HINT"
+
+[node name="Spacer" type="Control" parent="MenuColumn"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+
+[node name="ButtonResume" type="Button" parent="MenuColumn"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
+theme_type_variation = &"MenuItemButton"
+text = "MENU_RESUME"
+alignment = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=506872588]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="PanelContainer/VBoxContainer" unique_id=114473232]
-layout_mode = 2
-text = "Pause"
-label_settings = SubResource("LabelSettings_ngoj6")
-horizontal_alignment = 1
-
-[node name="ButtonResume" type="Button" parent="PanelContainer/VBoxContainer" unique_id=1174157495]
+[node name="ButtonQuad" type="Button" parent="MenuColumn"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Resume"
+theme_type_variation = &"MenuItemButton"
+text = "MENU_QUAD_SETTINGS"
+alignment = 0
 
-[node name="ButtonQuad" type="Button" parent="PanelContainer/VBoxContainer" unique_id=494605550]
+[node name="ButtonOptions" type="Button" parent="MenuColumn"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Quad Settings"
+theme_type_variation = &"MenuItemButton"
+text = "MENU_OPTIONS"
+alignment = 0
 
-[node name="ButtonHelp" type="Button" parent="PanelContainer/VBoxContainer" unique_id=42873462]
+[node name="ButtonHelp" type="Button" parent="MenuColumn"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Help"
+theme_type_variation = &"MenuItemButton"
+text = "MENU_HELP"
+alignment = 0
 
-[node name="ButtonOptions" type="Button" parent="PanelContainer/VBoxContainer" unique_id=872229131]
+[node name="ButtonMainMenu" type="Button" parent="MenuColumn"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Options"
-
-[node name="ButtonMainMenu" type="Button" parent="PanelContainer/VBoxContainer" unique_id=1490226814]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Return to Main Menu"
+theme_type_variation = &"MenuItemButton"
+text = "MENU_RETURN_TO_MAIN"
+alignment = 0

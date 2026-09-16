@@ -13,6 +13,10 @@ var bound_low := 0.0
 var bound_high := 1.0
 
 var dragging := 0
+## Handle moved with keyboard / gamepad / sticks: 1 = low bound, 2 = high bound.
+var active_handle := 1
+
+const KEYBOARD_STEP := 0.05
 
 
 func _ready() -> void:
@@ -22,7 +26,8 @@ func _ready() -> void:
 	add_child(button_high)
 
 	axis_range.size = axis_monitor.custom_minimum_size
-	axis_range.texture_progress = load("res://Assets/GUI/ControlAxes_Transparent.png")
+	axis_range.texture_progress = ThemeBuilder.bar_texture()
+	axis_range.tint_progress = Color(UIPalette.ACCENT, 0.35)
 	axis_range.nine_patch_stretch = true
 	axis_range.stretch_margin_top = 3
 	axis_range.stretch_margin_bottom = 3
@@ -44,6 +49,11 @@ func _ready() -> void:
 	button_high.position = button_high_pos
 	button_low.focus_mode = Control.FOCUS_NONE
 	button_high.focus_mode = Control.FOCUS_NONE
+	# The range itself takes the focus: accept switches handle, left/right moves it
+	focus_mode = Control.FOCUS_ALL
+	set_meta(&"stick_value_control", true)
+	var _focus := focus_entered.connect(_update_handle_highlight)
+	_focus = focus_exited.connect(_update_handle_highlight)
 
 	update_pos.call_deferred()
 
@@ -74,6 +84,40 @@ func _input(event: InputEvent) -> void:
 			var posx := clampf(button_pos.x + delta, xmin + 1, xmax)
 			button_high.position = Vector2(posx, button_pos.y)
 		update_bounds()
+
+
+func _gui_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"ui_accept", false, true):
+		active_handle = 2 if active_handle == 1 else 1
+		_update_handle_highlight()
+		UI.play("click")
+		accept_event()
+	elif event.is_action_pressed(&"ui_left", true, true) or event.is_action_pressed(&"ui_right", true, true):
+		var step := KEYBOARD_STEP if event.is_action(&"ui_right", true) else -KEYBOARD_STEP
+		var low := bound_low
+		var high := bound_high
+		if active_handle == 1:
+			low = clampf(low + step, -1.0, high - KEYBOARD_STEP)
+		else:
+			high = clampf(high + step, low + KEYBOARD_STEP, 1.0)
+		set_bounds(low, high)
+		UI.play("tick")
+		range_released.emit()
+		accept_event()
+
+
+func _update_handle_highlight() -> void:
+	var focused := has_focus()
+	button_low.theme_type_variation = &"PrimaryButton" if focused and active_handle == 1 else &""
+	button_high.theme_type_variation = &"PrimaryButton" if focused and active_handle == 2 else &""
+	queue_redraw()
+
+
+func _draw() -> void:
+	if has_focus():
+		var ring := get_theme_stylebox(&"focus", &"Button")
+		if ring:
+			draw_style_box(ring, Rect2(Vector2(-6, -2), size + Vector2(12, 4)))
 
 
 func update_pos() -> void:

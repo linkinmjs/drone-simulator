@@ -263,6 +263,8 @@ func setup_timer_label() -> void:
 	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	timer_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	timer_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT, Control.PRESET_MODE_MINSIZE)
+	# Below the flight mode badge of the HUD
+	timer_label.position = Vector2(56, 124)
 	timer_label.visible = false
 
 
@@ -283,14 +285,14 @@ func update_countdown(step: int = 0) -> void:
 		countdown_timer.start(2)
 		if step == -1:
 			countdown_label.visible = true
-			countdown_label.text = "False Start!"
+			countdown_label.text = "RACE_FALSE_START"
 	elif step <= 4:
 		countdown_timer.start(1)
 		countdown_label.visible = true
 		if step <= 3:
 			countdown_label.text = "%d" % [3 - step + 1]
 		elif step == 4:
-			countdown_label.text = "GO!"
+			countdown_label.text = "RACE_GO"
 			start_race()
 	countdown_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER, Control.PRESET_MODE_MINSIZE)
 
@@ -302,12 +304,12 @@ func stop_countdown() -> void:
 
 func update_timer_label() -> void:
 	if race_state == Global.RaceState.START:
-		timer_label.text = "Prev. lap: 00:00.00 (0)\nCurr. lap: 00:00.00 (0)\nTotal: 00:00.00"
+		timer_label.text = tr("RACE_TIMER") % ["00:00.00", 0, "00:00.00", 0, "00:00.00"]
 	elif race_state == Global.RaceState.RACE or race_state == Global.RaceState.END:
 		var total_time := 0.0
 		for timer in timers:
 			total_time += timer.time
-		timer_label.text = "Prev. lap: %s (%d)\nCurr. lap: %s (%d)\nTotal: %s" \
+		timer_label.text = tr("RACE_TIMER") \
 				% [timers[current_lap - 2].get_time_string(), current_lap - 1,
 				timers[current_lap - 1].get_time_string(), current_lap,
 				timers[0].get_time_string(total_time)]
@@ -368,7 +370,7 @@ func _on_body_exited_launchpad(_body: Node) -> void:
 
 
 func display_end_label() -> void:
-	end_label.text = "Finished!"
+	end_label.text = "RACE_FINISHED"
 	end_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER, Control.PRESET_MODE_MINSIZE)
 	end_label.visible = true
 	var timer := Timer.new()

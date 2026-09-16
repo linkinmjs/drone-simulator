@@ -1,71 +1,15 @@
-extends Control
+extends MenuScreen
 
 
-signal back
-
-
-## Help texts shown as tooltips. The rate ones depend on the selected curve,
-## because the three sliders change meaning with it.
-const HELP_CAMERA_ANGLE := """Inclinación de la cámara FPV respecto al dron, en grados.
-A mayor ángulo, más inclinado hacia adelante tenés que volar para ver el horizonte,
-es decir, más rápido. Orientativo: 15-25 para freestyle tranquilo, 30-45 para carreras."""
-const HELP_DRY_WEIGHT := """Peso del dron sin batería, en gramos.
-Más peso significa más inercia, respuestas más lentas y menos empuje sobrante.
-Orientativo: 550 g es un 5 pulgadas de freestyle con cámara de acción; 300 g, uno de carreras."""
-const HELP_BATTERY_WEIGHT := """Peso de la batería, en gramos. Se suma al peso en seco.
-Orientativo: una LiPo 4S de 1300 mAh pesa unos 180 g; una 6S de 1100 mAh, unos 200 g."""
-const HELP_RATES_CURVE := """Fórmula que convierte la posición del stick en velocidad de giro.
-Todas describen lo mismo con parámetros distintos. ACTUAL es la más fácil de razonar
-porque sus valores están directamente en grados por segundo.
-Al cambiar de curva los números se conservan pero cambian de significado:
-pulsá Reset Rates para cargar valores razonables de la curva elegida."""
-const HELP_PITCH := """Pitch: inclinar el morro arriba o abajo (stick derecho adelante y atrás).
-Es lo que hace avanzar o frenar al dron."""
-const HELP_ROLL := """Roll: inclinarse a izquierda o derecha (stick derecho lateral).
-Desplaza el dron de costado. Conviene mantenerlo igual que Pitch:
-el dron es simétrico en estos dos ejes."""
-const HELP_YAW := """Yaw: girar sobre el eje vertical, cambiar hacia dónde mira el morro
-(stick izquierdo lateral). Es el eje más débil del dron, porque solo dispone
-del par de reacción de las hélices, así que suele llevar un máximo algo menor."""
-const HELP_GRAPH := """Eje horizontal: posición del stick, de todo a la izquierda a todo a la derecha.
-Eje vertical: velocidad de giro que pide esa posición.
-P, R e Y: máximo de cada eje en grados por segundo."""
-const HELP_RESET_QUAD := "Restaura el ángulo de cámara y los pesos por defecto."
-const HELP_RESET_RATES := "Carga los valores por defecto de la curva de rates seleccionada."
-
-## Per curve: help texts for the [rate, rc, expo] columns.
+## Help texts shown as tooltips (translation keys). The rate ones depend on the selected
+## curve, because the three sliders change meaning with it.
 const HELP_RATES := {
-	ControlProfile.RateCurve.ACTUAL: [
-		"""Max Rate: velocidad de giro con el stick a fondo, en grados por segundo.
-Define lo rápido que podés hacer un flip: a 360 un giro completo tarda 1 segundo.
-Debe ser mayor que Center Rate; si son iguales, la curva es una recta y Expo no hace nada.
-Orientativo: 400 para aprender, 670 es el valor por defecto de Betaflight.""",
-		"""Center Rate: sensibilidad cerca del centro, en grados por segundo.
-Al 10 % de stick obtenés el 10 % de este valor. Es el número que más define
-la sensación en vuelo normal, porque casi siempre volás cerca del centro.
-Orientativo: 70-100 para empezar, hasta 200 para pilotos ágiles.""",
-		"""Expo: reparte la diferencia entre Center Rate y Max Rate a lo largo del recorrido.
-Con 0 la curva sube de forma progresiva desde el centro. Con valores altos se mantiene
-cerca de Center Rate en gran parte del recorrido y la subida se concentra en los extremos:
-precisión en el centro sin renunciar a un máximo alto. Orientativo: 0.3.""",
-	],
-	ControlProfile.RateCurve.RACEFLIGHT: [
-		"""Rate: velocidad de giro base con el stick a fondo, en grados por segundo, con Acro+ en 0.""",
-		"""Acro+: añade velocidad extra hacia los extremos del stick.
-El máximo real pasa a ser Rate x (1 + Acro+ / 100).""",
-		"""Expo: suaviza la zona central. 0 es lineal; cuanto más alto, más plano cerca del centro.""",
-	],
-	ControlProfile.RateCurve.KISS: [
-		"""Rate: curva "super rate" de 0 a 99. Cuanto mayor, más se concentra
-la velocidad en los extremos del stick y mayor es el máximo.""",
-		"""RC Rate: sensibilidad general del stick. Multiplica toda la curva.""",
-		"""RC Curve: expo de la zona central. 0 es lineal; cuanto más alto, más suave cerca del centro.""",
-	],
-	ControlProfile.RateCurve.QUICKRATES: [
-		"""Max Rate: velocidad de giro con el stick a fondo, en grados por segundo.""",
-		"""RC Rate: sensibilidad cerca del centro.""",
-		"""Expo: suaviza la zona central. 0 es lineal; cuanto más alto, más plano cerca del centro.""",
-	],
+	ControlProfile.RateCurve.ACTUAL: ["QUAD_HELP_ACTUAL_RATE", "QUAD_HELP_ACTUAL_RC", "QUAD_HELP_ACTUAL_EXPO"],
+	ControlProfile.RateCurve.RACEFLIGHT: ["QUAD_HELP_RACEFLIGHT_RATE", "QUAD_HELP_RACEFLIGHT_RC",
+			"QUAD_HELP_RACEFLIGHT_EXPO"],
+	ControlProfile.RateCurve.KISS: ["QUAD_HELP_KISS_RATE", "QUAD_HELP_KISS_RC", "QUAD_HELP_KISS_EXPO"],
+	ControlProfile.RateCurve.QUICKRATES: ["QUAD_HELP_QUICKRATES_RATE", "QUAD_HELP_QUICKRATES_RC",
+			"QUAD_HELP_QUICKRATES_EXPO"],
 }
 
 
@@ -78,6 +22,9 @@ la velocidad en los extremos del stick y mayor es el máximo.""",
 @onready var battery_weight_label := %BatteryWeightLabel as Label
 @onready var battery_weight_slider := %BatteryWeightSlider as HSlider
 @onready var battery_weight_spin := %BatteryWeightCurrent as SpinBox
+@onready var fov_label := %FovLabel as Label
+@onready var fov_slider := %FovSlider as HSlider
+@onready var fov_spin := %FovCurrent as SpinBox
 
 @onready var rates_curve_label := %RatesCurveLabel as Label
 @onready var rates_curve_list := %RatesCurveOptionButton as OptionButton
@@ -115,6 +62,8 @@ la velocidad en los extremos del stick y mayor es el máximo.""",
 
 
 func _ready() -> void:
+	initial_focus = camera_angle_slider
+	super()
 	QuadSettings.load_quad_settings()
 
 	# Each spin box shares its range with the slider next to it: typing a value moves
@@ -122,6 +71,7 @@ func _ready() -> void:
 	camera_angle_slider.share(camera_angle_spin)
 	dry_weight_slider.share(dry_weight_spin)
 	battery_weight_slider.share(battery_weight_spin)
+	fov_slider.share(fov_spin)
 	pitch_rate_slider.share(pitch_rate_spin)
 	roll_rate_slider.share(roll_rate_spin)
 	yaw_rate_slider.share(yaw_rate_spin)
@@ -139,6 +89,8 @@ func _ready() -> void:
 	_discard = battery_weight_slider.value_changed.connect(_on_battery_weight_changed)
 	dry_weight_slider.value = QuadSettings.dry_weight * 1000
 	battery_weight_slider.value = QuadSettings.battery_weight * 1000
+	_discard = fov_slider.value_changed.connect(_on_fov_changed)
+	fov_slider.value = QuadSettings.fov
 
 	rates_curve_list.clear()
 	for item: String in ControlProfile.RateCurve.keys():
@@ -158,38 +110,50 @@ func _ready() -> void:
 
 	_discard = button_reset_quad.pressed.connect(_on_reset_quad_pressed)
 	_discard = button_reset_rates.pressed.connect(_on_reset_rates_pressed)
-	_discard = button_back.pressed.connect(_on_back_pressed)
+	bind_back_button(button_back)
+
+	# Spin boxes stay editable with the mouse, but keyboard / gamepad / stick navigation
+	# moves between the sliders (the spin box text field would trap up/down).
+	for spin: SpinBox in [camera_angle_spin, dry_weight_spin, battery_weight_spin, fov_spin,
+			pitch_rate_spin, roll_rate_spin, yaw_rate_spin, pitch_rc_spin, roll_rc_spin, yaw_rc_spin,
+			pitch_expo_spin, roll_expo_spin, yaw_expo_spin]:
+		spin.get_line_edit().focus_mode = Control.FOCUS_CLICK
 
 	setup_help()
 	update_rates_ui()
 
 
-func _input(event: InputEvent) -> void:
-	if event.is_action("ui_cancel") and event.is_pressed() and not event.is_echo():
-		accept_event()
-		QuadSettings.save_quad_settings()
-		back.emit()
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
+		setup_help()
+		update_rates_labels()
+
+
+func _before_back() -> void:
+	QuadSettings.save_quad_settings()
 
 
 func setup_help() -> void:
 	for control: Control in [camera_angle_label, camera_angle_slider, camera_angle_spin]:
-		set_help(control, HELP_CAMERA_ANGLE)
+		set_help(control, "QUAD_HELP_CAMERA_ANGLE")
 	for control: Control in [dry_weight_label, dry_weight_slider, dry_weight_spin]:
-		set_help(control, HELP_DRY_WEIGHT)
+		set_help(control, "QUAD_HELP_DRY_WEIGHT")
 	for control: Control in [battery_weight_label, battery_weight_slider, battery_weight_spin]:
-		set_help(control, HELP_BATTERY_WEIGHT)
+		set_help(control, "QUAD_HELP_BATTERY_WEIGHT")
+	for control: Control in [fov_label, fov_slider, fov_spin]:
+		set_help(control, "QUAD_HELP_FOV")
 	for control: Control in [rates_curve_label, rates_curve_list]:
-		set_help(control, HELP_RATES_CURVE)
-	set_help(pitch_label, HELP_PITCH)
-	set_help(roll_label, HELP_ROLL)
-	set_help(yaw_label, HELP_YAW)
-	set_help(rate_graph, HELP_GRAPH)
-	set_help(button_reset_quad, HELP_RESET_QUAD)
-	set_help(button_reset_rates, HELP_RESET_RATES)
+		set_help(control, "QUAD_HELP_RATES_CURVE")
+	set_help(pitch_label, "QUAD_HELP_PITCH")
+	set_help(roll_label, "QUAD_HELP_ROLL")
+	set_help(yaw_label, "QUAD_HELP_YAW")
+	set_help(rate_graph, "QUAD_HELP_GRAPH")
+	set_help(button_reset_quad, "QUAD_HELP_RESET_QUAD")
+	set_help(button_reset_rates, "QUAD_HELP_RESET_RATES")
 
 
-func set_help(control: Control, text: String) -> void:
-	control.tooltip_text = text
+func set_help(control: Control, key: String) -> void:
+	control.tooltip_text = tr(key)
 	if control is Label:
 		# Labels ignore the mouse by default, so they would never show a tooltip
 		control.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -197,6 +161,10 @@ func set_help(control: Control, text: String) -> void:
 
 func _on_angle_changed(value: float) -> void:
 	QuadSettings.angle = value as int
+
+
+func _on_fov_changed(value: float) -> void:
+	QuadSettings.fov = value as int
 
 
 func _on_dry_weight_changed(value: float) -> void:
@@ -265,21 +233,21 @@ func update_graph() -> void:
 func update_rates_labels() -> void:
 	match QuadSettings.control_profile.rate_curve:
 		ControlProfile.RateCurve.ACTUAL:
-			rate_label.text = "Max Rate"
-			rc_label.text = "Center Rate"
-			expo_label.text = "Expo"
+			rate_label.text = "QUAD_MAX_RATE"
+			rc_label.text = "QUAD_CENTER_RATE"
+			expo_label.text = "QUAD_EXPO"
 		ControlProfile.RateCurve.RACEFLIGHT:
-			rate_label.text = "Rate"
-			rc_label.text = "Acro+"
-			expo_label.text = "Expo"
+			rate_label.text = "QUAD_RATE"
+			rc_label.text = "QUAD_ACRO_PLUS"
+			expo_label.text = "QUAD_EXPO"
 		ControlProfile.RateCurve.KISS:
-			rate_label.text = "Rate"
-			rc_label.text = "RC Rate"
-			expo_label.text = "RC Curve"
+			rate_label.text = "QUAD_RATE"
+			rc_label.text = "QUAD_RC_RATE"
+			expo_label.text = "QUAD_RC_CURVE"
 		ControlProfile.RateCurve.QUICKRATES:
-			rate_label.text = "Max Rate"
-			rc_label.text = "RC Rate"
-			expo_label.text = "Expo"
+			rate_label.text = "QUAD_MAX_RATE"
+			rc_label.text = "QUAD_RC_RATE"
+			expo_label.text = "QUAD_EXPO"
 
 	# The help follows the curve, since the columns change meaning with it
 	var help: Array = HELP_RATES[QuadSettings.control_profile.rate_curve]
@@ -374,13 +342,10 @@ func _on_reset_quad_pressed() -> void:
 	camera_angle_slider.value = QuadSettings.angle
 	dry_weight_slider.value = QuadSettings.dry_weight * 1000
 	battery_weight_slider.value = QuadSettings.battery_weight * 1000
+	fov_slider.value = QuadSettings.fov
 
 
 func _on_reset_rates_pressed() -> void:
 	QuadSettings.reset_rates()
 	update_sliders()
 
-
-func _on_back_pressed() -> void:
-	QuadSettings.save_quad_settings()
-	back.emit()
