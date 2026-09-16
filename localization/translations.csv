@@ -209,6 +209,7 @@ MENU_RESUME,Continuar,Resume
 MENU_RETURN_CONFIRM,¿Volver al menú principal? Se pierde la vuelta en curso.,Return to the main menu? The current lap will be lost.
 MENU_RETURN_TO_MAIN,Menú principal,Main menu
 MENU_TAGLINE,Simulador de vuelo FPV,FPV flight simulator
+MENU_TUTORIAL,Instructor de vuelo,Flight instructor
 OPT_AUDIO,Audio,Audio
 OPT_CONTROLS,Controles,Controls
 OPT_GAME,Juego y HUD,Game and HUD
@@ -327,6 +328,94 @@ Total: %s","Prev. lap: %s (%d)
 Curr. lap: %s (%d)
 Total: %s"
 RACE_TOTAL,Total,Total
+TUT_ALTITUDE,Altura %.1f m,Altitude %.1f m
+TUT_END_SUBTITLE,Completaste el instructor. Seguí practicando en vuelo libre o probá las pistas con R.,You completed the instructor. Keep practicing in free flight or try the tracks with R.
+TUT_END_TITLE,¡Ya sabés volar!,You can fly!
+TUT_GATES_T,Cruzá la puerta iluminada.,Fly through the highlighted gate.
+TUT_GATE_P,Puerta %d de %d · a %.1f m,Gate %d of %d · %.1f m away
+TUT_KEY_NEXT,Siguiente,Next
+TUT_KEY_PAUSE,Pausa,Pause
+TUT_KEY_RESTART,Reiniciar lección,Restart lesson
+TUT_KEY_SKIP,Saltar,Skip
+TUT_L1_OBJECTIVE,Primero comprobamos que el simulador lee tu mando. El stick izquierdo maneja el acelerador (arriba y abajo) y la guiñada (a los lados). El derecho maneja el cabeceo (arriba y abajo) y el alabeo (a los lados).,"First, let's check that the simulator reads your controller. The left stick drives the throttle (up and down) and the yaw (sideways). The right stick drives the pitch (up and down) and the roll (sideways)."
+TUT_L1_TITLE,Tu control,Your controller
+TUT_L1_T_ARM,"Con el stick izquierdo abajo del todo, armá el dron: LB en el gamepad, Espacio en el teclado o el switch de armado de la radio.","With the left stick all the way down, arm the drone: LB on a gamepad, Space on the keyboard or the arm switch of your radio."
+TUT_L1_T_DISARM,Los motores giran. Desarmá con el mismo botón o switch.,The motors are spinning. Disarm with the same button or switch.
+TUT_L1_T_JOYPAD,Presioná cualquier botón del mando.,Press any button on your controller.
+TUT_L1_T_PITCH,Mové el stick derecho arriba y abajo del todo.,Move the right stick all the way up and down.
+TUT_L1_T_ROLL,Mové el stick derecho hasta los dos costados.,Move the right stick to both sides.
+TUT_L1_T_THROTTLE_DOWN,Ahora bajalo del todo.,Now pull it all the way down.
+TUT_L1_T_THROTTLE_UP,Llevá el stick izquierdo arriba del todo.,Push the left stick all the way up.
+TUT_L1_T_YAW,Mové el stick izquierdo hasta los dos costados.,Move the left stick to both sides.
+TUT_L2_OBJECTIVE,"Estás en modo Horizon: el dron se nivela solo, pero el acelerador es directo. Con un gamepad, el stick en el centro no alcanza para sostenerlo: subilo un poco más.","You are in Horizon mode: the drone levels itself, but the throttle is direct. With a gamepad, the stick at the center is not enough to hold it: push it a bit higher."
+TUT_L2_P_HOLD,Altura %.1f m · en la zona %.1f / %.0f s,Altitude %.1f m · in the zone %.1f / %.0f s
+TUT_L2_TITLE,Despegue y altura,Takeoff and altitude
+TUT_L2_T_ARM,Armá el dron con el acelerador abajo del todo.,Arm the drone with the throttle all the way down.
+TUT_L2_T_CLIMB,Subí despacio hasta entrar en el cilindro azul.,Climb slowly into the blue cylinder.
+TUT_L2_T_DESCEND,Estás muy alto: bajá un poco el acelerador.,Too high: lower the throttle a little.
+TUT_L2_T_HOLD,¡Ahí! Mantenete dentro del cilindro.,There! Stay inside the cylinder.
+TUT_L2_T_LAND,Bajá despacio hasta apoyar el dron y desarmá.,"Come down slowly until the drone touches the ground, then disarm."
+TUT_L3_OBJECTIVE,"La guiñada gira el dron sobre sí mismo, como cuando mirás a los costados. Se maneja con el stick izquierdo hacia los lados, sin soltar el acelerador. Usá las banderas como referencia.","Yaw spins the drone around itself, like looking sideways. Move the left stick sideways without letting go of the throttle. Use the flags as a reference."
+TUT_L3_P_TURN,Giro %d° de %d°,Turned %d° of %d°
+TUT_L3_TITLE,Guiñada,Yaw
+TUT_L3_T_LEFT,"En el aire, girá hacia la izquierda.","While flying, turn to the left."
+TUT_L3_T_RIGHT,Ahora girá hacia la derecha.,Now turn to the right.
+TUT_L4_OBJECTIVE,"El cabeceo inclina el dron hacia adelante o hacia atrás, y así avanza o retrocede. Se maneja con el stick derecho. Cuanto más lo inclinás, más rápido va.","Pitch tilts the drone forward or backward, so it moves ahead or back. Use the right stick. The more you tilt, the faster it goes."
+TUT_L4_TITLE,Cabeceo,Pitch
+TUT_L4_T_BACK,Tirá el stick derecho hacia abajo y volvé a la zona del centro.,Pull the right stick down and fly back to the center zone.
+TUT_L4_T_FORWARD,Empujá el stick derecho hacia arriba y volá hasta la zona azul de adelante.,Push the right stick up and fly to the blue zone ahead.
+TUT_L5_OBJECTIVE,"El alabeo inclina el dron hacia un costado y lo desplaza de lado, sin girar. Se maneja con el stick derecho hacia la izquierda o la derecha.","Roll tilts the drone to one side and moves it sideways, without turning. Move the right stick left or right."
+TUT_L5_TITLE,Alabeo,Roll
+TUT_L5_T_CENTER_LEFT,Inclinate a la izquierda para volver al centro.,Roll to the left to get back to the center.
+TUT_L5_T_CENTER_RIGHT,Volvé al centro inclinándote a la derecha.,Roll to the right to get back to the center.
+TUT_L5_T_LEFT,Seguí hacia la izquierda hasta la otra zona.,Keep going left to the other zone.
+TUT_L5_T_RIGHT,Inclinate a la derecha y volá hasta la zona azul.,Roll to the right and fly to the blue zone.
+TUT_L6_OBJECTIVE,"Ahora combinás todo: acelerador para la altura, cabeceo para avanzar, guiñada y alabeo para apuntar. Cruzá las tres puertas en orden y de frente.","Now put it all together: throttle for altitude, pitch to move ahead, yaw and roll to aim. Fly through the three gates in order, from the front."
+TUT_L6_TITLE,Puertas en modo Horizon,Gates in Horizon mode
+TUT_L7_OBJECTIVE,"En Acro el dron no se nivela solo: el stick derecho marca la velocidad de giro y, al soltarlo, el dron mantiene la inclinación. Hacé movimientos cortos y volvé a centrar. Es el modo de los pilotos de carreras.","In Acro the drone does not level itself: the right stick sets the rotation speed and, when you let go, the drone keeps its tilt. Make short moves and center again. This is the mode racing pilots use."
+TUT_L7_TITLE,Puertas en modo Acro,Gates in Acro mode
+TUT_L8_OBJECTIVE,"Una vuelta cronometrada por cuatro puertas. Esperá la cuenta regresiva sobre la plataforma: si despegás antes, es salida en falso. Si Acro te cuesta, podés cambiar de modo con A o M.","One timed lap through four gates. Wait for the countdown on the launch pad: taking off early is a false start. If Acro is hard, you can switch modes with A or M."
+TUT_L8_P_RACE,Puerta %d de %d · %s,Gate %d of %d · %s
+TUT_L8_SUCCESS,Tu tiempo: %s,Your time: %s
+TUT_L8_TITLE,Tu primer circuito,Your first race track
+TUT_L8_T_RACE,¡Volá! Cruzá las puertas en orden.,Fly! Go through the gates in order.
+TUT_L8_T_WAIT,"Esperá el ¡YA! sin despegar. Si hubo salida en falso, reiniciá la lección.","Wait for GO! without taking off. After a false start, restart the lesson."
+TUT_LAST_DONE,¡Terminaste la última lección!,You finished the last lesson!
+TUT_LESSON_OF,LECCIÓN %d DE %d,LESSON %d OF %d
+TUT_MENU_ALL_DONE,Completaste todas las lecciones. Podés repetir cualquiera cuando quieras.,You completed every lesson. You can repeat any of them whenever you want.
+TUT_MENU_CHOOSE,Elegir lección,Choose a lesson
+TUT_MENU_CONTINUE,"Seguir: lección %d, %s","Continue: lesson %d, %s"
+TUT_MENU_FREE_FLIGHT,Volar libre,Free flight
+TUT_MENU_PROGRESS,Completaste %d de %d lecciones.,You completed %d of %d lessons.
+TUT_MENU_REPEAT,Repetir desde la primera lección,Repeat from the first lesson
+TUT_MENU_RESTART,Empezar de cero,Start over
+TUT_MENU_START,Empezar,Start
+TUT_MENU_SUBTITLE,%d lecciones cortas para pasar de cero a tu primer circuito. Necesitás un gamepad o una radio.,%d short lessons from zero to your first race track. You need a gamepad or a radio.
+TUT_MENU_TITLE,Instructor de vuelo,Flight instructor
+TUT_NEXT_SOON,Enseguida empieza la próxima lección.,The next lesson starts in a moment.
+TUT_PAUSE_CHOOSE,Elegir lección,Choose a lesson
+TUT_PAUSE_RESTART,Reiniciar lección,Restart lesson
+TUT_PAUSE_SKIP,Saltar lección,Skip lesson
+TUT_PICK_DONE,(completada),(completed)
+TUT_PICK_ENTRY,%d. %s,%d. %s
+TUT_PICK_SUBTITLE,Podés repetir cualquier lección cuando quieras.,You can repeat any lesson whenever you want.
+TUT_PICK_TITLE,Elegir lección,Choose a lesson
+TUT_SKIPPED,Lección saltada,Lesson skipped
+TUT_STEP_OF,Paso %d de %d,Step %d of %d
+TUT_STICK_LEFT,Stick izquierdo,Left stick
+TUT_STICK_RIGHT,Stick derecho,Right stick
+TUT_T_BACK_UP,Volvé a subir para seguir.,Climb again to continue.
+TUT_T_TAKEOFF,Armá el dron y subí a más de un metro.,Arm the drone and climb above one meter.
+TUT_WARN_CRASHED,El dron quedó volcado. Reiniciá la lección con el botón indicado abajo.,The drone flipped over. Restart the lesson with the button shown below.
+TUT_WARN_DISARM_AIR,Desarmaste en el aire. Volvé a despegar y aterrizá antes de desarmar.,You disarmed in the air. Take off again and land before disarming.
+TUT_WARN_MODE_LOCKED,En esta lección el modo de vuelo está fijo.,The flight mode is fixed in this lesson.
+TUT_WARN_NOT_YET,Todavía no armes: primero terminá de mover los sticks.,Do not arm yet: finish moving the sticks first.
+TUT_WARN_NO_JOYPAD,No hay mando conectado. Conectá un gamepad o una radio.,No controller connected. Plug in a gamepad or a radio.
+TUT_WARN_OUT_OF_BOUNDS,Te alejaste de la zona de práctica: el dron volvió al inicio de la lección.,You left the practice area: the drone went back to the start of the lesson.
+TUT_WARN_RECOVER,Modo recuperación: el dron se inclinó demasiado y baja solo. Soltá los sticks.,Recovery mode: the drone tilted too much and is coming down by itself. Release the sticks.
+TUT_WARN_THROTTLE_HIGH,"Para armar, el acelerador tiene que estar abajo del todo.","To arm, the throttle must be all the way down."
+TUT_WELL_DONE,¡Bien hecho!,Well done!
+TUT_ZONE_P,Zona %d de %d · a %.1f m,Zone %d of %d · %.1f m away
 UI_BACK,Volver,Back
 UI_CANCEL,Cancelar,Cancel
 UI_CONFIRM,Confirmar,Confirm
@@ -347,3 +436,4 @@ UI_TIP_HUD,La línea punteada del HUD marca el horizonte real que ve la cámara.
 UI_TIP_PAUSE,START o Escape pausan el vuelo. F2 oculta el menú de pausa.,START or Escape pause the flight. F2 hides the pause menu.
 UI_TIP_RACE,Pulsá R para correr: el dron aparece en la plataforma de largada más cercana.,Press R to race: the drone spawns on the closest launch pad.
 UI_TIP_STICKS,"Con una radio podés manejar los menús: pitch para moverte, roll para aceptar o volver.","With a radio you can drive the menus: pitch to move, roll to select or go back."
+UI_TIP_TUTORIAL,¿Primera vez? El Instructor de vuelo te enseña a despegar y a cruzar puertas en 8 lecciones cortas.,First time? The Flight instructor teaches you to take off and fly through gates in 8 short lessons.

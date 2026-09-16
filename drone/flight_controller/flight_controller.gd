@@ -81,9 +81,13 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	if (flight_mode is FlightModeHorizon or flight_mode is FlightModeSpeed \
+	if state_armed and (flight_mode is FlightModeHorizon or flight_mode is FlightModeSpeed \
 			or flight_mode is FlightModeTrack) and not is_flight_safe():
 		change_flight_mode(FlightMode.Type.RECOVER)
+	elif not state_armed and flight_mode is FlightModeRecover:
+		# Recovery only makes sense in flight. A drone disarmed while still tilted used to
+		# stay in recovery mode forever, which refuses to arm until a respawn.
+		change_flight_mode(flight_mode_idx)
 	elif flight_mode is FlightModeLaunch and (angles.x < deg_to_rad(-80) or angles.x > deg_to_rad(10)):
 		_on_disarm_input()
 
@@ -397,6 +401,15 @@ func change_flight_mode(mode_idx: int) -> void:
 	flight_mode = flight_modes[mode_idx]
 	flight_mode_changed.emit(flight_mode)
 	print("Mode: %s" % [flight_mode])
+
+
+## Selects a flight mode as if the pilot had cycled to it: unlike `change_flight_mode`, the
+## choice survives a disarm after recovery, turtle or launch mode.
+func select_flight_mode(mode: FlightMode.Type) -> void:
+	flight_mode_idx = mode
+	change_flight_mode(mode)
+	if flight_mode is FlightModeHorizon or flight_mode is FlightModeTrack:
+		pid_controllers[Controller.ALTITUDE].target = pos.y
 
 
 func _on_cycle_flight_modes() -> void:

@@ -1,7 +1,7 @@
 extends Node
 
 
-signal game_mode_changed
+signal game_mode_changed(mode: int)
 
 
 enum GameMode {FREE, RACE}
@@ -25,10 +25,12 @@ var game_mode: int = GameMode.FREE :
 			game_mode = mode
 			game_mode_changed.emit(game_mode)
 var active_track: Track = null
+## Scenes that drive the race mode themselves (the tutorial) turn the R key off.
+var race_mode_toggle_enabled := true
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("race_mode"):
+	if event.is_action_pressed("race_mode") and race_mode_toggle_enabled:
 		if game_mode == GameMode.FREE:
 			self.game_mode = GameMode.RACE
 		elif game_mode == GameMode.RACE:

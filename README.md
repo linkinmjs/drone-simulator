@@ -29,6 +29,10 @@ I started this project as a hobby, and am not currently looking for pull request
 
 Este repositorio sirve entrega del trabajo práctico 1 del trayecto de image campus 2025 de Desarrollo de Videojuegos con Godot.
 
+## Instructor de vuelo
+
+El menú principal incluye un **Instructor de vuelo** con ocho lecciones cortas: mando y armado, despegue y altura, guiñada, cabeceo, alabeo, puertas en Horizon y en Acro, y un primer circuito cronometrado. La arquitectura y las pruebas están en [docs/tutorial.md](docs/tutorial.md).
+
 ## Publicación automática en itch.io
 
 Cada push a la rama `master` dispara la acción de GitHub definida en `.github/workflows/deploy-to-itch.yml`: importa los recursos con Godot 4.7, exporta el preset **Web** de `export_presets.cfg` y sube el resultado a itch.io con butler.

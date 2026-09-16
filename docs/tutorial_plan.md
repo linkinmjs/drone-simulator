@@ -2,7 +2,15 @@
 
 Fecha: 16 de septiembre de 2026. Commit de referencia: `2c5a950`. Godot 4.7 stable.
 
-Estado: **plan aprobado en borrador, sin implementar**. Este documento reúne lo que se relevó del código y el plan de implementación, para retomarlo en otra sesión sin volver a explorar el proyecto.
+Estado: **implementado** en la rama `instructor-de-vuelo`. La arquitectura final, los desvíos y las pruebas están en [tutorial.md](tutorial.md). Este documento queda como registro del análisis y del plan original.
+
+Desvíos principales respecto del plan:
+
+- El sistema de traducción ya existía (lo agregó el rediseño de UI): se sumaron claves `TUT_` al mismo CSV.
+- Los menús de inicio, selector y final son `MenuScreen` construidos en código, y la tarjeta baja a y = 236 para no tapar la insignia de modo ni el cronómetro de carrera.
+- Las lecciones 6 y 7 usan `Gate_Double_1` (abertura de 2,8 m) y la pista del circuito usa `Gate_7x6_Simple`.
+- Se corrigieron dos bugs encontrados al probar: el cabeceo invertido de los bindings por defecto (y la navegación con sticks escrita sobre ellos) y un dron desarmado que quedaba atrapado en modo recuperación.
+- Se agregó reaparición automática si el dron queda volcado 3 s o cae fuera del mapa.
 
 ## 1. Objetivo y decisiones tomadas
 

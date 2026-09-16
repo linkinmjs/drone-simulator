@@ -7,7 +7,7 @@ extends CanvasLayer
 
 const DURATION := 0.25
 const TIPS: Array[String] = ["UI_TIP_ARM", "UI_TIP_STICKS", "UI_TIP_RACE", "UI_TIP_HUD",
-		"UI_TIP_PAUSE", "UI_TIP_CAMERA"]
+		"UI_TIP_PAUSE", "UI_TIP_CAMERA", "UI_TIP_TUTORIAL"]
 const MIN_LOADING_SECONDS := 1.0
 const MAX_WARMUP_SECONDS := 6.0
 ## Frames longer than this count as a hitch (shader compilation, first uploads...)
