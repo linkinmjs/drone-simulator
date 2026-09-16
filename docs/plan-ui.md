@@ -1,6 +1,6 @@
 # Plan: lavado de cara "AAA" de la UI + navegación con joystick/radio
 
-Fecha: 2026-09-16. Estado: **plan terminado, todavía sin aprobar ni implementar** (no se tocó ningún archivo de código). Para retomar: leer este documento, confirmar o ajustar las decisiones de la sección 1 y empezar por la Fase 1.
+Fecha: 2026-09-16. Estado: **implementado en la rama `ui-lavado-de-cara`, pendiente de prueba con hardware y sin mergear**. La arquitectura resultante, los comandos de prueba y los desvíos respecto de este plan están en [ui.md](ui.md).
 
 Actualización del mismo día: se agregó el **HUD de orientación** (sección 4.K y Fase 6) a partir de una captura de otro simulador que aportó el usuario.
 
