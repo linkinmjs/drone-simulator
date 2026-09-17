@@ -45,11 +45,11 @@ layout_mode = 2
 size_flags_horizontal = 0
 theme_override_constants/separation = 6
 
-[node name="ButtonFly" type="Button" parent="MenuColumn/LeftColumn/Buttons"]
+[node name="ButtonChallenges" type="Button" parent="MenuColumn/LeftColumn/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"MenuItemButton"
-text = "MENU_FLY"
+text = "MENU_CHALLENGES"
 alignment = 0
 
 [node name="ButtonTutorial" type="Button" parent="MenuColumn/LeftColumn/Buttons"]
@@ -57,6 +57,13 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"MenuItemButton"
 text = "MENU_TUTORIAL"
+alignment = 0
+
+[node name="ButtonFreestyle" type="Button" parent="MenuColumn/LeftColumn/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MenuItemButton"
+text = "MENU_FREESTYLE"
 alignment = 0
 
 [node name="ButtonQuad" type="Button" parent="MenuColumn/LeftColumn/Buttons"]
@@ -85,6 +92,14 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"MenuItemButton"
 text = "MENU_QUIT"
+alignment = 0
+
+[node name="ButtonSandbox" type="Button" parent="MenuColumn/LeftColumn/Buttons"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"MenuItemButton"
+text = "MENU_SANDBOX"
 alignment = 0
 
 [node name="Hero" type="SubViewportContainer" parent="MenuColumn"]

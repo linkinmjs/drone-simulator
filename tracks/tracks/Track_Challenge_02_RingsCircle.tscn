@@ -1,0 +1,63 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tracks/track.gd" id="1"]
+[ext_resource type="PackedScene" path="res://tracks/objects/Launchpad.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://tracks/gates/Gate_Torus.tscn" id="3"]
+
+[node name="Track" type="Node3D"]
+script = ExtResource("1")
+laps = 1
+course = "lap_start,0,1,2,3,4,5,6,7,8,9,lap_end"
+
+[node name="Launchpad" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 22)
+
+[node name="Ring1" parent="." instance=ExtResource("3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
+inner_radius = 3
+outer_radius = 3.4
+
+[node name="Ring2" parent="." instance=ExtResource("3")]
+transform = Transform3D(0.809017, 0, 0.587785, 0, 1, 0, -0.587785, 0, 0.809017, -8.59424, 4, -26.4503)
+inner_radius = 3
+outer_radius = 3.4
+
+[node name="Ring3" parent="." instance=ExtResource("3")]
+transform = Transform3D(0.309017, 0, 0.951057, 0, 1, 0, -0.951057, 0, 0.309017, -31.0942, 4, -42.7975)
+inner_radius = 3
+outer_radius = 3.4
+
+[node name="Ring4" parent="." instance=ExtResource("3")]
+transform = Transform3D(-0.309017, 0, 0.951057, 0, 1, 0, -0.951057, 0, -0.309017, -58.9058, 4, -42.7975)
+inner_radius = 3
+outer_radius = 3.4
+
+[node name="Ring5" parent="." instance=ExtResource("3")]
+transform = Transform3D(-0.809017, 0, 0.587785, 0, 1, 0, -0.587785, 0, -0.809017, -81.4058, 4, -26.4503)
+inner_radius = 3
+outer_radius = 3.4
+
+[node name="Ring6" parent="." instance=ExtResource("3")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -90, 4, 0)
+inner_radius = 3
+outer_radius = 3.4
+
+[node name="Ring7" parent="." instance=ExtResource("3")]
+transform = Transform3D(-0.809017, 0, -0.587785, 0, 1, 0, 0.587785, 0, -0.809017, -81.4058, 4, 26.4503)
+inner_radius = 3
+outer_radius = 3.4
+
+[node name="Ring8" parent="." instance=ExtResource("3")]
+transform = Transform3D(-0.309017, 0, -0.951057, 0, 1, 0, 0.951057, 0, -0.309017, -58.9058, 4, 42.7975)
+inner_radius = 3
+outer_radius = 3.4
+
+[node name="Ring9" parent="." instance=ExtResource("3")]
+transform = Transform3D(0.309017, 0, -0.951057, 0, 1, 0, 0.951057, 0, 0.309017, -31.0942, 4, 42.7975)
+inner_radius = 3
+outer_radius = 3.4
+
+[node name="Ring10" parent="." instance=ExtResource("3")]
+transform = Transform3D(0.809017, 0, -0.587785, 0, 1, 0, 0.587785, 0, 0.809017, -8.59424, 4, 26.4503)
+inner_radius = 3
+outer_radius = 3.4

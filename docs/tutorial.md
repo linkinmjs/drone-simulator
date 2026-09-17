@@ -34,7 +34,7 @@ El menú principal tiene la entrada **Instructor de vuelo**. Abre `sceneries/tut
 | Lecciones | `tutorial/steps/*.gd` | `StepControllerCheck`, `StepHover`, `StepYaw`, `StepReachZones` (4 y 5), `StepGates` (6 y 7), `StepRace`. |
 | `TutorialHUD` | `tutorial/tutorial_hud.gd` | Tarjeta y mensaje grande en su propio `CanvasLayer`, visible con cualquier cámara. Construida en código. |
 | `TutorialStickHint` | `tutorial/tutorial_stick_hint.gd` | Caja de stick: anillo con la posición actual y flecha pulsante con la sugerida. |
-| `TutorialMenu` | `tutorial/tutorial_menu.gd` | `MenuScreen` construido en código para inicio, selector y final. Funciona con mouse, teclado, gamepad y sticks. |
+| `ChoiceMenu` | `gui/choice_menu.gd` | `MenuScreen` construido en código para inicio, selector y final. Funciona con mouse, teclado, gamepad y sticks. Los desafíos lo reusan, por eso vive en `gui/` y ya no se llama `TutorialMenu`. |
 | `TutorialZone` | `tutorial/tutorial_zone.gd` | Cilindro translúcido con anillos (`@tool`). Estados `HIDDEN`, `IDLE`, `ACTIVE`, `INSIDE`, `DONE`. |
 | Pista | `tracks/tracks/Track_Tutorial.tscn` | Plataforma y cuatro `Gate_7x6_Simple` en un rectángulo, una vuelta. |
 

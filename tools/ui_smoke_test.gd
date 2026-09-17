@@ -72,10 +72,10 @@ func find_child_of_type(root: Node, script_path: String) -> Node:
 func _run() -> void:
 	print("== Translations")
 	TranslationServer.set_locale("en")
-	check(tr("MENU_FLY") == "Fly", "English MENU_FLY")
+	check(tr("MENU_CHALLENGES") == "Challenges", "English MENU_CHALLENGES")
 	check(tr("GAME_SKY_RANDOM") == "Random", "English GAME_SKY_RANDOM")
 	TranslationServer.set_locale("es")
-	check(tr("MENU_FLY") == "Volar", "Spanish MENU_FLY")
+	check(tr("MENU_CHALLENGES") == "Desafíos", "Spanish MENU_CHALLENGES")
 	check(tr("GAME_SKY_RANDOM") == "Aleatorio", "Spanish GAME_SKY_RANDOM")
 
 	print("== Main menu with keyboard / gamepad actions")
@@ -86,12 +86,14 @@ func _run() -> void:
 	await frames(20)
 	UI.set_input_kind(UI.InputKind.KEYBOARD)
 	await action(&"ui_down")
-	check(focus_name() == "ButtonFly", "first navigation press shows the focus on Fly (got %s)" % focus_name())
+	check(focus_name() == "ButtonChallenges", "first navigation press shows the focus on Challenges (got %s)" % focus_name())
 	await action(&"ui_down")
 	check(focus_name() == "ButtonTutorial", "ui_down moves to Flight instructor (got %s)" % focus_name())
 	await action(&"ui_down")
-	check(focus_name() == "ButtonQuad", "ui_down moves to Quad settings (got %s)" % focus_name())
+	check(focus_name() == "ButtonFreestyle", "ui_down moves to Freestyle (got %s)" % focus_name())
 	await shot("01_main_menu.png")
+	await action(&"ui_down")
+	check(focus_name() == "ButtonQuad", "ui_down moves to Quad settings (got %s)" % focus_name())
 	await action(&"ui_down")
 	check(focus_name() == "ButtonOptions", "ui_down moves to Options (got %s)" % focus_name())
 	await action(&"ui_accept")
@@ -171,7 +173,7 @@ func _run() -> void:
 	print("== Stick navigation (Betaflight scheme)")
 	StickNavigation.assume_joypad = true
 	StickNavigation.scheme = StickNavigation.Scheme.BETAFLIGHT
-	(menu.find_child("ButtonFly", true, false) as Button).grab_focus()
+	(menu.find_child("ButtonChallenges", true, false) as Button).grab_focus()
 	await frames(5)
 	# Pulling the stick back (pitch up, nose up) moves the focus down
 	Input.action_press(&"pitch_up", 1.0)
@@ -203,5 +205,49 @@ func _run() -> void:
 	Input.action_release(&"throttle_down")
 	StickNavigation.assume_joypad = false
 
+	await _check_challenges(menu)
+
 	print("== Result: %d failure(s)" % failures)
 	get_tree().quit(1 if failures > 0 else 0)
+
+
+## The challenge list and the secret sequence that reveals the debug sandbox. The saved
+## setting is put back as it was, so running the test does not unlock anything for real.
+func _check_challenges(menu: Node) -> void:
+	print("== Challenges menu and sandbox sequence")
+	var saved_unlocked: bool = GameSettings.is_sandbox_unlocked()
+	var saved_progress: Dictionary = GameSettings.challenge_progress.duplicate()
+	GameSettings.challenge_progress = {}
+
+	var button_challenges := menu.find_child("ButtonChallenges", true, false) as Button
+	button_challenges.grab_focus()
+	await action(&"ui_accept")
+	await frames(25)
+	var challenges := find_child_of_type(menu, "res://gui/challenges_menu.gd")
+	check(challenges != null, "the challenges menu opens")
+	if challenges != null:
+		var list := challenges.find_child("List", true, false) as VBoxContainer
+		check(list != null and list.get_child_count() == ChallengeCatalog.count(),
+				"it lists every challenge (%d)" % [list.get_child_count() if list else -1])
+		if list != null and list.get_child_count() >= 3:
+			check(not (list.get_child(0) as Button).disabled, "the first one can be picked")
+			check((list.get_child(2) as Button).disabled, "a locked one cannot be picked")
+		await shot("07_challenges.png")
+		await action(&"ui_cancel")
+		await frames(25)
+		check(not is_instance_valid(challenges) or not challenges.is_inside_tree(),
+				"the challenges menu closes")
+
+	var sandbox := menu.find_child("ButtonSandbox", true, false) as Button
+	GameSettings.game_config["sandbox_unlocked"] = false
+	sandbox.visible = false
+	for step: StringName in [&"ui_up", &"ui_up", &"ui_down", &"ui_down", &"ui_left", &"ui_right",
+			&"ui_left", &"ui_right"]:
+		await action(step)
+	await frames(10)
+	check(sandbox.visible, "the secret sequence reveals the sandbox")
+	await shot("08_sandbox.png")
+
+	GameSettings.game_config["sandbox_unlocked"] = saved_unlocked
+	GameSettings.save_game_settings()
+	GameSettings.challenge_progress = saved_progress

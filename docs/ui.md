@@ -6,7 +6,7 @@ Implementación del plan de [plan-ui.md](plan-ui.md), rama `ui-lavado-de-cara`. 
 
 | Pieza | Archivo | Qué hace |
 |---|---|---|
-| `MenuScreen` | `gui/menu_screen.gd` | Clase base de las 10 pantallas. Señal `back`, `ui_cancel`, fundido de entrada y salida, fondo (degradado claro o velo sobre el nivel), pie con ayudas de control, foco inicial y `open_submenu()`. |
+| `MenuScreen` | `gui/menu_screen.gd` | Clase base de las pantallas de menú. Señal `back`, `ui_cancel`, fundido de entrada y salida, fondo (degradado claro o velo sobre el nivel), pie con ayudas de control, foco inicial y `open_submenu()`. |
 | `UI` (autoload) | `autoloads/ui.gd` | Dispositivo en uso (mouse, teclado, gamepad, sticks), convivencia foco/mouse, sonidos y micro-animaciones enganchados con `node_added`, pila de contextos de foco, `confirm()` y `alert()`. |
 | `StickNavigation` (autoload) | `autoloads/stick_navigation.gd` | Convierte pitch, roll y yaw calibrados en acciones `ui_*`. Umbral 0.6, histéresis 0.4, repetición 350 ms + 120 ms. El acelerador nunca navega. Stick arriba es `pitch_down` (nariz abajo) y sube el foco. |
 | `SceneTransition` (autoload) | `autoloads/scene_transition.gd` | Fundido al color de fondo al cambiar entre menú y nivel. Al entrar al nivel muestra una pantalla de carga con consejos. Detrás de ella, `level.gd` gira la cámara (`warm_up_view`) para compilar los shaders. La pantalla se quita cuando hay 8 frames seguidos por debajo de 70 ms, con un máximo de 6 s. En la web (Compatibility) esa compilación causaba los tirones del arranque. |
@@ -14,6 +14,8 @@ Implementación del plan de [plan-ui.md](plan-ui.md), rama `ui-lavado-de-cara`. 
 | `ControlHints` | `gui/components/control_hints.gd` | Pie de cada pantalla con las teclas del dispositivo en uso y el mando conectado. |
 | `MenuHero` | `gui/components/menu_hero.gd` | Dron 3D girando en el menú principal; reutiliza `controls_menu_drone.tscn`. `enabled_on_web` permite apagarlo en web. |
 | `ThemeBuilder` / `UIPalette` | `gui/theme/` | Paleta única y generador del theme global. |
+| `ChoiceMenu` | `gui/choice_menu.gd` | Menú de una lista de opciones armado en código y mostrado sobre un nivel: inicio, selector y final del tutorial, y selector y resultado de los desafíos. `setup()`, agregar al árbol y `await chosen`. |
+| `ChallengesMenu` | `gui/challenges_menu.gd` | Lista de los desafíos con su medalla, su mejor marca y los tiempos objetivo (ver [desafios.md](desafios.md)). |
 | `BootSequence` | `gui/boot/boot_sequence.gd` | Escena principal del proyecto. Muestra la firma del estudio: `C:\>OMINOSO_` tipeado en una terminal negra con el cursor titilando, un corte a negro y el menú principal con `SceneTransition`. Cualquier tecla, botón, clic o gesto de stick la saltea. Volver al menú desde un nivel no pasa por acá. |
 
 ### Fondos de cielo
@@ -75,7 +77,7 @@ Suenan en el bus `UI`. `default_bus_layout.tres` define los buses Master, Motors
 ## 4. Traducciones
 
 - Fuente única: `localization/translations.csv` (columnas `keys,es,en`). Godot genera los `.translation` al importar.
-- En escenas, el texto visible es la clave (`text = "MENU_FLY"`) y se traduce solo. En código, `tr("CLAVE")` cuando hay formato; los textos armados en código se reconstruyen en `NOTIFICATION_TRANSLATION_CHANGED`.
+- En escenas, el texto visible es la clave (`text = "MENU_CHALLENGES"`) y se traduce solo. En código, `tr("CLAVE")` cuando hay formato; los textos armados en código se reconstruyen en `NOTIFICATION_TRANSLATION_CHANGED`.
 - Prefijos: `MENU_`, `OPT_`, `GFX_`, `AUD_`, `GAME_`, `HUD_`, `CTRL_`, `CAL_`, `QUAD_`, `HELP_`, `RACE_`, `UI_`, `ERR_`.
 - Idioma en Opciones > Juego y HUD. Primer arranque: idioma del sistema si es español o inglés, si no español.
 

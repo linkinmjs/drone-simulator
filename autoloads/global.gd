@@ -30,6 +30,8 @@ var game_mode: int = GameMode.FREE :
 var active_track: Track = null
 ## Scenes that drive the race mode themselves (the tutorial) turn the R key off.
 var race_mode_toggle_enabled := true
+## Challenge id picked in the menu, read by ChallengeLevel when the level loads.
+var selected_challenge := ""
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -60,6 +62,7 @@ func load_startup_settings() -> void:
 		return
 	initialize()
 	GameSettings.load_game_settings()
+	GameSettings.load_challenge_progress()
 	var errors: Array[String] = [Graphics.load_graphics_settings(), Audio.load_audio_settings(),
 			Controls.load_input_map(true)]
 	for error in errors:
