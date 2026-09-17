@@ -170,7 +170,9 @@ godot --path . --windowed --resolution 1280x720 res://tools/ui_smoke_test.tscn
 
 - **`track_check`** revisa las dieciséis pistas y las once piezas de la paleta con el mismo
   código que el botón Verificar, y comprueba que la numeración que muestra el editor sea la
-  misma que arma el juego. Los avisos de las pistas MultiGP heredadas son previos y no fallan.
+  misma que arma el juego. También **dibuja el overlay fuera del editor**, con una pista y una
+  cámara de verdad, para que un error en el código de dibujo salte acá y no al seleccionar un
+  `Track`. Los avisos de las pistas MultiGP heredadas son previos y no fallan.
 - **`challenge_check`** revisa el catálogo, los bordes exactos de cada medalla, la regla de
   desbloqueo y que los seis desafíos carguen y arranquen la cuenta regresiva. Además **corre
   un desafío entero sin volarlo**, marcando los checkpoints en el orden del recorrido: así

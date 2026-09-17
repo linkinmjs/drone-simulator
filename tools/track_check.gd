@@ -34,6 +34,7 @@ func _run() -> void:
 		await _check_track(path)
 
 	await _check_pieces()
+	await _check_overlay()
 
 	print("== Result: %d failure(s)" % [failures])
 	get_tree().quit(1 if failures > 0 else 0)
@@ -114,3 +115,47 @@ func _check_pieces() -> void:
 		else:
 			check(true, "%s carga" % [label])
 			node.queue_free()
+
+
+## The numbering drawn over the 3D viewport is the heart of the addon, and it only runs inside
+## the editor: this paints it here, with a real track and a real camera, so a mistake in the
+## drawing code shows up in the check instead of in the editor.
+func _check_overlay() -> void:
+	print("
+== Numeracion sobre la vista 3D")
+	var packed := load("%s/Track_FigureEight.tscn" % [TRACKS_DIR]) as PackedScene
+	var track := packed.instantiate() as Node3D
+	add_child(track)
+	await get_tree().process_frame
+
+	var camera := Camera3D.new()
+	add_child(camera)
+	camera.global_transform = Transform3D(Basis.IDENTITY, Vector3(0, 30, 60))
+	camera.current = true
+
+	var probe := (load("res://tools/overlay_probe.gd") as Script).new() as Control
+	probe.size = Vector2(1280, 720)
+	probe.entries = TrackGraph.collect(track)
+	probe.tokens = TrackGraph.course_tokens(track.get("course"), probe.entries.size())
+	probe.camera = camera
+	probe.selected = 3
+	add_child(probe)
+	probe.queue_redraw()
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	check(probe.draw_count > 0, "el overlay se dibujo")
+	check(probe.tokens.size() > 2, "el recorrido tiene tramos para dibujar (%d)"
+			% [probe.tokens.size()])
+
+	# Behind the camera, too far away and an empty course must not break the drawing.
+	camera.global_transform = Transform3D(Basis.IDENTITY, Vector3(0, 30, -400))
+	probe.tokens = TrackGraph.course_tokens("", probe.entries.size())
+	probe.queue_redraw()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	check(probe.draw_count > 1, "el overlay se dibujo con la pista detras de la camara")
+
+	probe.queue_free()
+	camera.queue_free()
+	track.queue_free()
