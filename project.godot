@@ -266,3 +266,7 @@ anti_aliasing/quality/msaa_3d=1
 scaling_3d/mode=1
 textures/decals/filter=5
 textures/light_projectors/filter=5
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/track_editor/plugin.cfg")
