@@ -33,6 +33,16 @@ Este repositorio sirve entrega del trabajo práctico 1 del trayecto de image cam
 
 El menú principal incluye un **Instructor de vuelo** con ocho lecciones cortas: mando y armado, despegue y altura, guiñada, cabeceo, alabeo, puertas en Horizon y en Acro, y un primer circuito cronometrado. La arquitectura y las pruebas están en [docs/tutorial.md](docs/tutorial.md).
 
+## Desafíos
+
+El modo **Desafíos** son diez circuitos cronometrados que se van desbloqueando: cada uno se abre al terminar el anterior y guarda tu mejor marca, con tiempos de oro, plata y bronce. La curva empieza con aros grandes en espacios abiertos y va agregando una dificultad nueva por escalón hasta llegar a las puertas angostas de competencia y la picada. Ver [docs/desafios.md](docs/desafios.md).
+
+El menú se completa con **Freestyle** (vuelo libre) y un **Sandbox** de debug con las nueve pistas MultiGP, escondido detrás de una secuencia en el menú principal.
+
+## Editor de pistas
+
+Las pistas se arman con un addon del editor de Godot (`addons/track_editor/`): numera los checkpoints sobre la vista 3D, dibuja el recorrido, agrega piezas encadenadas, genera el campo `Course` y verifica la pista antes de volarla. El manual está en [docs/editor-de-pistas.md](docs/editor-de-pistas.md).
+
 ## Publicación automática en itch.io
 
 Cada push a la rama `master` dispara la acción de GitHub definida en `.github/workflows/deploy-to-itch.yml`: importa los recursos con Godot 4.7, exporta el preset **Web** de `export_presets.cfg` y sube el resultado a itch.io con butler.

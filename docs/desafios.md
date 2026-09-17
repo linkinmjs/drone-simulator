@@ -56,7 +56,7 @@ un aro grande perdona casi cualquier trazada, uno chico no.
 | Menú de desafíos | `gui/challenges_menu.gd/.tscn` | Una línea por desafío con su medalla y su mejor marca; abajo, la habilidad y los tiempos objetivo del que tiene el foco. |
 | `ChoiceMenu` | `gui/choice_menu.gd` | Menú de opciones armado en código. Lo usan el tutorial, el selector de desafíos y la pantalla de resultado. |
 | Progreso | `autoloads/game_settings.gd` | Sección `[challenges]` de `GameSettings.cfg`. |
-| Addon | `addons/track_editor/` | Las herramientas del editor (sección 4). |
+| Addon | `addons/track_editor/` | Las herramientas del editor ([editor-de-pistas.md](editor-de-pistas.md)). |
 | Pistas | `tracks/tracks/Track_Challenge_*.tscn` | Una escena `Track` por desafío. |
 | Columna | `tracks/gates/Gate_Column.tscn` | Columna con el área de paso a un costado: la pieza del slalom. |
 | Aro circular | `tracks/gates/Gate_Torus.tscn` | `ProceduralGateTorus` listo para instanciar. |
@@ -65,7 +65,7 @@ un aro grande perdona casi cualquier trazada, uno chico no.
 
 1. **Armá la pista**: escena nueva con un nodo `Node3D` raíz llamado `Track` y el script
    `res://tracks/track.gd`. Guardala en `tracks/tracks/`.
-2. Seleccioná el `Track` y usá la barra del editor (sección 4) para agregar la plataforma de
+2. Seleccioná el `Track` y usá la barra del editor ([manual](editor-de-pistas.md)) para agregar la plataforma de
    largada y las puertas. **Siempre hace falta un `Launchpad`**: sin él no hay cuenta regresiva
    ni detección de salida en falso.
 3. Apretá **Recorrido → Por orden en el árbol** y revisá el string que quedó en `Course`.
@@ -94,52 +94,13 @@ jugador pierde su marca y el desafío vuelve a aparecer bloqueado.
 
 ## 4. El addon del editor de pistas
 
-Se activa en Proyecto → Ajustes → Plugins (ya viene activado en `project.godot`). Con una
-escena `Track` abierta y el nodo `Track` seleccionado aparece una barra arriba de la vista 3D:
+Las pistas se arman con las herramientas del editor: una barra sobre la vista 3D que numera
+los checkpoints, dibuja el recorrido, agrega piezas encadenadas, escribe el `Course` solo y
+verifica la pista antes de volarla.
 
-| Botón | Qué hace |
-|---|---|
-| **Agregar** | Instancia una pieza como hijo directo del `Track`, encadenada delante de la pieza seleccionada sobre su -Z, y la deja seleccionada para moverla con el gizmo de siempre. |
-| **Recorrido** | Escribe el campo `Course`: por orden en el árbol, o por cercanía desde la plataforma de largada (agregando solo el sufijo `b` donde hace falta). |
-| **Piso** | Apoya la pieza seleccionada sobre el piso (`y = 0`). |
-| **Rotación** | Redondea la rotación a 15, 45 o 90 grados. Por defecto solo el giro: los tres ejes arruinarían una puerta inclinada como la de picada. |
-| **Verificar** | Revisa la pista e informa los problemas en la salida del editor. |
-| **Números** | Muestra u oculta la numeración y el recorrido. |
-
-Sobre cada checkpoint se dibuja **su número** y, debajo, **en qué momentos del recorrido se
-cruza** (`#0`, `#7b`…), y el recorrido se traza con líneas: las naranjas son los tramos que se
-cruzan al revés. Los checkpoints marcados con `*` todavía no existen (los arma
-`ProceduralGate` al arrancar el juego), pero ya ocupan su número.
-
-Todo pasa por el sistema de deshacer del editor: **Ctrl+Z revierte cualquier acción** y la
-escena queda marcada como modificada.
-
-### El campo `Course`
-
-Es la lista de checkpoints, por índice, en el orden en que hay que cruzarlos:
-`lap_start,0,1,2,5b,6,lap_end`.
-
-- El índice es **el orden de los hijos del `Track`**: mover una puerta en el árbol renumera
-  todo. Por eso el addon inserta las piezas nuevas justo después de la seleccionada.
-- El sufijo **`b`** significa cruzar la puerta en sentido contrario.
-- `lap_start` y `lap_end` marcan qué parte se repite en cada vuelta. Si faltan, `Track` los
-  agrega al principio y al final.
-- Una puerta triple o doble aporta **varios** checkpoints: el recorrido tiene que nombrar solo
-  uno. El auto-recorrido ya toma uno por puerta.
-
-### Cosas a tener en cuenta
-
-- **Abrí la escena de la pista para editarla.** Si seleccionás un `Track` instanciado dentro de
-  un nivel, el addon se niega: las piezas se guardarían en el nivel y no en la pista.
-- Un `Checkpoint` tiene que colgar del `Track` o de un `Gate` hijo directo. Más profundo, el
-  juego lo ignora (y el verificador lo avisa).
-- Los avisos de «quizás le falte el sufijo b» comparan la línea recta entre dos puertas contra
-  el frente de la segunda. En circuitos con curvas cerradas puede equivocarse; las puertas muy
-  inclinadas se saltean porque ahí la línea recta no dice nada.
-- Los scripts del addon **no declaran `class_name` y quedan fuera del export web**: las clases
-  `Editor*` no existen en el template de release y romperían la publicación.
-- Los textos de la barra están escritos en español dentro del código, no en el CSV: adentro del
-  editor `tr()` resuelve contra las traducciones del propio editor, no contra las del juego.
+**El manual completo está en [editor-de-pistas.md](editor-de-pistas.md)**: el paso a paso para
+armar un circuito, qué hace cada botón, las piezas disponibles, el formato del `Course` y cómo
+extender el addon.
 
 ## 5. Persistencia
 
