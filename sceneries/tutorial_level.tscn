@@ -19,11 +19,10 @@
 [ext_resource type="Script" path="res://tutorial/steps/step_gates.gd" id="17_gates"]
 [ext_resource type="Script" path="res://tutorial/steps/step_race.gd" id="18_race"]
 [ext_resource type="Script" path="res://tutorial/tutorial_hud.gd" id="19_hud"]
-
-[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_sky"]
+[ext_resource type="Material" path="res://sceneries/skies/clear_day_sky.tres" id="20_sky"]
 
 [sub_resource type="Sky" id="Sky_main"]
-sky_material = SubResource("PhysicalSkyMaterial_sky")
+sky_material = ExtResource("20_sky")
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 2

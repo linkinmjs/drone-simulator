@@ -8,6 +8,7 @@ signal tutorial_progress_updated
 enum HudPreset {MINIMAL, STANDARD, FULL, CUSTOM}
 
 const LANGUAGES: Array[String] = ["es", "en"]
+const SKY_RANDOM := "random"
 const HUD_BOOL_KEYS: Array[String] = ["crosshair", "horizon", "ladder", "speed", "altitude",
 		"heading", "sticks", "rpm", "flight_mode", "rec", "side_tapes", "gate_marker"]
 const HUD_PRESETS := [
@@ -29,10 +30,14 @@ var hud_config := {"fps": 10, "crosshair": true, "horizon": true, "ladder": fals
 		"flight_mode": true, "rec": true, "side_tapes": true, "gate_marker": false,
 		"horizon_mode": "camera"}
 
-var game_config := {"language": "", "nav_scheme": 0}
+## `sky`: "random" or a SkyCatalog id
+var game_config := {"language": "", "nav_scheme": 0, "sky": SKY_RANDOM}
 
 ## Flight instructor progress. `completed` is a bit mask: bit 0 = lesson 1.
 var tutorial_progress := {"completed": 0, "last_lesson": 1}
+
+## Last sky drawn by "random", so the next flight gets a different one
+var _last_random_sky := ""
 
 
 func _ready() -> void:
@@ -90,6 +95,29 @@ func set_nav_scheme(scheme: int) -> void:
 	game_config["nav_scheme"] = scheme
 	apply_game_settings()
 	save_game_settings()
+
+
+## "random" or a SkyCatalog id; anything unknown counts as random.
+func get_sky_choice() -> String:
+	var choice := str(game_config["sky"])
+	return choice if SkyCatalog.has_sky(choice) else SKY_RANDOM
+
+
+func set_sky(choice: String) -> void:
+	game_config["sky"] = choice if SkyCatalog.has_sky(choice) else SKY_RANDOM
+	save_game_settings()
+
+
+## The sky for the level being loaded. A random choice never repeats the previous draw.
+func pick_sky() -> String:
+	var choice := get_sky_choice()
+	if choice != SKY_RANDOM:
+		return choice
+	var ids := SkyCatalog.get_ids()
+	if ids.size() > 1 and ids.has(_last_random_sky):
+		ids.remove_at(ids.find(_last_random_sky))
+	_last_random_sky = ids[randi() % ids.size()]
+	return _last_random_sky
 
 
 func load_hud_config() -> void:

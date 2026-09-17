@@ -8,6 +8,7 @@ const LANGUAGE_NAMES: Array[String] = ["Español", "English"]
 @onready var language_options := %LanguageOptions as OptionButton
 @onready var nav_options := %NavOptions as OptionButton
 @onready var nav_help := %NavHelp as Label
+@onready var sky_options := %SkyOptions as OptionButton
 
 
 func _ready() -> void:
@@ -27,6 +28,13 @@ func _ready() -> void:
 	_update_nav_help()
 	_discard = nav_options.item_selected.connect(_on_nav_scheme_selected)
 
+	# Item 0 is "random", then the catalog skies in order
+	sky_options.add_item("GAME_SKY_RANDOM")
+	for id in SkyCatalog.get_ids():
+		sky_options.add_item(str(SkyCatalog.resolve(id)["label"]))
+	sky_options.select(SkyCatalog.get_ids().find(GameSettings.get_sky_choice()) + 1)
+	_discard = sky_options.item_selected.connect(_on_sky_selected)
+
 	bind_back_button(button_back)
 
 
@@ -37,6 +45,10 @@ func _on_language_selected(idx: int) -> void:
 func _on_nav_scheme_selected(idx: int) -> void:
 	GameSettings.set_nav_scheme(idx)
 	_update_nav_help()
+
+
+func _on_sky_selected(idx: int) -> void:
+	GameSettings.set_sky(GameSettings.SKY_RANDOM if idx == 0 else SkyCatalog.get_ids()[idx - 1])
 
 
 func _update_nav_help() -> void:

@@ -73,8 +73,10 @@ func _run() -> void:
 	print("== Translations")
 	TranslationServer.set_locale("en")
 	check(tr("MENU_FLY") == "Fly", "English MENU_FLY")
+	check(tr("GAME_SKY_RANDOM") == "Random", "English GAME_SKY_RANDOM")
 	TranslationServer.set_locale("es")
 	check(tr("MENU_FLY") == "Volar", "Spanish MENU_FLY")
+	check(tr("GAME_SKY_RANDOM") == "Aleatorio", "Spanish GAME_SKY_RANDOM")
 
 	print("== Main menu with keyboard / gamepad actions")
 	# Do not apply the user's saved window / input settings during the test
@@ -116,6 +118,13 @@ func _run() -> void:
 		check(get_viewport().gui_get_focus_owner() != null, "%s screen has focus (%s)" % [button_name, focus_name()])
 		await shot(screens[button_name][1])
 		if button_name == "ButtonGame":
+			var sky_options := sub.find_child("SkyOptions", true, false) as OptionButton
+			check(sky_options.item_count == SkyCatalog.get_ids().size() + 1, "sky option lists random plus every sky")
+			check(sky_options.selected == SkyCatalog.get_ids().find(GameSettings.get_sky_choice()) + 1,
+					"sky option shows the saved choice")
+			await action(&"ui_down")
+			await action(&"ui_down")
+			check(focus_name() == "SkyOptions", "ui_down reaches the sky option (got %s)" % focus_name())
 			var tabs := sub.find_child("TabContainer", true, false) as TabContainer
 			tabs.current_tab = 1
 			await frames(30)

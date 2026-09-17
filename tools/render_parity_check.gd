@@ -4,7 +4,8 @@ extends Node
 ## the average luminance. Run it twice, once with --rendering-method gl_compatibility:
 ##   godot --path . --windowed --resolution 1280x720 res://tools/render_parity_check.tscn -- --shots=<folder>
 ## Add --mode=full|fast|off to capture a single fisheye mode, --fisheye-res=480p to change the
-## resolution of the fisheye cameras and --bench to also time 300 frames without vsync.
+## resolution of the fisheye cameras, --sky=<id> to pick a SkyCatalog sky (default: the saved
+## option) and --bench to also time 300 frames without vsync.
 ## Settings are only changed in memory, nothing is saved.
 
 
@@ -12,6 +13,7 @@ var shots_dir := ""
 var only_mode := ""
 var fisheye_res := ""
 var bench := false
+var sky := ""
 
 
 func _ready() -> void:
@@ -22,6 +24,8 @@ func _ready() -> void:
 			only_mode = arg.trim_prefix("--mode=")
 		elif arg.begins_with("--fisheye-res="):
 			fisheye_res = arg.trim_prefix("--fisheye-res=")
+		elif arg.begins_with("--sky="):
+			sky = arg.trim_prefix("--sky=")
 		elif arg == "--bench":
 			bench = true
 	_run.call_deferred()
@@ -37,6 +41,8 @@ func _run() -> void:
 	var renderer := "compat" if Graphics.is_compatibility_renderer() else "forward"
 	if not fisheye_res.is_empty():
 		Graphics.update_fisheye_resolution(fisheye_res)
+	if not sky.is_empty():
+		GameSettings.game_config["sky"] = sky
 	if bench:
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 		Engine.max_fps = 0
@@ -57,6 +63,8 @@ func _run() -> void:
 		await frames(90)
 		await RenderingServer.frame_post_draw
 		var label := "%s_%s" % [renderer, modes[mode]]
+		if not sky.is_empty():
+			label += "_" + sky
 		var image := get_viewport().get_texture().get_image()
 		if not shots_dir.is_empty():
 			var _err := image.save_png(shots_dir.path_join("parity_%s.png" % label))
