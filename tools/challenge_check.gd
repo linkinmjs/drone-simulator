@@ -152,16 +152,20 @@ func _check_levels() -> void:
 		check(level.challenge_index == i, "el indice del desafio es %d" % [i])
 
 		if not shots_dir.is_empty():
-			# A fixed camera above and behind the launchpad shows the whole track at once.
+			# A fixed camera above the middle of the track, far enough back to fit all of it.
 			for c in level.cameras.size():
 				if level.cameras[c].name == "CameraFixed":
 					level.camera_index = c
 			level.change_camera()
+			var bounds := _track_bounds(level.track)
+			var centre: Vector3 = bounds["centre"]
+			var span: float = maxf(bounds["span"], 30.0)
 			level.camera.global_transform = Transform3D(
-					Basis.from_euler(Vector3(deg_to_rad(-40.0), 0.0, 0.0)), Vector3(0, 52, 52))
+					Basis.from_euler(Vector3(deg_to_rad(-42.0), 0.0, 0.0)),
+					centre + Vector3(0, span * 0.85, span * 0.95))
 			level.camera.fov = 70.0
 			await frames(8)
-			await shot("challenge_%d_%s.png" % [i + 1, id])
+			await shot("challenge_%02d_%s.png" % [i + 1, id])
 
 		# Stop the countdown first: its timers would be left outside the tree.
 		if level.track != null:
@@ -229,3 +233,17 @@ func _write_records(text: String) -> void:
 	var file := FileAccess.open(Global.highscore_path, FileAccess.WRITE)
 	if file != null:
 		var _discard := file.store_string(text)
+
+
+## Middle of the track and how wide it is, to frame it in a picture.
+func _track_bounds(track: Track) -> Dictionary:
+	var low := Vector3.INF
+	var high := -Vector3.INF
+	for checkpoint in track.checkpoints:
+		var origin := checkpoint.global_transform.origin
+		low = low.min(origin)
+		high = high.max(origin)
+	if low.x > high.x:
+		return {"centre": Vector3.ZERO, "span": 40.0}
+	var size := high - low
+	return {"centre": (low + high) * 0.5, "span": maxf(size.x, size.z)}

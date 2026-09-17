@@ -7,7 +7,7 @@
 
 [node name="Track" type="Node3D"]
 script = ExtResource("1")
-laps = 3
+laps = 2
 course = "lap_start,0,1,2,3,4,5,lap_end"
 
 [node name="Launchpad" parent="." instance=ExtResource("2")]

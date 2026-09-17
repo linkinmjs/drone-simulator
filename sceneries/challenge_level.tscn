@@ -27,11 +27,11 @@ fog_aerial_perspective = 0.5
 auto_exposure_enabled = true
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
-size = Vector3(300, 1, 300)
+size = Vector3(400, 1, 400)
 
 [sub_resource type="BoxMesh" id="BoxMesh_ground"]
 material = ExtResource("2_grid")
-size = Vector3(300, 1, 300)
+size = Vector3(400, 1, 400)
 
 [node name="ChallengeLevel" type="Node3D"]
 process_mode = 1

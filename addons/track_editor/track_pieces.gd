@@ -46,8 +46,15 @@ const PIECES: Array[Dictionary] = [
 		"gate": true,
 	},
 	{
+		"id": &"gate_torus_large",
+		"label": "Aro circular grande",
+		"path": "res://tracks/gates/Gate_Torus_Large.tscn",
+		"offset": 25.0,
+		"gate": true,
+	},
+	{
 		"id": &"gate_torus",
-		"label": "Aro circular (procedural)",
+		"label": "Aro circular chico",
 		"path": "res://tracks/gates/Gate_Torus.tscn",
 		"offset": 12.0,
 		"gate": true,

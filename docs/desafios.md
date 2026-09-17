@@ -9,7 +9,7 @@ El menú principal tiene cuatro formas de volar:
 
 | Entrada | Escena | Qué es |
 |---|---|---|
-| **Desafíos** | `sceneries/challenge_level.tscn` | Seis circuitos cronometrados con medallas que se van desbloqueando |
+| **Desafíos** | `sceneries/challenge_level.tscn` | Diez circuitos cronometrados con medallas que se van desbloqueando |
 | **Instructor de vuelo** | `sceneries/tutorial_level.tscn` | Las ocho lecciones (ver [tutorial.md](tutorial.md)) |
 | **Freestyle** | `sceneries/freestyle_level.tscn` | Vuelo libre sobre el terreno, sin pistas ni cronómetro |
 | **Sandbox (debug)** | `sceneries/level1.tscn` | El campo con las nueve pistas MultiGP, oculto |
@@ -19,27 +19,29 @@ así que la secuencia mueve el foco y nada más; como `StickNavigation` conviert
 acciones `ui_*`, también sale desde la radio. Queda desbloqueado para siempre en
 `[game] sandbox_unlocked`.
 
-### Los seis desafíos
+### Los diez desafíos
 
-La progresión sigue cómo se entrena FPV de verdad: primero sostener una línea recta, después
-giros coordinados, después altura, y recién al final picadas.
+La curva arranca **muy suave y se endurece de a poco**: primero aros grandes en espacios
+abiertos, donde lo único que hay que hacer es volar derecho; después curvas amplias, después
+velocidad, altura y precisión; y recién sobre el final las puertas angostas de competencia y
+la acrobacia. Cada escalón agrega **una sola** dificultad nueva.
 
-| # | Desafío | Qué entrena | Vueltas |
-|---|---|---|---|
-| 1 | Puerta y vuelta | Acelerador parejo, trayectoria recta y giro de 180° | 2 |
-| 2 | Slalom de columnas | Alabeo y guiñada coordinados | 1 |
-| 3 | Circuito de cinco aros | Trazada limpia entre aros a distinta altura | 2 |
-| 4 | Escalera de alturas | Control fino de la altura en travesía | 1 |
-| 5 | Figura en ocho | Coordinación sostenida y cruce de trayectoria | 3 |
-| 6 | Picada y Split-S | Picada de 30 grados e inversión | 2 |
+| # | Desafío | Qué agrega | Aros / puertas | Vueltas |
+|---|---|---|---|---|
+| 1 | Cuatro aros en línea | Nada: volar derecho | Aros grandes (6 m de paso) | 1 |
+| 2 | Diez aros en círculo | Un giro amplio y constante | Aros grandes | 1 |
+| 3 | Óvalo con rectas | Velocidad en la recta, frenar en la curva | Aros medianos (4,6 m) | 2 |
+| 4 | Subidas y bajadas | El eje vertical | Aros medianos | 1 |
+| 5 | Serpentina | Cambiar de lado, y menos margen | Aros chicos (3,2 m) | 1 |
+| 6 | Ida y vuelta | Girar 180° y volver por los mismos aros | Aros medianos | 1 |
+| 7 | Slalom de columnas | Pasar al costado de un obstáculo | Columnas | 1 |
+| 8 | Puertas de carrera | Las puertas angostas de competencia (2,1 m) | 7x6 altas y bajas | 2 |
+| 9 | Figura en ocho | Cruce de trayectoria sostenido | 5x5 | 2 |
+| 10 | Picada y Split-S | Picada de 30° e inversión | 7x6 + puerta inclinada | 2 |
 
-- El primero está siempre abierto. **Terminar un desafío abre el siguiente**, aunque no saques
-  medalla: la dificultad no te traba, solo el tiempo te desafía.
-- Cada uno tiene tiempos de **oro, plata y bronce**. La medalla sale del mejor tiempo guardado.
-- Al terminar aparecen la medalla, el tiempo y tu mejor marca, con Reintentar, Siguiente
-  desafío, Elegir desafío y Menú principal. El menú de pausa suma Reintentar y Elegir.
-- La cuenta regresiva, la salida en falso, el cronómetro y los fantasmas de tus vueltas
-  anteriores son los de `Track`: funcionan igual que en el sandbox.
+Los tres tamaños de aro (`Gate_Torus_Large`, `Gate_Torus` y los medianos, que salen del mismo
+`ProceduralGateTorus` con otro radio) son la herramienta principal para graduar la exigencia:
+un aro grande perdona casi cualquier trazada, uno chico no.
 
 > **Los tiempos de las medallas son provisionales.** Están puestos a ojo y hay que volar cada
 > pista para ajustarlos. Cambiarlos es editar una línea de `challenges/challenge_catalog.gd`.
@@ -51,7 +53,7 @@ giros coordinados, después altura, y recién al final picadas.
 | `ChallengeCatalog` | `challenges/challenge_catalog.gd` | La lista de desafíos, las medallas y el formato de los tiempos. Mismo patrón que `SkyCatalog`. |
 | `ChallengeLevel` | `sceneries/challenge_level.gd` | Hereda de `Level`. Carga la pista del desafío elegido, arranca la carrera, guarda la marca y muestra el resultado. |
 | Nivel de desafío | `sceneries/challenge_level.tscn` | El terreno, el dron, las cámaras y la radio. **Uno solo para todos los desafíos.** |
-| Menú de desafíos | `gui/challenges_menu.gd/.tscn` | La lista con medalla, mejor marca y tiempos objetivo. |
+| Menú de desafíos | `gui/challenges_menu.gd/.tscn` | Una línea por desafío con su medalla y su mejor marca; abajo, la habilidad y los tiempos objetivo del que tiene el foco. |
 | `ChoiceMenu` | `gui/choice_menu.gd` | Menú de opciones armado en código. Lo usan el tutorial, el selector de desafíos y la pantalla de resultado. |
 | Progreso | `autoloads/game_settings.gd` | Sección `[challenges]` de `GameSettings.cfg`. |
 | Addon | `addons/track_editor/` | Las herramientas del editor (sección 4). |
@@ -76,7 +78,7 @@ giros coordinados, después altura, y recién al final picadas.
     "id": "mi-desafio",                  # no cambia nunca: es la clave del récord guardado
     "name": "CHAL_MI_DESAFIO_NAME",      # clave de traducción
     "goal": "CHAL_MI_DESAFIO_GOAL",      # qué habilidad entrena
-    "track": "res://tracks/tracks/Track_Challenge_7_MiDesafio.tscn",
+    "track": "res://tracks/tracks/Track_Challenge_11_MiDesafio.tscn",
     "laps": 2,
     "gold": 30.0, "silver": 40.0, "bronze": 55.0,
 },
@@ -168,13 +170,13 @@ godot --headless --path . res://tools/challenge_check.tscn
 godot --path . --windowed --resolution 1280x720 res://tools/ui_smoke_test.tscn
 ```
 
-- **`track_check`** revisa las dieciséis pistas y las once piezas de la paleta con el mismo
+- **`track_check`** revisa las veinte pistas y las doce piezas de la paleta con el mismo
   código que el botón Verificar, y comprueba que la numeración que muestra el editor sea la
   misma que arma el juego. También **dibuja el overlay fuera del editor**, con una pista y una
   cámara de verdad, para que un error en el código de dibujo salte acá y no al seleccionar un
   `Track`. Los avisos de las pistas MultiGP heredadas son previos y no fallan.
 - **`challenge_check`** revisa el catálogo, los bordes exactos de cada medalla, la regla de
-  desbloqueo y que los seis desafíos carguen y arranquen la cuenta regresiva. Además **corre
+  desbloqueo y que los diez desafíos carguen y arranquen la cuenta regresiva. Además **corre
   un desafío entero sin volarlo**, marcando los checkpoints en el orden del recorrido: así
   quedan probadas las vueltas, la llegada, el tiempo guardado y el desbloqueo del siguiente.
   Con `-- --shots=<carpeta>` y sin `--headless` guarda una foto de cada pista desde arriba.
@@ -184,10 +186,10 @@ Ninguno deja tocada la configuración del jugador: lo que cambian lo restauran a
 
 ### Pendiente de probar con hardware
 
-- Volar los seis desafíos con la radio y **ajustar los tiempos de las medallas**, que hoy son
+- Volar los diez desafíos con la radio y **ajustar los tiempos de las medallas**, que hoy son
   estimaciones sin volar.
 - La secuencia del sandbox con los sticks de la radio (con teclado ya está probada).
-- El desafío 6: que la picada sea alcanzable y que la puerta inclinada se cruce bajando.
+- El desafío 10: que la picada sea alcanzable y que la puerta inclinada se cruce bajando.
 - La versión web en itch.io: que el addon quede afuera del paquete y que los niveles carguen.
 
 ## 7. Decisiones y desvíos
@@ -195,6 +197,10 @@ Ninguno deja tocada la configuración del jugador: lo que cambian lo restauran a
 - **Un solo nivel de desafío** en vez de una escena por desafío: agregar uno es escribir la
   pista y una línea del catálogo, sin duplicar terreno, dron ni cámaras.
 - **El desbloqueo no se guarda**, se deduce del mejor tiempo del desafío anterior.
+- **La curva de dificultad se rehizo empezando por aros**: la primera versión arrancaba con
+  puertas MultiGP de 2,1 m de paso y columnas, que ya es nivel intermedio. Ahora los primeros
+  cinco desafíos son de aros en espacios abiertos y las puertas angostas aparecen recién en el
+  octavo, agregando una dificultad nueva por escalón.
 - **Herramientas en el editor de Godot, no un editor dentro del juego**: el proyecto ya tenía
   las piezas y el motor de carreras; lo que faltaba era ver los números de los checkpoints y
   no escribir el `Course` a mano.
