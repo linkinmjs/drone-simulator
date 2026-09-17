@@ -28,18 +28,10 @@ func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	get_tree().paused = false
 
-	if Global.startup:
-		Global.initialize()
-		GameSettings.load_game_settings()
-		var error := Graphics.load_graphics_settings()
-		if error:
-			Global.show_error_popup(self, error)
-		error = Audio.load_audio_settings()
-		if error:
-			Global.show_error_popup(self, error)
-		error = Controls.load_input_map(true)
-		if error:
-			Global.show_error_popup(self, error)
+	Global.load_startup_settings()
+	for error in Global.startup_errors:
+		Global.show_error_popup(self, error)
+	Global.startup_errors.clear()
 
 
 func _on_fly_pressed() -> void:

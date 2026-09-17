@@ -14,6 +14,13 @@ Implementación del plan de [plan-ui.md](plan-ui.md), rama `ui-lavado-de-cara`. 
 | `ControlHints` | `gui/components/control_hints.gd` | Pie de cada pantalla con las teclas del dispositivo en uso y el mando conectado. |
 | `MenuHero` | `gui/components/menu_hero.gd` | Dron 3D girando en el menú principal; reutiliza `controls_menu_drone.tscn`. `enabled_on_web` permite apagarlo en web. |
 | `ThemeBuilder` / `UIPalette` | `gui/theme/` | Paleta única y generador del theme global. |
+| `BootSequence` | `gui/boot/boot_sequence.gd` | Escena principal del proyecto. Muestra la firma del estudio: `C:\>OMINOSO_` tipeado en una terminal negra con el cursor titilando, un corte a negro y el menú principal con `SceneTransition`. Cualquier tecla, botón, clic o gesto de stick la saltea. Volver al menú desde un nivel no pasa por acá. |
+
+### Arranque
+
+`BootSequence` llama a `Global.load_startup_settings()` antes de mostrar la tarjeta, así el modo de ventana y los volúmenes ya están aplicados. El menú principal también la llama (no hace nada si ya corrió) y muestra los errores guardados en `Global.startup_errors`.
+
+La tarjeta viene de [procedural](https://github.com/linkinmjs/procedural) (`scripts/ui/boot_sequence.gd`), con la misma fuente (`gui/boot/Withheld Data.otf`, sin antialiasing) y los mismos tiempos. El tamaño de fuente (107) ocupa la misma proporción de la pantalla que allá. Los sonidos `Assets/Audio/UI/boot_key.ogg` y `boot_enter.ogg` son del Universal UI Soundpack de Nathan Gibson, CC BY 4.0 (`Assets/Audio/UI/LICENSE_boot.txt`), y suenan en el bus `UI`.
 
 ### Contrato de `MenuScreen`
 
@@ -110,11 +117,13 @@ godot --headless --path . --import
 godot --path . --windowed --resolution 1600x900 res://tools/ui_smoke_test.tscn -- --shots=<carpeta>
 godot --path . --windowed --resolution 1600x900 res://tools/hud_projection_check.tscn -- --shots=<carpeta>
 godot --path . --rendering-method gl_compatibility --windowed --resolution 1280x720 res://tools/ui_smoke_test.tscn
+godot --path . --windowed --resolution 1280x720 res://tools/boot_check.tscn -- --shots=<carpeta>
 ```
 
 - `ui_smoke_test`: traducciones, navegación con acciones `ui_*` por todas las pantallas, retorno del foco, diálogo modal y gestos de stick (navegar, repetir, aceptar, volver, acelerador ignorado). Termina con código 0 si todo pasa.
 - `hud_projection_check`: carga el nivel con los tres modos de ojo de pez y dos ángulos de cámara, verifica la proyección del horizonte y guarda capturas del HUD, el menú de pausa y los overlays de carrera.
 - `loading_check` (agregar `--rendering-method gl_compatibility`): hace la transición real al nivel, mide cuánto dura la pantalla de carga y los frames más largos de los 3 s siguientes. `--plain` compara con el fundido sin pantalla de carga. En escritorio no hay tirones en ningún caso, porque el driver compila los shaders mucho más rápido que WebGL; la mejora se ve en la web.
+- `boot_check`: arranca por la tarjeta del estudio, verifica que la configuración se cargó antes, que el nombre se tipea completo y que después se abre el menú principal. `--skip` aprieta Espacio a mitad del tipeo para probar el salteo. Con `--shots` guarda la tarjeta y el menú.
 - Ninguna de estas pruebas guarda configuración del usuario.
 
 ### Pendiente de probar con hardware
