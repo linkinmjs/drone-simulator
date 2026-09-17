@@ -132,9 +132,13 @@ static func _check_legs(entries: Array[Dictionary], tokens: PackedStringArray,
 		total += distance
 		shortest = minf(shortest, distance)
 		longest = maxf(longest, distance)
-		if distance <= 0.001:
+		if leg["from"] == leg["to"]:
+			# Crossing the same gate again, the other way round: a turn-and-back drill.
+			findings.append(_finding("info",
+					"El checkpoint %d se cruza dos veces seguidas (ida y vuelta)." % [leg["to"]]))
+		elif distance <= 0.001:
 			findings.append(_finding("error",
-					"El recorrido repite el checkpoint %d dos veces seguidas." % [leg["to"]]))
+					"Los checkpoints %d y %d estan en el mismo lugar." % [leg["from"], leg["to"]]))
 		elif distance < MIN_LEG:
 			findings.append(_finding("warn",
 					"Del checkpoint %d al %d hay %.1f m: quedaron muy pegados."
@@ -155,6 +159,10 @@ static func _check_direction(entries: Array[Dictionary], leg: Dictionary,
 	var to_entry: Dictionary = entries[leg["to"]]
 	var approach := TrackGraph.entry_origin(to_entry) - TrackGraph.entry_origin(from_entry)
 	if approach.length_squared() <= 0.001:
+		return
+	# A steeply tilted gate (a dive gate) is reached by climbing first and dropping through it,
+	# so the straight line from the previous gate says nothing about how it is crossed.
+	if absf(TrackGraph.entry_forward(to_entry).y) > 0.5:
 		return
 	var aligned := approach.normalized().dot(TrackGraph.entry_forward(to_entry))
 	var backward: bool = leg["backward"]

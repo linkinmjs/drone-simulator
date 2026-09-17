@@ -1,0 +1,226 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://bth7ey1ebf861" path="res://sceneries/level.gd" id="3"]
+[ext_resource type="Script" uid="uid://d2mf6xx3fh2sc" path="res://drone/radio_controller.gd" id="5"]
+[ext_resource type="PackedScene" uid="uid://drpyo8j7v14s4" path="res://drone/drones/drone1.tscn" id="6"]
+[ext_resource type="Material" uid="uid://7auec3ko8opy" path="res://Assets/grid_material.tres" id="6_3cqco"]
+[ext_resource type="PackedScene" uid="uid://cpwlqiq68no60" path="res://sceneries/cameras/flyaround_camera.tscn" id="8"]
+[ext_resource type="PackedScene" uid="uid://cbsls72667u5s" path="res://sceneries/cameras/follow_camera.tscn" id="9"]
+[ext_resource type="Script" uid="uid://cd3simqvqx4ja" path="res://drone/fpv_camera/fpv_camera.gd" id="14"]
+[ext_resource type="Material" path="res://sceneries/skies/clear_day_sky.tres" id="18_sky"]
+
+[sub_resource type="Sky" id="Sky_8cqmd"]
+sky_material = ExtResource("18_sky")
+
+[sub_resource type="Environment" id="Environment_bxx2h"]
+background_mode = 2
+sky = SubResource("Sky_8cqmd")
+ambient_light_source = 3
+reflected_light_source = 2
+tonemap_mode = 2
+sdfgi_use_occlusion = true
+glow_enabled = true
+fog_density = 0.0
+fog_aerial_perspective = 0.5
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_ybxki"]
+auto_exposure_enabled = true
+
+[sub_resource type="BoxShape3D" id="1"]
+size = Vector3(40, 1, 40)
+
+[sub_resource type="BoxMesh" id="3"]
+material = ExtResource("6_3cqco")
+size = Vector3(200, 1, 200)
+
+[sub_resource type="BoxShape3D" id="4"]
+size = Vector3(4, 1, 4)
+
+[sub_resource type="BoxMesh" id="6"]
+material = ExtResource("6_3cqco")
+size = Vector3(4, 1, 4)
+
+[sub_resource type="CapsuleMesh" id="7"]
+radius = 0.3
+height = 1.8
+
+[sub_resource type="CapsuleShape3D" id="8"]
+radius = 0.3
+height = 1.8
+
+[node name="Level" type="Node3D" unique_id=1411783041]
+process_mode = 1
+script = ExtResource("3")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1091801724]
+environment = SubResource("Environment_bxx2h")
+camera_attributes = SubResource("CameraAttributesPractical_ybxki")
+
+[node name="Respawn" type="Node3D" parent="." unique_id=1864879612]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=200051647]
+transform = Transform3D(0.860577, 0.207325, -0.465214, 0.509321, -0.350308, 0.786051, 0, -0.913401, -0.407062, 0, 20, 0)
+shadow_enabled = true
+shadow_bias = 0.0
+directional_shadow_blend_splits = true
+
+[node name="CameraFixed" type="Camera3D" parent="." unique_id=489852568]
+transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, 0, 8, 20)
+near = 0.1
+far = 1000.0
+
+[node name="FollowCamera" parent="." unique_id=22744208 instance=ExtResource("9")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 2)
+near = 0.1
+far = 1000.0
+target = NodePath("../Drone")
+target_distance = 1.0
+target_offset = Vector3(0, 0.2, 0)
+camera_offset = Vector3(0, 0.5, 2)
+speed = 10.0
+
+[node name="FlyaroundCamera" parent="." unique_id=1681905399 instance=ExtResource("8")]
+process_mode = 3
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 5)
+
+[node name="Drone" parent="." unique_id=1194011848 instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+
+[node name="FPVCamera" type="Camera3D" parent="Drone" unique_id=2115811756]
+transform = Transform3D(1, 0, 0, 0, 0.866025, -0.5, 0, 0.5, 0.866025, 0, 0.00459784, -0.0626912)
+script = ExtResource("14")
+clip_near = 0.006
+
+[node name="Objects" type="Node3D" parent="." unique_id=856830944]
+
+[node name="Ground" type="StaticBody3D" parent="Objects" unique_id=1851914132]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Objects/Ground" unique_id=915332996]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("1")
+
+[node name="CollisionShape2" type="CollisionShape3D" parent="Objects/Ground" unique_id=1343896976]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, -0.5, 0)
+shape = SubResource("1")
+
+[node name="CollisionShape3" type="CollisionShape3D" parent="Objects/Ground" unique_id=1479604033]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80, -0.5, 0)
+shape = SubResource("1")
+
+[node name="CollisionShape4" type="CollisionShape3D" parent="Objects/Ground" unique_id=1245500665]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, -0.5, 0)
+shape = SubResource("1")
+
+[node name="CollisionShape5" type="CollisionShape3D" parent="Objects/Ground" unique_id=1253108051]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, -0.5, 0)
+shape = SubResource("1")
+
+[node name="CollisionShape6" type="CollisionShape3D" parent="Objects/Ground" unique_id=73151359]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -40)
+shape = SubResource("1")
+
+[node name="CollisionShape7" type="CollisionShape3D" parent="Objects/Ground" unique_id=1621886878]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, -0.5, -40)
+shape = SubResource("1")
+
+[node name="CollisionShape8" type="CollisionShape3D" parent="Objects/Ground" unique_id=369780854]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80, -0.5, -40)
+shape = SubResource("1")
+
+[node name="CollisionShape9" type="CollisionShape3D" parent="Objects/Ground" unique_id=2019319564]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, -0.5, -40)
+shape = SubResource("1")
+
+[node name="CollisionShape10" type="CollisionShape3D" parent="Objects/Ground" unique_id=1737876753]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, -0.5, -40)
+shape = SubResource("1")
+
+[node name="CollisionShape11" type="CollisionShape3D" parent="Objects/Ground" unique_id=646865414]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -80)
+shape = SubResource("1")
+
+[node name="CollisionShape12" type="CollisionShape3D" parent="Objects/Ground" unique_id=1869717874]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, -0.5, -80)
+shape = SubResource("1")
+
+[node name="CollisionShape13" type="CollisionShape3D" parent="Objects/Ground" unique_id=793889178]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80, -0.5, -80)
+shape = SubResource("1")
+
+[node name="CollisionShape14" type="CollisionShape3D" parent="Objects/Ground" unique_id=1741811366]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, -0.5, -80)
+shape = SubResource("1")
+
+[node name="CollisionShape15" type="CollisionShape3D" parent="Objects/Ground" unique_id=2012793280]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, -0.5, -80)
+shape = SubResource("1")
+
+[node name="CollisionShape16" type="CollisionShape3D" parent="Objects/Ground" unique_id=1538858581]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 40)
+shape = SubResource("1")
+
+[node name="CollisionShape17" type="CollisionShape3D" parent="Objects/Ground" unique_id=1773759886]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, -0.5, 40)
+shape = SubResource("1")
+
+[node name="CollisionShape18" type="CollisionShape3D" parent="Objects/Ground" unique_id=1292935996]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80, -0.5, 40)
+shape = SubResource("1")
+
+[node name="CollisionShape19" type="CollisionShape3D" parent="Objects/Ground" unique_id=1302637188]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, -0.5, 40)
+shape = SubResource("1")
+
+[node name="CollisionShape20" type="CollisionShape3D" parent="Objects/Ground" unique_id=480983830]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, -0.5, 40)
+shape = SubResource("1")
+
+[node name="CollisionShape21" type="CollisionShape3D" parent="Objects/Ground" unique_id=1952462260]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 80)
+shape = SubResource("1")
+
+[node name="CollisionShape22" type="CollisionShape3D" parent="Objects/Ground" unique_id=962094229]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, -0.5, 80)
+shape = SubResource("1")
+
+[node name="CollisionShape23" type="CollisionShape3D" parent="Objects/Ground" unique_id=1763081803]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80, -0.5, 80)
+shape = SubResource("1")
+
+[node name="CollisionShape24" type="CollisionShape3D" parent="Objects/Ground" unique_id=1776178302]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, -0.5, 80)
+shape = SubResource("1")
+
+[node name="CollisionShape25" type="CollisionShape3D" parent="Objects/Ground" unique_id=1539781980]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, -0.5, 80)
+shape = SubResource("1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Objects/Ground" unique_id=227721289]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+mesh = SubResource("3")
+
+[node name="Pillar3" type="StaticBody3D" parent="Objects" unique_id=1377267741]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Objects/Pillar3" unique_id=106104941]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("4")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Objects/Pillar3" unique_id=53044952]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("6")
+
+[node name="MockPilot" type="StaticBody3D" parent="Objects" unique_id=180930487]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 5)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Objects/MockPilot" unique_id=134064755]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("7")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Objects/MockPilot" unique_id=313478883]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("8")
+
+[node name="RadioController" type="Node" parent="." unique_id=244566968]
+script = ExtResource("5")
+target_path = NodePath("../Drone")

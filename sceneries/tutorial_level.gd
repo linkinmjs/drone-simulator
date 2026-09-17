@@ -229,7 +229,7 @@ func _show_menu(title: String, subtitle: String, entries: Array[Dictionary], bac
 	get_tree().paused = true
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	tutorial_hud.visible = false
-	var menu := TutorialMenu.new()
+	var menu := ChoiceMenu.new()
 	menu.setup(title, subtitle, entries, back_id)
 	_menu_layer.add_child(menu)
 	var id: String = await menu.chosen

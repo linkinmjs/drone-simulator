@@ -4,6 +4,7 @@ extends Node
 signal hud_config_updated
 signal game_settings_updated
 signal tutorial_progress_updated
+signal challenge_progress_updated
 
 enum HudPreset {MINIMAL, STANDARD, FULL, CUSTOM}
 
@@ -30,11 +31,17 @@ var hud_config := {"fps": 10, "crosshair": true, "horizon": true, "ladder": fals
 		"flight_mode": true, "rec": true, "side_tapes": true, "gate_marker": false,
 		"horizon_mode": "camera"}
 
-## `sky`: "random" or a SkyCatalog id
-var game_config := {"language": "", "nav_scheme": 0, "sky": SKY_RANDOM}
+## `sky`: "random" or a SkyCatalog id. `sandbox_unlocked`: the debug level was revealed
+## with the secret sequence of the main menu.
+var game_config := {"language": "", "nav_scheme": 0, "sky": SKY_RANDOM,
+		"sandbox_unlocked": false}
 
 ## Flight instructor progress. `completed` is a bit mask: bit 0 = lesson 1.
 var tutorial_progress := {"completed": 0, "last_lesson": 1}
+
+## Best time of each finished challenge, in seconds, by challenge id. A challenge with no
+## entry here was never finished, which is also what keeps the next one locked.
+var challenge_progress := {}
 
 ## Last sky drawn by "random", so the next flight gets a different one
 var _last_random_sky := ""
@@ -253,3 +260,103 @@ func reset_tutorial_progress() -> void:
 	tutorial_progress["completed"] = 0
 	tutorial_progress["last_lesson"] = 1
 	save_tutorial_progress()
+
+
+func load_challenge_progress() -> void:
+	challenge_progress.clear()
+	var config := ConfigFile.new()
+	var err := config.load(game_settings_path)
+	if err == OK and config.has_section("challenges"):
+		for key: String in config.get_section_keys("challenges"):
+			if not key.begins_with("best_"):
+				continue
+			var value: Variant = config.get_value("challenges", key)
+			if value is float or value is int:
+				var time := float(value)
+				if time > 0.0:
+					challenge_progress[key.trim_prefix("best_")] = time
+	elif err != OK and err != ERR_FILE_NOT_FOUND:
+		Global.log_error(err, "Error while loading the challenge progress.")
+
+
+func save_challenge_progress() -> void:
+	var _dir_err := DirAccess.make_dir_recursive_absolute(Global.config_dir)
+	var config := ConfigFile.new()
+	var err := config.load(game_settings_path)
+	if err == OK or err == ERR_FILE_NOT_FOUND or err == ERR_PARSE_ERROR:
+		if config.has_section("challenges"):
+			config.erase_section("challenges")
+		for id: String in challenge_progress.keys():
+			config.set_value("challenges", "best_%s" % [id], float(challenge_progress[id]))
+		err = config.save(game_settings_path)
+		if err != OK:
+			Global.log_error(err, "Error while saving the challenge progress.")
+	else:
+		Global.log_error(err, "Error while saving the challenge progress.")
+	challenge_progress_updated.emit()
+
+
+## Best time of a challenge in seconds, or 0.0 when it was never finished.
+func get_best_time(id: String) -> float:
+	return float(challenge_progress.get(id, 0.0))
+
+
+## Stores the time of a finished run. Returns true when it is a new personal best.
+func record_time(id: String, seconds: float) -> bool:
+	if id.is_empty() or seconds <= 0.0:
+		return false
+	var previous := get_best_time(id)
+	if previous > 0.0 and previous <= seconds:
+		return false
+	challenge_progress[id] = seconds
+	save_challenge_progress()
+	return true
+
+
+## The first challenge is always open; the rest need the previous one finished.
+func is_challenge_unlocked(index: int) -> bool:
+	if index <= 0:
+		return true
+	var previous := ChallengeCatalog.get_challenge(index - 1)
+	if previous.is_empty():
+		return false
+	return get_best_time(str(previous["id"])) > 0.0
+
+
+func get_challenge_medal(index: int) -> ChallengeCatalog.Medal:
+	var challenge := ChallengeCatalog.get_challenge(index)
+	if challenge.is_empty():
+		return ChallengeCatalog.Medal.NONE
+	return ChallengeCatalog.medal_for(index, get_best_time(str(challenge["id"])))
+
+
+func get_finished_challenge_count() -> int:
+	var count := 0
+	for i in ChallengeCatalog.count():
+		if get_best_time(str(ChallengeCatalog.get_challenge(i)["id"])) > 0.0:
+			count += 1
+	return count
+
+
+## First challenge without a time, or the last one when every challenge is done.
+func get_first_unfinished_challenge() -> int:
+	for i in ChallengeCatalog.count():
+		if get_best_time(str(ChallengeCatalog.get_challenge(i)["id"])) <= 0.0:
+			return i
+	return maxi(ChallengeCatalog.count() - 1, 0)
+
+
+func reset_challenge_progress() -> void:
+	challenge_progress.clear()
+	save_challenge_progress()
+
+
+func is_sandbox_unlocked() -> bool:
+	return bool(game_config["sandbox_unlocked"])
+
+
+func unlock_sandbox() -> void:
+	if is_sandbox_unlocked():
+		return
+	game_config["sandbox_unlocked"] = true
+	save_game_settings()

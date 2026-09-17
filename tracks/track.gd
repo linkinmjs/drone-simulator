@@ -44,6 +44,8 @@ var current_checkpoint: Checkpoint = null
 var current := 0
 
 @export_range(1, 100) var laps := 3
+## The challenge levels show their own result screen and turn the lap table off.
+@export var show_time_table := true
 var current_lap := 1
 var lap_start := 0
 var lap_end := 0
@@ -303,6 +305,10 @@ func stop_countdown() -> void:
 
 
 func update_timer_label() -> void:
+	# A single lap race has no previous lap and no lap count to show.
+	if laps == 1:
+		update_single_lap_label()
+		return
 	if race_state == Global.RaceState.START:
 		timer_label.text = tr("RACE_TIMER") % ["00:00.00", 0, "00:00.00", 0, "00:00.00"]
 	elif race_state == Global.RaceState.RACE or race_state == Global.RaceState.END:
@@ -313,6 +319,13 @@ func update_timer_label() -> void:
 				% [timers[current_lap - 2].get_time_string(), current_lap - 1,
 				timers[current_lap - 1].get_time_string(), current_lap,
 				timers[0].get_time_string(total_time)]
+
+
+func update_single_lap_label() -> void:
+	if race_state == Global.RaceState.START:
+		timer_label.text = tr("RACE_TIMER_SINGLE") % ["00:00.00"]
+	else:
+		timer_label.text = tr("RACE_TIMER_SINGLE") % [timers[0].get_time_string()]
 
 
 func start_race() -> void:
@@ -381,7 +394,7 @@ func display_end_label() -> void:
 	remove_child(timer)
 	timer.queue_free()
 
-	if Global.game_mode == Global.GameMode.RACE and timers[0].time >= 1:
+	if show_time_table and Global.game_mode == Global.GameMode.RACE and timers[0].time >= 1:
 		timer_label.visible = false
 		display_time_table()
 

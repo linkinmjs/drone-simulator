@@ -1,0 +1,28 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tracks/track.gd" id="1"]
+[ext_resource type="PackedScene" path="res://tracks/objects/Launchpad.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://tracks/gates/Gate_Torus.tscn" id="3"]
+
+[node name="Track" type="Node3D"]
+script = ExtResource("1")
+laps = 2
+course = "lap_start,0,1,2,3,4,lap_end"
+
+[node name="Launchpad" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 18)
+
+[node name="Ring1" parent="." instance=ExtResource("3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
+
+[node name="Ring2" parent="." instance=ExtResource("3")]
+transform = Transform3D(0.309017, 0, 0.951057, 0, 1, 0, -0.951057, 0, 0.309017, -17.9656, 3.6, -24.7275)
+
+[node name="Ring3" parent="." instance=ExtResource("3")]
+transform = Transform3D(-0.809017, 0, 0.587785, 0, 1, 0, -0.587785, 0, -0.809017, -47.0344, 2.4, -15.2824)
+
+[node name="Ring4" parent="." instance=ExtResource("3")]
+transform = Transform3D(-0.809017, 0, -0.587785, 0, 1, 0, 0.587785, 0, -0.809017, -47.0344, 4.2, 15.2824)
+
+[node name="Ring5" parent="." instance=ExtResource("3")]
+transform = Transform3D(0.309017, 0, -0.951057, 0, 1, 0, 0.951057, 0, 0.309017, -17.9656, 2.6, 24.7275)

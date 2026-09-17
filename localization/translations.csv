@@ -24,6 +24,36 @@ CAL_SUCCESS,Calibración completa,Calibration successful
 CAL_TITLE,Calibrando…,Calibrating…
 CAL_TITLE_DEVICE,Calibrando %s…,Calibrating %s…
 CAL_WRONG_DEVICE,Mové los ejes de %s.,Please move the axes of %s.
+CHAL_CHOOSE,Elegir desafío,Choose challenge
+CHAL_DIVE_GOAL,Picada de 30 grados e inversión,A 30 degree dive and a roll over the top
+CHAL_DIVE_NAME,Picada y Split-S,Dive and Split-S
+CHAL_FIGURE_EIGHT_GOAL,Coordinación sostenida y cruce de trayectoria,Sustained coordination and a crossing line
+CHAL_FIGURE_EIGHT_NAME,Figura en ocho,Figure eight
+CHAL_FIVE_RINGS_GOAL,Trazada limpia entre aros a distinta altura,A clean line between rings at different heights
+CHAL_FIVE_RINGS_NAME,Circuito de cinco aros,Five ring circuit
+CHAL_GATE_AND_BACK_GOAL,Acelerador parejo y trayectoria recta,Steady throttle and a straight line
+CHAL_GATE_AND_BACK_NAME,Puerta y vuelta,Gate and back
+CHAL_LADDER_GOAL,Control fino de la altura en travesía,Fine height control on the move
+CHAL_LADDER_NAME,Escalera de alturas,Height ladder
+CHAL_LOCKED,(bloqueado),(locked)
+CHAL_MEDAL_BRONZE,Bronce,Bronze
+CHAL_MEDAL_GOLD,Oro,Gold
+CHAL_MEDAL_NONE,Sin medalla,No medal
+CHAL_MEDAL_SILVER,Plata,Silver
+CHAL_MENU_SUBTITLE,Completaste %d de %d desafíos.,You finished %d of %d challenges.
+CHAL_MENU_TITLE,Desafíos,Challenges
+CHAL_NEXT,Siguiente desafío,Next challenge
+CHAL_PICK_SUBTITLE,Elegí a cuál querés volver.,Pick the one you want to fly.
+CHAL_PICK_TITLE,Desafíos,Challenges
+CHAL_RESULT_BEST,Tu mejor marca: %s,Your best: %s
+CHAL_RESULT_MEDAL,¡%s!,%s!
+CHAL_RESULT_NO_MEDAL,Terminado,Finished
+CHAL_RESULT_RECORD,¡Nueva marca personal!,New personal best!
+CHAL_RESULT_TIME,Tiempo %s,Time %s
+CHAL_RETRY,Reintentar,Try again
+CHAL_SLALOM_GOAL,Alabeo y guiñada coordinados,Coordinated roll and yaw
+CHAL_SLALOM_NAME,Slalom de columnas,Column slalom
+CHAL_TARGETS,Oro %s · Plata %s · Bronce %s,Gold %s · Silver %s · Bronze %s
 CTRL_ACTION_ALTITUDE_HOLD,Mantener altura,Altitude hold
 CTRL_ACTION_ARM_HOLD,Armar (mantener),Arm (hold)
 CTRL_ACTION_ARM_TOGGLE,Armar (alternar),Arm (toggle)
@@ -205,7 +235,9 @@ HUD_UNIT_KMH,km/h,km/h
 HUD_UNIT_M,m,m
 HUD_UNIT_MPS,m/s,m/s
 HUD_VS,VS,VS
+MENU_CHALLENGES,Desafíos,Challenges
 MENU_FLY,Volar,Fly
+MENU_FREESTYLE,Freestyle,Freestyle
 MENU_HELP,Ayuda,Help
 MENU_OPTIONS,Opciones,Options
 MENU_PAUSED,En pausa,Paused
@@ -216,6 +248,7 @@ MENU_QUIT_CONFIRM,¿Querés salir del simulador?,Do you really want to quit?
 MENU_RESUME,Continuar,Resume
 MENU_RETURN_CONFIRM,¿Volver al menú principal? Se pierde la vuelta en curso.,Return to the main menu? The current lap will be lost.
 MENU_RETURN_TO_MAIN,Menú principal,Main menu
+MENU_SANDBOX,Sandbox (debug),Sandbox (debug)
 MENU_TAGLINE,Simulador de vuelo FPV,FPV flight simulator
 MENU_TUTORIAL,Instructor de vuelo,Flight instructor
 OPT_AUDIO,Audio,Audio
@@ -224,6 +257,9 @@ OPT_GAME,Juego y HUD,Game and HUD
 OPT_GRAPHICS,Gráficos,Graphics
 OPT_SUBTITLE,Personalizá el simulador a tu gusto,Make the simulator yours
 OPT_TITLE,Opciones,Options
+P, R e Y: máximo de cada eje en grados por segundo.","Horizontal axis: stick position, from full left to full right.
+Vertical axis: rotation speed requested by that position.
+P, R and Y: maximum of each axis in degrees per second."
 QUAD_ACRO_PLUS,Acro+,Acro+
 QUAD_BATTERY_WEIGHT,Peso de batería,Battery weight
 QUAD_CAMERA_ANGLE,Ángulo de cámara,Camera angle
@@ -272,9 +308,6 @@ A wider view shows more of the surroundings but bends the edges more.
 Guide: 150 is the default with the fisheye; 110-130 gives a more natural image."
 QUAD_HELP_GRAPH,"Eje horizontal: posición del stick, de todo a la izquierda a todo a la derecha.
 Eje vertical: velocidad de giro que pide esa posición.
-P, R e Y: máximo de cada eje en grados por segundo.","Horizontal axis: stick position, from full left to full right.
-Vertical axis: rotation speed requested by that position.
-P, R and Y: maximum of each axis in degrees per second."
 QUAD_HELP_KISS_EXPO,"RC Curve: expo de la zona central. 0 es lineal; cuanto más alto, más suave cerca del centro.","RC Curve: expo of the center. 0 is linear; the higher, the softer around the center."
 QUAD_HELP_KISS_RATE,"Rate: curva ""super rate"" de 0 a 99. Cuanto mayor, más se concentra
 la velocidad en los extremos del stick y mayor es el máximo.","Rate: ""super rate"" curve from 0 to 99. The higher, the more the speed
@@ -335,6 +368,7 @@ Vuelta act.: %s (%d)
 Total: %s","Prev. lap: %s (%d)
 Curr. lap: %s (%d)
 Total: %s"
+RACE_TIMER_SINGLE,Tiempo: %s,Time: %s
 RACE_TOTAL,Total,Total
 TUT_ALTITUDE,Altura %.1f m,Altitude %.1f m
 TUT_END_SUBTITLE,Completaste el instructor. Seguí practicando en vuelo libre o probá las pistas con R.,You completed the instructor. Keep practicing in free flight or try the tracks with R.

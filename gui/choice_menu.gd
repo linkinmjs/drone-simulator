@@ -1,8 +1,9 @@
-class_name TutorialMenu
+class_name ChoiceMenu
 extends MenuScreen
-## Menu shown over the tutorial level (start, lesson picker, end). It is a regular
-## MenuScreen, so it works with mouse, keyboard, gamepad and radio sticks. Built in code:
-## `setup()` it, add it to the tree and await `chosen`.
+## Menu of a list of options built in code, shown over a level: the tutorial start, lesson
+## picker and end screens, and the challenge picker and results. It is a regular MenuScreen,
+## so it works with mouse, keyboard, gamepad and radio sticks: `setup()` it, add it to the
+## tree and await `chosen`.
 
 
 signal chosen(id: String)

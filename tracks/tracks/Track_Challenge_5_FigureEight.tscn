@@ -1,0 +1,38 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tracks/track.gd" id="1"]
+[ext_resource type="PackedScene" path="res://tracks/objects/Launchpad.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://tracks/gates/Gate_5x5_Simple.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://tracks/objects/Flag.tscn" id="4"]
+
+[node name="Track" type="Node3D"]
+script = ExtResource("1")
+laps = 3
+course = "lap_start,0,1,2,3,4,5,lap_end"
+
+[node name="Launchpad" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
+
+[node name="Gate1" parent="." instance=ExtResource("3")]
+transform = Transform3D(0.999888, 0, -0.0149989, 0, 1, 0, 0.0149989, 0, 0.999888, 0, 0, -6)
+
+[node name="Gate2" parent="." instance=ExtResource("3")]
+transform = Transform3D(-0.543523, 0, -0.839394, 0, 1, 0, 0.839394, 0, -0.543523, 24.2857, 0, -14.4128)
+
+[node name="Gate3" parent="." instance=ExtResource("3")]
+transform = Transform3D(-0.536309, 0, -0.844022, 0, 1, 0, 0.844022, 0, -0.536309, 43.7143, 0, 2.41282)
+
+[node name="Gate4" parent="." instance=ExtResource("3")]
+transform = Transform3D(0.999888, 0, 0.0149989, 0, 1, 0, -0.0149989, 0, 0.999888, 68, 0, -6)
+
+[node name="Gate5" parent="." instance=ExtResource("3")]
+transform = Transform3D(-0.543523, 0, 0.839394, 0, 1, 0, -0.839394, 0, -0.543523, 43.7143, 0, -14.4128)
+
+[node name="Gate6" parent="." instance=ExtResource("3")]
+transform = Transform3D(-0.536309, 0, 0.844022, 0, 1, 0, -0.844022, 0, -0.536309, 24.2857, 0, 2.41282)
+
+[node name="FlagLeft" parent="." instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -10)
+
+[node name="FlagRight" parent="." instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 0, -2)
