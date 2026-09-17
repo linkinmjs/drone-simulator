@@ -43,11 +43,15 @@ func _run() -> void:
 	Global.startup = false
 	var saved_progress: Dictionary = GameSettings.challenge_progress.duplicate()
 
+	var saved_records := _read_records()
+
 	_check_catalog()
 	_check_medals()
 	_check_unlocking()
 	await _check_levels()
+	await _check_full_run()
 
+	_write_records(saved_records)
 	GameSettings.challenge_progress = saved_progress
 	print("== Result: %d failure(s)" % [failures])
 	get_tree().quit(1 if failures > 0 else 0)
@@ -132,7 +136,7 @@ func _check_levels() -> void:
 		Global.selected_challenge = id
 		var level := packed.instantiate() as ChallengeLevel
 		level.persist_progress = false
-		add_child(level)
+		get_tree().root.add_child(level)
 		await frames(8)
 
 		check(level.track != null, "la pista se instancio")
@@ -159,6 +163,69 @@ func _check_levels() -> void:
 			await frames(8)
 			await shot("challenge_%d_%s.png" % [i + 1, id])
 
-		remove_child(level)
+		# Stop the countdown first: its timers would be left outside the tree.
+		if level.track != null:
+			level.track.stop_race()
+		get_tree().root.remove_child(level)
 		level.queue_free()
 		await frames(2)
+
+
+## Runs a whole challenge without flying it: the checkpoints are marked as passed in the
+## order of the course, so the laps, the finish and the saved record are all exercised.
+func _check_full_run() -> void:
+	print("== Carrera simulada")
+	var challenge := ChallengeCatalog.get_challenge(0)
+	var id := str(challenge["id"])
+	GameSettings.challenge_progress = {}
+	Global.selected_challenge = id
+
+	var packed := load(CHALLENGE_LEVEL) as PackedScene
+	var level := packed.instantiate() as ChallengeLevel
+	get_tree().root.add_child(level)
+	await frames(8)
+	var track := level.track
+	if track == null:
+		check(false, "la pista se instancio")
+		return
+
+	# Skip the countdown and cross every checkpoint of the course in order.
+	track.start_race()
+	check(track.race_state == Global.RaceState.RACE, "la carrera arranco")
+	var crossed := 0
+	while track.race_state == Global.RaceState.RACE and crossed < 200:
+		var checkpoint: Checkpoint = track.current_checkpoint
+		if checkpoint == null:
+			break
+		checkpoint.passed.emit(checkpoint)
+		crossed += 1
+		await get_tree().physics_frame
+	check(track.race_state == Global.RaceState.END, "la carrera termino")
+	check(track.current_lap == track.laps, "corrio las %d vueltas (%d)"
+			% [track.laps, track.current_lap])
+	check(level.total_time() > 0.0, "el tiempo total es mayor que cero")
+
+	# The result screen waits for the "Finished!" sign of the track before showing up.
+	await frames(int(ChallengeLevel.RESULT_DELAY * 60.0) + 30)
+	var best := GameSettings.get_best_time(id)
+	check(best > 0.0, "el tiempo quedo guardado (%.2f s)" % [best])
+	check(GameSettings.is_challenge_unlocked(1), "el segundo desafio quedo abierto")
+	check(GameSettings.get_finished_challenge_count() == 1, "figura un desafio completado")
+
+	get_tree().root.remove_child(level)
+	level.queue_free()
+	await frames(2)
+
+
+func _read_records() -> String:
+	var file := FileAccess.open(Global.highscore_path, FileAccess.READ)
+	if file == null:
+		return ""
+	return file.get_as_text()
+
+
+## Puts the highscore file back as it was: a simulated race must not leave a record behind.
+func _write_records(text: String) -> void:
+	var file := FileAccess.open(Global.highscore_path, FileAccess.WRITE)
+	if file != null:
+		var _discard := file.store_string(text)

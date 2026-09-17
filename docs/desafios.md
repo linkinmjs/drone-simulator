@@ -172,8 +172,10 @@ godot --path . --windowed --resolution 1280x720 res://tools/ui_smoke_test.tscn
   código que el botón Verificar, y comprueba que la numeración que muestra el editor sea la
   misma que arma el juego. Los avisos de las pistas MultiGP heredadas son previos y no fallan.
 - **`challenge_check`** revisa el catálogo, los bordes exactos de cada medalla, la regla de
-  desbloqueo y que los seis desafíos carguen y arranquen la cuenta regresiva. Con
-  `-- --shots=<carpeta>` y sin `--headless` guarda una foto de cada pista desde arriba.
+  desbloqueo y que los seis desafíos carguen y arranquen la cuenta regresiva. Además **corre
+  un desafío entero sin volarlo**, marcando los checkpoints en el orden del recorrido: así
+  quedan probadas las vueltas, la llegada, el tiempo guardado y el desbloqueo del siguiente.
+  Con `-- --shots=<carpeta>` y sin `--headless` guarda una foto de cada pista desde arriba.
 - **`ui_smoke_test`** recorre el menú, entra a Desafíos y prueba la secuencia del sandbox.
 
 Ninguno deja tocada la configuración del jugador: lo que cambian lo restauran al terminar.
