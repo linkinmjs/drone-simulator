@@ -11,6 +11,9 @@ enum RaceState {START, RACE, END}
 var log_path := "user://output.log"
 
 var startup := true
+## Errors found by load_startup_settings(), shown and cleared by the main menu
+var startup_errors: Array[String] = []
+
 
 var highscore_path := "user://highscores.sav"
 
@@ -47,6 +50,21 @@ func initialize() -> void:
 		var _file := FileAccess.open(highscore_path, FileAccess.WRITE)
 
 	startup = false
+
+
+## Loads every settings file once per run. The boot sequence calls it before the studio card,
+## so the window mode and volumes are right from the start; the main menu calls it too, for
+## runs that open the menu directly. Errors wait in `startup_errors` for the menu to show.
+func load_startup_settings() -> void:
+	if not startup:
+		return
+	initialize()
+	GameSettings.load_game_settings()
+	var errors: Array[String] = [Graphics.load_graphics_settings(), Audio.load_audio_settings(),
+			Controls.load_input_map(true)]
+	for error in errors:
+		if not error.is_empty():
+			startup_errors.append(error)
 
 
 func get_formatted_date_time() -> String:
