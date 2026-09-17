@@ -64,6 +64,14 @@ ERR_SETTINGS_OPEN,No se pudo abrir el archivo de ajustes. Se cargan los valores 
 ERR_SETTINGS_PARSE,No se pudo leer el archivo de ajustes. Se cargan los valores por defecto.,"Error parsing the settings file, the default settings will be loaded."
 GAME_LANGUAGE,Idioma,Language
 GAME_SECTION_INTERFACE,INTERFAZ,INTERFACE
+GAME_SECTION_SCENERY,ESCENARIO,SCENERY
+GAME_SKY,Fondo,Sky
+GAME_SKY_CLEAR_DAY,Día despejado,Clear day
+GAME_SKY_HELP,"Aleatorio elige un cielo distinto cada vez que entrás a volar. El cambio se ve enseguida, también desde la pausa.","Random picks a different sky every time you start flying. The change shows right away, also from the pause menu."
+GAME_SKY_NIGHT,Noche,Night
+GAME_SKY_OVERCAST,Nublado,Overcast
+GAME_SKY_RANDOM,Aleatorio,Random
+GAME_SKY_SUNSET,Atardecer,Sunset
 GAME_STICK_NAVIGATION,Navegación con sticks,Stick navigation
 GAME_STICK_NAVIGATION_BETAFLIGHT,Estilo Betaflight,Betaflight style
 GAME_STICK_NAVIGATION_HELP_BETAFLIGHT,"Como el menú OSD de Betaflight: pitch arriba y abajo para moverte, roll a la derecha para aceptar y roll a la izquierda para volver. Sobre un deslizador o una lista, roll ajusta el valor. El acelerador nunca navega.","Like the Betaflight OSD menu: pitch up and down to move, roll right to select and roll left to go back. On a slider or a list, roll adjusts the value. Throttle never navigates."

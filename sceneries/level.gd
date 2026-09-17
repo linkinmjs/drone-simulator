@@ -19,8 +19,12 @@ var camera: Camera3D = null
 
 var tracks: Array[Track] = []
 
+## The sky option the current sky came from ("random" or a SkyCatalog id)
+var _sky_choice := ""
+
 
 func _ready() -> void:
+	_apply_sky()
 	Graphics.apply_compatibility_workarounds($WorldEnvironment)
 	cameras = get_cameras(self)
 	for c in cameras:
@@ -36,6 +40,19 @@ func _ready() -> void:
 	var _discard := Global.game_mode_changed.connect(_on_game_mode_changed)
 
 	_discard = drone.respawned.connect(_on_drone_reset)
+	_discard = GameSettings.game_settings_updated.connect(_on_game_settings_updated)
+
+
+func _apply_sky() -> void:
+	_sky_choice = GameSettings.get_sky_choice()
+	SkyCatalog.apply(GameSettings.pick_sky(), $WorldEnvironment, $DirectionalLight3D)
+
+
+## Other settings (language, stick navigation) are saved through the same signal: only a new
+## sky option changes the sky, so switching the language does not draw another random one.
+func _on_game_settings_updated() -> void:
+	if GameSettings.get_sky_choice() != _sky_choice:
+		_apply_sky()
 
 
 func _unhandled_input(event: InputEvent) -> void:

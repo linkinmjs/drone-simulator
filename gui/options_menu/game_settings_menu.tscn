@@ -85,6 +85,37 @@ theme_type_variation = &"CaptionLabel"
 text = "GAME_STICK_NAVIGATION_HELP_BETAFLIGHT"
 autowrap_mode = 3
 
+[node name="SectionScenery" type="Label" parent="PanelContainer/VBoxContainer/TabContainer/Gameplay"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "GAME_SECTION_SCENERY"
+vertical_alignment = 2
+
+[node name="SkyRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer/TabContainer/Gameplay"]
+custom_minimum_size = Vector2(900, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/separation = 24
+
+[node name="SkyLabel" type="Label" parent="PanelContainer/VBoxContainer/TabContainer/Gameplay/SkyRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "GAME_SKY"
+
+[node name="SkyOptions" type="OptionButton" parent="PanelContainer/VBoxContainer/TabContainer/Gameplay/SkyRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+
+[node name="SkyHelp" type="Label" parent="PanelContainer/VBoxContainer/TabContainer/Gameplay"]
+custom_minimum_size = Vector2(900, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_type_variation = &"CaptionLabel"
+text = "GAME_SKY_HELP"
+autowrap_mode = 3
+
 [node name="HUD" type="VBoxContainer" parent="PanelContainer/VBoxContainer/TabContainer"]
 visible = false
 layout_mode = 2

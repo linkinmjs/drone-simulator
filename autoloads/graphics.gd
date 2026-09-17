@@ -308,15 +308,14 @@ func get_fisheye_resolution(resolution_setting: int) -> int:
 	return resolution
 
 
-# The Compatibility renderer (used by the Web export) has no auto exposure and renders
-# the PhysicalSkyMaterial far too dark, which leaves the whole level looking like night.
-# These helpers bring it close to the Forward+ look without touching the desktop build.
+# The Compatibility renderer (used by the Web export) has no auto exposure, which leaves the
+# whole level looking too dark. These helpers bring it close to the Forward+ look without
+# touching the desktop build.
 const COMPATIBILITY_EXPOSURE_MULTIPLIER := 1.4
-const COMPATIBILITY_SKY_TOP := Color(0.46, 0.5, 0.56)
-const COMPATIBILITY_SKY_HORIZON := Color(0.6, 0.64, 0.68)
-const COMPATIBILITY_SKY_GROUND := Color(0.36, 0.37, 0.39)
-const COMPATIBILITY_SUN_ANGLE_MAX := 8.0
+## The exposure boost burns out the sunlit ground: SkyCatalog dims the sun...
 const COMPATIBILITY_SUN_MULTIPLIER := 0.5
+## ...but the sky needs a little more energy than on Forward+ to keep the same blue
+const COMPATIBILITY_SKY_MULTIPLIER := 1.15
 
 
 func is_compatibility_renderer() -> bool:
@@ -333,26 +332,7 @@ func new_camera_attributes() -> CameraAttributesPractical:
 func apply_compatibility_workarounds(world_environment: WorldEnvironment) -> void:
 	if not is_compatibility_renderer():
 		return
-	var environment := world_environment.environment
-	if environment and environment.sky and environment.sky.sky_material is PhysicalSkyMaterial:
-		environment.sky.sky_material = new_compatibility_sky()
 	var attributes := world_environment.camera_attributes
 	if attributes is CameraAttributesPractical:
 		attributes.auto_exposure_enabled = false
 		attributes.exposure_multiplier = COMPATIBILITY_EXPOSURE_MULTIPLIER
-	# The exposure boost the sky needs burns out the sunlit ground: dim only the sun
-	for light: Node in world_environment.get_parent().find_children("*", "DirectionalLight3D", false):
-		(light as DirectionalLight3D).light_intensity_lux *= COMPATIBILITY_SUN_MULTIPLIER
-
-
-## Stand-in for the PhysicalSkyMaterial. The default colors are too saturated (a brown band under
-## the horizon on the web, and a blue tint in the light the sky casts on the ground); these
-## follow the grey haze of the desktop sky.
-func new_compatibility_sky() -> ProceduralSkyMaterial:
-	var sky := ProceduralSkyMaterial.new()
-	sky.sky_top_color = COMPATIBILITY_SKY_TOP
-	sky.sky_horizon_color = COMPATIBILITY_SKY_HORIZON
-	sky.ground_horizon_color = COMPATIBILITY_SKY_HORIZON
-	sky.ground_bottom_color = COMPATIBILITY_SKY_GROUND
-	sky.sun_angle_max = COMPATIBILITY_SUN_ANGLE_MAX
-	return sky

@@ -16,6 +16,10 @@ Implementación del plan de [plan-ui.md](plan-ui.md), rama `ui-lavado-de-cara`. 
 | `ThemeBuilder` / `UIPalette` | `gui/theme/` | Paleta única y generador del theme global. |
 | `BootSequence` | `gui/boot/boot_sequence.gd` | Escena principal del proyecto. Muestra la firma del estudio: `C:\>OMINOSO_` tipeado en una terminal negra con el cursor titilando, un corte a negro y el menú principal con `SceneTransition`. Cualquier tecla, botón, clic o gesto de stick la saltea. Volver al menú desde un nivel no pasa por acá. |
 
+### Fondos de cielo
+
+`Level._ready()` le pide a `GameSettings.pick_sky()` el cielo y lo aplica con `SkyCatalog.apply()` (`sceneries/skies/`). Con Aleatorio sortea uno distinto del anterior en cada carga. El nivel escucha `GameSettings.game_settings_updated` y vuelve a aplicar el cielo solo si cambió la opción de fondo, así el cambio se ve desde la pausa y cambiar el idioma no sortea otro cielo. Detalles del shader, los ajustes y el crédito pendiente en `sceneries/skies/README.md`.
+
 ### Arranque
 
 `BootSequence` llama a `Global.load_startup_settings()` antes de mostrar la tarjeta, así el modo de ventana y los volúmenes ya están aplicados. El menú principal también la llama (no hace nada si ya corrió) y muestra los errores guardados en `Global.startup_errors`.
@@ -101,6 +105,7 @@ Suenan en el bus `UI`. `default_bus_layout.tres` define los buses Master, Motors
 | Gráficos (web) | Pantalla completa | no se guarda |
 | Audio | Motores, Interfaz, Silenciar | `Audio.cfg`: `motors_volume`, `ui_volume`, `muted` |
 | Juego y HUD | Idioma, navegación con sticks | `GameSettings.cfg [game]`: `language`, `nav_scheme` |
+| Juego y HUD | Fondo: Aleatorio (por defecto), Día despejado, Nublado, Atardecer o Noche | `GameSettings.cfg [game]`: `sky` (`random` o un id de `SkyCatalog`) |
 | Ajustes del dron | Campo de visión FPV | `Quad.cfg [quad]`: `fov` |
 | Controles | Restablecer (ahora funciona) | borra la sección `controls_<GUID>` de `InputMap.cfg` |
 
@@ -118,11 +123,13 @@ godot --path . --windowed --resolution 1600x900 res://tools/ui_smoke_test.tscn -
 godot --path . --windowed --resolution 1600x900 res://tools/hud_projection_check.tscn -- --shots=<carpeta>
 godot --path . --rendering-method gl_compatibility --windowed --resolution 1280x720 res://tools/ui_smoke_test.tscn
 godot --path . --windowed --resolution 1280x720 res://tools/boot_check.tscn -- --shots=<carpeta>
+godot --path . --windowed --resolution 1280x720 res://tools/sky_check.tscn -- --shots=<carpeta>
 ```
 
 - `ui_smoke_test`: traducciones, navegación con acciones `ui_*` por todas las pantallas, retorno del foco, diálogo modal y gestos de stick (navegar, repetir, aceptar, volver, acelerador ignorado). Termina con código 0 si todo pasa.
 - `hud_projection_check`: carga el nivel con los tres modos de ojo de pez y dos ángulos de cámara, verifica la proyección del horizonte y guarda capturas del HUD, el menú de pausa y los overlays de carrera.
 - `loading_check` (agregar `--rendering-method gl_compatibility`): hace la transición real al nivel, mide cuánto dura la pantalla de carga y los frames más largos de los 3 s siguientes. `--plain` compara con el fundido sin pantalla de carga. En escritorio no hay tirones en ningún caso, porque el driver compila los shaders mucho más rápido que WebGL; la mejora se ve en la web.
+- `sky_check` (repetir con `--rendering-method gl_compatibility`): carga el nivel con cada cielo, con ojo de pez apagado y Full, y verifica shader, dirección del sol en el shader, luz del nivel y luz de luna. También comprueba que Aleatorio no repita el cielo anterior y que cambiar la opción con el juego en pausa cambie el cielo, pero guardar otra opción no. Con `--shots` guarda una captura por cielo.
 - `boot_check`: arranca por la tarjeta del estudio, verifica que la configuración se cargó antes, que el nombre se tipea completo y que después se abre el menú principal. `--skip` aprieta Espacio a mitad del tipeo para probar el salteo. Con `--shots` guarda la tarjeta y el menú.
 - Ninguna de estas pruebas guarda configuración del usuario.
 
