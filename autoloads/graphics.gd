@@ -41,15 +41,15 @@ var graphics_settings := {
 	"resolution": "100",
 	"msaa": GameMSAA.X4,
 	"af": GameAF.X4,
-	"shadows": Shadows.MEDIUM,
+	"shadows": Shadows.HIGH,
 	"fisheye_mode": FisheyeMode.FULL,
-	"fisheye_resolution": FisheyeResolution.FISHEYE_720P,
+	"fisheye_resolution": FisheyeResolution.FISHEYE_1440P,
 	"fisheye_msaa": FisheyeMSAA.SAME_AS_GAME,
 	"vsync": VSync.ON,
 	"max_fps": 0,
 	"web_defaults_revision": 0,
 }
-var fisheye_resolution := 720
+var fisheye_resolution := 1440
 
 
 func _ready() -> void:

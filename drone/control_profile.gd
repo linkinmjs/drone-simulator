@@ -5,12 +5,12 @@ extends RefCounted
 enum Axis {PITCH, ROLL, YAW}
 enum RateCurve {ACTUAL, RACEFLIGHT, KISS, QUICKRATES}
 
-var pitch_rate := 667.0
-var roll_rate := 667.0
-var yaw_rate := 667.0
-var pitch_rc := 200.0
-var roll_rc := 200.0
-var yaw_rc := 200.0
+var pitch_rate := 300.0
+var roll_rate := 300.0
+var yaw_rate := 250.0
+var pitch_rc := 60.0
+var roll_rc := 60.0
+var yaw_rc := 60.0
 var pitch_expo := 0.2
 var roll_expo := 0.2
 var yaw_expo := 0.2

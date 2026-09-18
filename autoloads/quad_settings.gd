@@ -6,7 +6,7 @@ signal settings_updated
 
 var quad_settings_path := "%s/Quad.cfg" % [Global.config_dir]
 
-var angle := 30
+var angle := 20
 var dry_weight := 0.55
 var battery_weight := 0.18
 ## Horizontal field of view of the FPV camera, in degrees.
@@ -87,7 +87,7 @@ func save_quad_settings() -> void:
 
 
 func reset_quad() -> void:
-	angle = 30
+	angle = 20
 	dry_weight = 0.55
 	battery_weight = 0.18
 	fov = DEFAULT_FOV
@@ -96,12 +96,12 @@ func reset_quad() -> void:
 func reset_rates() -> void:
 	match control_profile.rate_curve:
 		ControlProfile.RateCurve.ACTUAL:
-			control_profile.pitch_rate = 720
-			control_profile.roll_rate = 720
-			control_profile.yaw_rate = 720
-			control_profile.pitch_rc = 180
-			control_profile.roll_rc = 180
-			control_profile.yaw_rc = 180
+			control_profile.pitch_rate = 300
+			control_profile.roll_rate = 300
+			control_profile.yaw_rate = 250
+			control_profile.pitch_rc = 60
+			control_profile.roll_rc = 60
+			control_profile.yaw_rc = 60
 			control_profile.pitch_expo = 0.2
 			control_profile.roll_expo = 0.2
 			control_profile.yaw_expo = 0.2

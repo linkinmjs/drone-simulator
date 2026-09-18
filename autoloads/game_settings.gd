@@ -26,9 +26,9 @@ const HUD_PRESETS := [
 
 var game_settings_path := "%s/GameSettings.cfg" % [Global.config_dir]
 
-var hud_config := {"fps": 10, "crosshair": true, "horizon": true, "ladder": false,
-		"speed": true, "altitude": true, "heading": true, "sticks": false, "rpm": false,
-		"flight_mode": true, "rec": true, "side_tapes": true, "gate_marker": false,
+var hud_config := {"fps": 10, "crosshair": true, "horizon": true, "ladder": true,
+		"speed": true, "altitude": true, "heading": true, "sticks": true, "rpm": true,
+		"flight_mode": true, "rec": true, "side_tapes": true, "gate_marker": true,
 		"horizon_mode": "camera"}
 
 ## `sky`: "random" or a SkyCatalog id. `sandbox_unlocked`: the debug level was revealed
